@@ -82,7 +82,9 @@ export default function Home() {
               <ul className="space-y-2">
                 <li>01 AI/ML Research Intern @ USC Institute for Creative Technologies</li>
                 <li>02 Investment Analyst Intern @ Colby Endowment</li>
-                <li>03 Admitted to The Juilliard School in Viola Performance in March 2022</li>
+                <li>03 Semi-Finalist for Greenlight Maine Collegiate Entrepreneurship Competition</li>
+                <li>04 Admitted to The Juilliard School in Viola Performance</li>
+                <li>05 Debuted on National Public Radio’s (NPR) “From The Top” radio program (Show 412)</li>
               </ul>
             </div>
 
@@ -91,8 +93,8 @@ export default function Home() {
               <h2 className="text-lg font-bold mb-4">Selected Projects</h2>
               <ul className="space-y-2">
                 <li>01 TuneTales: AI/AR-powered music education app (React Native, AI)</li>
-                <li>02 Kndrd: Solving the loneliness epidemic (React, Node.js)</li>
-                <li>03 Cryptocurrency Arbitrage Bot (Python, Binance API)</li>
+                <li>02 </li>
+                <li>03 </li>
               </ul>
             </div>
           </div>
