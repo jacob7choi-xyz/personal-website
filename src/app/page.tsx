@@ -41,7 +41,7 @@ export default function Home() {
         <div className="lg:w-2/3">
           <div className="flex flex-col items-start space-y-4">
             <h1 className="text-6xl font-serif">Jacob J. Choi</h1>
-            <p className="text-xl font-mono">Full-Stack Developer & AI Enthusiast</p>
+            <p className="text-xl font-mono">Full-Stack Developer, AI Engineer, Entrepreneur</p>
             <a href="mailto:jchoi26@colby.edu" className="hover:underline">jchoi26@colby.edu</a>
 
             {/* Headshot */}
@@ -70,21 +70,23 @@ export default function Home() {
             <div>
               <h2 className="text-lg font-bold mb-4">Currently</h2>
               <ul className="space-y-2">
-                <li>01 Studying Computer Science: AI @ Colby College ↗</li>
-                <li>02 Building TuneTales, an AI/AR-powered music education app</li>
-                <li>03 Exploring AI/ML and full-stack development in personal projects</li>
+                <li>01 Studying Computer Science: AI @ Colby College↗</li>
+                <li>02 Co-Founder/CEO @ TuneTales – An AI-powered storytelling toolkit</li>
+                <li>03 Researching LLMs for AI-human interaction w/ Director of Engineering @ Microsoft Research</li>
+                <li>04 Streamlining AI oncology workflows @ The Jackson Laboratory</li>
               </ul>
             </div>
 
-            {/* Column 2: Past Life */}
-            <div>
-              <h2 className="text-lg font-bold mb-4">Past Life</h2>
-              <ul className="space-y-2">
-                <li>01 AI/ML Research Intern @ USC Institute for Creative Technologies</li>
-                <li>02 Investment Analyst Intern @ Colby Endowment</li>
-                <li>03 Semi-Finalist for Greenlight Maine Collegiate Entrepreneurship Competition</li>
-                <li>04 Admitted to The Juilliard School in Viola Performance</li>
-                <li>05 Debuted on National Public Radio’s (NPR) “From The Top” radio program (Show 412)</li>
+          {/* Column 2: Past Life */}
+          <div>
+            <h2 className="text-lg font-bold mb-4">Past Life</h2>
+            <ul className="space-y-2">
+              <li>01 AI/ML Research Intern @ USC ICT</li>
+              <li>02 Investment Analyst Intern @ Colby Endowment</li>
+              <li>03 Semi-Finalist for Greenlight Maine Collegiate Entrepreneurship Competition</li>
+              <li>04 1st Place Winner of Colby Back of the Napkin Entrepreneurship Challenge</li>
+              <li>05 Admitted to The Juilliard School in Viola Performance</li>
+              <li>06 Featured on NPR’s “From The Top” radio program (Show 412)</li>
               </ul>
             </div>
 
@@ -92,9 +94,9 @@ export default function Home() {
             <div>
               <h2 className="text-lg font-bold mb-4">Selected Projects</h2>
               <ul className="space-y-2">
-                <li>01 TuneTales: AI/AR-powered music education app (React Native, AI)</li>
-                <li>02 </li>
-                <li>03 </li>
+                <li>01 TuneTales: AI-powered toolkit to simplify storytelling and forge deeper connections between artists and superfans (React Native, AI)</li>
+                <li>02 Turing Test Experiments: AI-human interaction studies extending Turing's Imitation Game (Prompt Engineering, GPT-4o, Claude 3.5 Sonnet)</li>
+                <li>03 SneakerPrice: AI-powered resale price predictor for sneakers, combining market trends, sentiment analysis, and an interactive dashboard (React, Python, TensorFlow).</li>
               </ul>
             </div>
           </div>
@@ -103,9 +105,9 @@ export default function Home() {
         {/* Right Section: Concise Bio */}
         <div className="lg:w-1/3 text-left lg:text-left mt-40 -ml-0">
           <p className="text-md text-red-300 leading-relaxed">
-            Twenty-one. Building tech products. <br />
-            Currently exploring full-stack development, AI, and mixed reality. <br />
-            Blending innovation,creativity, and critical-thinking from startups to education.
+            Twenty-one. Building tech products and startups. <br />
+            Currently exploring full-stack development, AI, and LLM's. <br />
+            Blending innovation, creativity, and critical-thinking from education to startups.
           </p>
         </div>
       </div>
