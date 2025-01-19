@@ -95,7 +95,7 @@ export default function Home() {
               <h2 className="text-lg font-bold mb-4">Selected Projects</h2>
               <ul className="space-y-2">
                 <li>01 TuneTales: AI-powered toolkit to simplify storytelling and forge deeper connections between artists and superfans (React Native, AI)</li>
-                <li>02 Turing Test Experiments: AI-human interaction studies extending Turing's Imitation Game (Prompt Engineering, GPT-4o, Claude 3.5 Sonnet)</li>
+                <li>02 Turing Test Experiments: AI-human interaction studies extending the Turing Imitation Game (Prompt Engineering, GPT-4o, Claude 3.5 Sonnet)</li>
                 <li>03 SneakerPrice: AI-powered resale price predictor for sneakers, combining market trends, sentiment analysis, and an interactive dashboard (React, Python, TensorFlow).</li>
               </ul>
             </div>
@@ -106,7 +106,7 @@ export default function Home() {
         <div className="lg:w-1/3 text-left lg:text-left mt-40 -ml-0">
           <p className="text-md text-red-300 leading-relaxed">
             Twenty-one. Building tech products and startups. <br />
-            Currently exploring full-stack development, AI, and LLM's. <br />
+            Currently exploring full-stack development, AI, and LLMs. <br />
             Blending innovation, creativity, and critical-thinking from education to startups.
           </p>
         </div>
