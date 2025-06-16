@@ -10,14 +10,7 @@ import Header from "@/components/Home/Header";
 import GlitchText from "@/components/Global/GlitchText";
 
 // Constants
-import { 
-  animations,
-  currentExperience, 
-  pastExperience, 
-  projects,
-  socialLinks,
-  personalInfo 
-} from "@/constants";
+import { currentExperience, pastExperience, projects, socialLinks, personalInfo } from "@/constants";
 import { fadeInUp, fadeInScale, hoverLift, hoverSlide } from "@/constants/animations";
 
 export default function Home() {
@@ -131,7 +124,8 @@ export default function Home() {
           {/* Currently */}
           <motion.div 
             className="card-glass p-6"
-            {...hoverLift}
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             <h3 className="label text-tech mb-4">/current</h3>
             <div className="space-y-4 body-small">
@@ -147,7 +141,8 @@ export default function Home() {
           {/* Past */}
           <motion.div 
             className="card-glass p-6"
-            {...hoverLift}
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             <h3 className="label text-tech mb-4">/past</h3>
             <div className="space-y-4 body-small">
@@ -163,7 +158,8 @@ export default function Home() {
           {/* Projects */}
           <motion.div 
             className="card-glass p-6"
-            {...hoverLift}
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             <h3 className="label text-tech mb-4">/projects</h3>
             <div className="space-y-4 body-small">
@@ -191,7 +187,8 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
               className="link focus-ring"
-              {...hoverSlide}
+              whileHover={{ x: 5 }}
+              transition={{ duration: 0.2 }}
             >
               <GlitchText 
                 text={social.name}

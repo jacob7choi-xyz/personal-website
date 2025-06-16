@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { personalInfo } from "@/constants";
-import { fadeInUp } from "@/constants/animations";
 import GlitchText from "@/components/Global/GlitchText";
 
 const Header = () => {
   return (
     <motion.div
-      {...fadeInUp}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
       className="mb-16"
     >
       <div className="flex-between gap-4 mb-4">
@@ -17,9 +18,9 @@ const Header = () => {
       <h1 className="heading-1 mb-6">
         <GlitchText 
           text="Jacob J. Choi" 
-          triggerOnHover={true}
+          mode="smooth"
           autoPlay={true}
-          delay={1000}
+          delay={800}
         />
       </h1>
       
