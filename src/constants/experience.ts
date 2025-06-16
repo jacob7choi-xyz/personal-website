@@ -64,7 +64,7 @@ export const projects = [
   },
   {
     id: 3,
-    title: "Turing Test Experiments",
+    title: "Turing Test Extended Experiments",
     description: "AI-human interaction research",
     tech: "GPT-4, Claude, Prompt Engineering",
   },

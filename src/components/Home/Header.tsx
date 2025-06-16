@@ -8,18 +8,16 @@ const Header = () => {
       {...fadeInUp}
       className="mb-16"
     >
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-        <span className="text-green-400 text-sm tracking-wider">SYSTEM_ONLINE</span>
+      <div className="flex-between gap-4 mb-4">
+        <div className="status-online"></div>
+        <span className="label text-tech">SYSTEM_ONLINE</span>
       </div>
       
-      <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-        <span className="text-white">Jacob</span>
-        <span className="text-cyan-400">.</span>
-        <span className="text-white">Choi</span>
+      <h1 className="heading-1 mb-6">
+        Jacob J. Choi
       </h1>
       
-      <div className="text-xl text-gray-300 mb-8 max-w-2xl">
+      <div className="body-large text-muted mb-8 max-w-2xl">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -33,16 +31,16 @@ const Header = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.8 }}
-        className="flex items-center gap-4"
+        className="flex-between gap-4"
       >
         <a 
           href={`mailto:${personalInfo.email}`}
-          className="text-cyan-400 hover:text-cyan-300 transition-colors duration-200 tracking-wide"
+          className="link focus-ring"
         >
           {personalInfo.email}
         </a>
         <div className="w-px h-4 bg-gray-600"></div>
-        <span className="text-gray-500 text-sm">{personalInfo.status}</span>
+        <span className="body-small text-tech">{personalInfo.status}</span>
       </motion.div>
     </motion.div>
   );

@@ -28,13 +28,7 @@ export default function Home() {
 
       {/* Grid Background */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '30px 30px'
-        }} />
+        <div className="grid-pattern absolute inset-0" />
       </div>
 
       {/* Animated Grid Lines */}
@@ -63,7 +57,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
+      <div className="container-custom py-16">
         
         {/* Header Section */}
         <Header />
@@ -97,9 +91,9 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="lg:col-span-2 space-y-6"
           >
-            <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-6">
-              <h2 className="text-cyan-400 text-sm uppercase tracking-widest mb-4">README.md</h2>
-              <div className="text-gray-300 leading-relaxed space-y-4">
+            <div className="card-glass p-6">
+              <h2 className="label text-tech mb-4">About_Jacob</h2>
+              <div className="body-normal text-muted leading-relaxed space-y-4">
                 <p>{personalInfo.bio.intro}</p>
                 <p>{personalInfo.bio.focus}</p>
               </div>
@@ -107,13 +101,13 @@ export default function Home() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-4">
-                <div className="text-cyan-400 text-2xl font-bold">{personalInfo.activeProjects}+</div>
-                <div className="text-gray-400 text-sm">Active Projects</div>
+              <div className="card p-4">
+                <div className="text-tech text-2xl font-bold">{personalInfo.activeProjects}+</div>
+                <div className="text-subtle body-small">Active Projects</div>
               </div>
-              <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-4">
-                <div className="text-cyan-400 text-2xl font-bold">{personalInfo.age}</div>
-                <div className="text-gray-400 text-sm">Years Old</div>
+              <div className="card p-4">
+                <div className="text-tech text-2xl font-bold">{personalInfo.age}</div>
+                <div className="text-subtle body-small">Years Old</div>
               </div>
             </div>
           </motion.div>
@@ -128,15 +122,15 @@ export default function Home() {
           
           {/* Currently */}
           <motion.div 
-            className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-6 hover:border-cyan-500/50 transition-colors duration-300"
+            className="card-glass p-6"
             {...hoverLift}
           >
-            <h3 className="text-cyan-400 text-sm uppercase tracking-widest mb-4">/current</h3>
-            <div className="space-y-4 text-sm">
+            <h3 className="label text-tech mb-4">/current</h3>
+            <div className="space-y-4 body-small">
               {currentExperience.map((exp) => (
-                <div key={exp.id} className="border-l-2 border-cyan-500 pl-4">
-                  <div className="text-white font-medium">{exp.title}</div>
-                  <div className="text-gray-400">{exp.company}</div>
+                <div key={exp.id} className="border-tech">
+                  <div className="body-normal font-medium">{exp.title}</div>
+                  <div className="text-muted">{exp.company}</div>
                 </div>
               ))}
             </div>
@@ -144,15 +138,15 @@ export default function Home() {
 
           {/* Past */}
           <motion.div 
-            className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-6 hover:border-cyan-500/50 transition-colors duration-300"
+            className="card-glass p-6"
             {...hoverLift}
           >
-            <h3 className="text-cyan-400 text-sm uppercase tracking-widest mb-4">/history</h3>
-            <div className="space-y-4 text-sm">
+            <h3 className="label text-tech mb-4">/Past</h3>
+            <div className="space-y-4 body-small">
               {pastExperience.map((exp) => (
-                <div key={exp.id} className="border-l-2 border-cyan-500 pl-4">
-                  <div className="text-white font-medium">{exp.title}</div>
-                  <div className="text-gray-400">{exp.company}</div>
+                <div key={exp.id} className="border-tech">
+                  <div className="body-normal font-medium">{exp.title}</div>
+                  <div className="text-muted">{exp.company}</div>
                 </div>
               ))}
             </div>
@@ -160,16 +154,16 @@ export default function Home() {
 
           {/* Projects */}
           <motion.div 
-            className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg p-6 hover:border-cyan-500/50 transition-colors duration-300"
+            className="card-glass p-6"
             {...hoverLift}
           >
-            <h3 className="text-cyan-400 text-sm uppercase tracking-widest mb-4">/projects</h3>
-            <div className="space-y-4 text-sm">
+            <h3 className="label text-tech mb-4">/projects</h3>
+            <div className="space-y-4 body-small">
               {projects.map((project) => (
-                <div key={project.id} className="border-l-2 border-cyan-500 pl-4">
-                  <div className="text-white font-medium">{project.title}</div>
-                  <div className="text-gray-400">{project.description}</div>
-                  <div className="text-xs text-cyan-400 mt-1">{project.tech}</div>
+                <div key={project.id} className="border-tech">
+                  <div className="body-normal font-medium">{project.title}</div>
+                  <div className="text-muted">{project.description}</div>
+                  <div className="text-tech text-xs mt-1">{project.tech}</div>
                 </div>
               ))}
             </div>
@@ -188,7 +182,7 @@ export default function Home() {
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+              className="link focus-ring"
               {...hoverSlide}
             >
               <span>{social.name}</span>
@@ -204,10 +198,10 @@ export default function Home() {
           transition={{ delay: 1.2, duration: 0.8 }}
           className="mt-20 pt-8 border-t border-gray-800"
         >
-          <div className="flex justify-between items-center text-sm text-gray-500">
+          <div className="flex-between body-small text-subtle">
             <div>© 2025 Jacob J. Choi</div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <div className="flex-center gap-2">
+              <div className="status-online"></div>
               <span>Built with Next.js & Framer Motion</span>
             </div>
           </div>

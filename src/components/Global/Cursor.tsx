@@ -11,9 +11,9 @@ const Cursor = () => {
         const x = e.clientX;
         const y = e.clientY;
         
-        // Direct DOM manipulation for instant response
-        cursorRef.current.style.left = `${x - 12}px`;
-        cursorRef.current.style.top = `${y - 12}px`;
+        // Tina's exact method - direct positioning, no offset
+        cursorRef.current.style.left = `${x}px`;
+        cursorRef.current.style.top = `${y}px`;
         cursorRef.current.style.display = "block";
       }
     };
