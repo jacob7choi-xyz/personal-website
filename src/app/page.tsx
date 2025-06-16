@@ -7,10 +7,17 @@ import Image from "next/image";
 // Components
 import Cursor from "@/components/Global/Cursor";
 import Header from "@/components/Home/Header";
+import GlitchText from "@/components/Global/GlitchText";
 
 // Constants
-import { currentExperience, pastExperience, projects } from "@/constants/experience";
-import { socialLinks, personalInfo } from "@/constants/socials";
+import { 
+  animations,
+  currentExperience, 
+  pastExperience, 
+  projects,
+  socialLinks,
+  personalInfo 
+} from "@/constants";
 import { fadeInUp, fadeInScale, hoverLift, hoverSlide } from "@/constants/animations";
 
 export default function Home() {
@@ -31,23 +38,24 @@ export default function Home() {
         <div className="grid-pattern absolute inset-0" />
       </div>
 
-      {/* Animated Grid Lines */}
+      {/* Animated Grid Lines - positioned in margins */}
       {mounted && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <motion.div
               key={i}
               className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30"
               style={{
-                top: `${20 + i * 20}%`,
+                top: `${15 + i * 35}%`, // Positioned between content sections
                 left: 0,
                 right: 0,
+                zIndex: 1, // Behind content
               }}
               animate={{
                 x: ["-100%", "100%"],
               }}
               transition={{
-                duration: 10 + i * 2,
+                duration: 12 + i * 3,
                 repeat: Infinity,
                 ease: "linear",
               }}
@@ -57,7 +65,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="container-custom py-16">
+      <div className="container-custom py-16 relative z-10">
         
         {/* Header Section */}
         <Header />
@@ -92,7 +100,7 @@ export default function Home() {
             className="lg:col-span-2 space-y-6"
           >
             <div className="card-glass p-6">
-              <h2 className="label text-tech mb-4">About_Jacob</h2>
+              <h2 className="label text-tech mb-4">README.md</h2>
               <div className="body-normal text-muted leading-relaxed space-y-4">
                 <p>{personalInfo.bio.intro}</p>
                 <p>{personalInfo.bio.focus}</p>
@@ -141,7 +149,7 @@ export default function Home() {
             className="card-glass p-6"
             {...hoverLift}
           >
-            <h3 className="label text-tech mb-4">/Past</h3>
+            <h3 className="label text-tech mb-4">/past</h3>
             <div className="space-y-4 body-small">
               {pastExperience.map((exp) => (
                 <div key={exp.id} className="border-tech">
@@ -176,7 +184,7 @@ export default function Home() {
           transition={{ delay: 1, duration: 0.8 }}
           className="flex flex-wrap gap-6"
         >
-          {socialLinks.map((social) => (
+          {socialLinks.map((social, index) => (
             <motion.a
               key={social.name}
               href={social.url}
@@ -185,7 +193,12 @@ export default function Home() {
               className="link focus-ring"
               {...hoverSlide}
             >
-              <span>{social.name}</span>
+              <GlitchText 
+                text={social.name}
+                mode="glitch"
+                triggerOnHover={true}
+                delay={1500 + index * 200}
+              />
               <span className="text-xs">↗</span>
             </motion.a>
           ))}

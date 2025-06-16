@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { personalInfo } from "@/constants/socials";
+import { personalInfo } from "@/constants";
 import { fadeInUp } from "@/constants/animations";
+import GlitchText from "@/components/Global/GlitchText";
 
 const Header = () => {
   return (
@@ -14,7 +15,12 @@ const Header = () => {
       </div>
       
       <h1 className="heading-1 mb-6">
-        Jacob J. Choi
+        <GlitchText 
+          text="Jacob J. Choi" 
+          triggerOnHover={true}
+          autoPlay={true}
+          delay={1000}
+        />
       </h1>
       
       <div className="body-large text-muted mb-8 max-w-2xl">
