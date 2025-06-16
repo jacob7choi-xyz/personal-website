@@ -15,6 +15,10 @@ export const socialLinks = [
       name: "Instagram",
       url: "https://www.instagram.com/jacob7choi/",
     },
+    {
+        name: "YouTube",
+        url: "https://youtube.com/@jacob7choi?si=QUGG9m33dLDOHoxM",
+      }
   ];
   
   export const personalInfo = {
