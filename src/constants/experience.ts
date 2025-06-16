@@ -24,26 +24,31 @@ export const currentExperience = [
 export const pastExperience = [
   {
     id: 1,
+    title: "Studied Abroad",
+    company: "University of Sydney, Spring 2025",
+  },
+  {
+    id: 2,
     title: "AI/ML Research Intern",
     company: "USC Institute for Creative Technologies",
   },
   {
-    id: 2,
+    id: 3,
     title: "Legal Intern",
     company: "Shin & Kim Law Firm, Seoul",
   },
   {
-    id: 3,
+    id: 4,
     title: "Investment Analyst Intern",
     company: "Colby College Endowment",
   },
   {
-    id: 4,
+    id: 5,
     title: "Entrepreneurship Competitions",
     company: "Semi-Finalist Greenlight Maine, 1st Place Colby BOTN",
   },
   {
-    id: 5,
+    id: 6,
     title: "Musician & Performer",
     company: "Juilliard Admission, NPR \"From The Top\"",
   },
