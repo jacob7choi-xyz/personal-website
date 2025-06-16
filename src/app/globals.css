@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-<html className="scroll-smooth">
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -18,17 +17,55 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  cursor: none;
+}
+
+/* Custom Cursor Base Style */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease-out, background-color 0.3s ease;
+  mix-blend-mode: difference; /* This gives that Tina Mai glow effect */
+}
+
+/* Hover effect */
+.custom-cursor.hovered {
+  transform: scale(1.6) translate(-50%, -50%);
+  background-color: white;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Seasonal cursor adaptations */
+.custom-cursor.season-winter {
+  background-color: #1f2937; /* Dark gray for winter on light backgrounds */
+}
+
+.custom-cursor.season-spring {
+  background-color: #ec4899; /* Pink for spring */
+}
+
+.custom-cursor.season-summer {
+  background-color: white; /* Keep white for summer */
+}
+
+.custom-cursor.season-autumn {
+  background-color: #f97316; /* Orange for autumn */
+}
+
+/* Ensure links and buttons still have no cursor */
+a, button {
+  cursor: none;
 }
