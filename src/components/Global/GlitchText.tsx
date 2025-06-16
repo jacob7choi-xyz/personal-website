@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 interface GlitchTextProps {
@@ -27,8 +27,8 @@ const GlitchText: React.FC<GlitchTextProps> = ({
   const glitchChars = '!@#$%^&*(){}[]|\\:";\'<>?,./`~';
   const originalText = text;
 
-  // Glitch effect (existing)
-  const glitchEffect = () => {
+  // Glitch effect (existing) - wrapped in useCallback
+  const glitchEffect = useCallback(() => {
     setIsGlitching(true);
     let iterations = 0;
     const maxIterations = 10;
@@ -57,10 +57,10 @@ const GlitchText: React.FC<GlitchTextProps> = ({
         setIsGlitching(false);
       }
     }, 50);
-  };
+  }, [originalText, glitchChars]);
 
-  // Smooth reveal effect (new)
-  const smoothRevealEffect = () => {
+  // Smooth reveal effect (new) - wrapped in useCallback
+  const smoothRevealEffect = useCallback(() => {
     const revealInterval = setInterval(() => {
       setRevealedChars(prev => {
         if (prev >= text.length) {
@@ -72,7 +72,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
     }, 150); // 150ms per character
 
     return () => clearInterval(revealInterval);
-  };
+  }, [text.length]);
 
   useEffect(() => {
     if (autoPlay) {
@@ -85,7 +85,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [autoPlay, delay, mode]);
+  }, [autoPlay, delay, mode, glitchEffect, smoothRevealEffect]); // Added missing dependencies
 
   const handleInteraction = () => {
     if (triggerOnHover && !isGlitching && mode === 'glitch') {
