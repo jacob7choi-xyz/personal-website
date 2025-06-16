@@ -9,9 +9,7 @@
 
 ## 🚀 Live Demo
 
-**[View Portfolio →]([https://jacob-choi.dev](https://www.jacobchoi.xyz/))** *(Replace with your actual URL)*
-
-![Portfolio Preview](./public/preview.png) *(Add a screenshot of your site)*
+**[View Portfolio →]([https://jacob-choi.dev](https://www.jacobchoi.xyz/))** *(https://www.jacobchoi.xyz/)*
 
 ---
 
