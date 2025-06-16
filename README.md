@@ -9,7 +9,7 @@
 
 ## 🚀 Live Demo
 
-**[View Portfolio →](https://jacob-choi.dev)** *(Replace with your actual URL)*
+**[View Portfolio →]([https://jacob-choi.dev](https://www.jacobchoi.xyz/))** *(Replace with your actual URL)*
 
 ![Portfolio Preview](./public/preview.png) *(Add a screenshot of your site)*
 
@@ -224,7 +224,7 @@ This project is open source and available under the [MIT License](LICENSE).
 - **Email**: [jchoi26@colby.edu](mailto:jchoi26@colby.edu)
 - **LinkedIn**: [jacobjchoi](https://www.linkedin.com/in/jacobjchoi/)
 - **GitHub**: [jacob7choi-xyz](https://github.com/jacob7choi-xyz)
-- **Website**: [jacob-choi.dev](https://jacob-choi.dev)
+- **Website**: [jacob-choi.dev]([https://jacob-choi.dev](https://www.jacobchoi.xyz/))
 
 ---
 
