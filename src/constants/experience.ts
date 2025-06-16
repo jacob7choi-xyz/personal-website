@@ -1,0 +1,71 @@
+export const currentExperience = [
+  {
+    id: 1,
+    title: "Computer Science: AI",
+    company: "Colby College",
+  },
+  {
+    id: 2,
+    title: "Founder/CEO/Product Lead",
+    company: "TuneTales - AI Music Storytelling Platform",
+  },
+  {
+    id: 3,
+    title: "AI Software Engineer",
+    company: "Maine Cancer Genomics Initiative @ Jackson Lab",
+  },
+  {
+    id: 4,
+    title: "AI Research Collaborator",
+    company: "Microsoft Research - Turing Test Extension",
+  },
+];
+
+export const pastExperience = [
+  {
+    id: 1,
+    title: "AI/ML Research Intern",
+    company: "USC Institute for Creative Technologies",
+  },
+  {
+    id: 2,
+    title: "Legal Intern",
+    company: "Shin & Kim Law Firm, Seoul",
+  },
+  {
+    id: 3,
+    title: "Investment Analyst Intern",
+    company: "Colby College Endowment",
+  },
+  {
+    id: 4,
+    title: "Entrepreneurship Competitions",
+    company: "Semi-Finalist Greenlight Maine, 1st Place Colby BOTN",
+  },
+  {
+    id: 5,
+    title: "Musician & Performer",
+    company: "Juilliard Admission, NPR \"From The Top\"",
+  },
+];
+
+export const projects = [
+  {
+    id: 1,
+    title: "TuneTales",
+    description: "AI-powered music storytelling & artist discovery platform",
+    tech: "Next.js, Python, Claude API, Real-time Personalization",
+  },
+  {
+    id: 2,
+    title: "HarmonyRestorer",
+    description: "AI audio restoration and enhancement platform",
+    tech: "PyTorch, Meta Demucs, Flask, Audio Processing",
+  },
+  {
+    id: 3,
+    title: "Turing Test Experiments",
+    description: "AI-human interaction research",
+    tech: "GPT-4, Claude, Prompt Engineering",
+  },
+];
