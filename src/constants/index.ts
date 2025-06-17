@@ -10,3 +10,5 @@ export {
   socialLinks,
   personalInfo
 };
+
+export { default as NeuralNetworkBackground } from '../components/Global/FloatingDice';
