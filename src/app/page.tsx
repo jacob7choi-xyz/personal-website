@@ -21,7 +21,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-black text-white min-h-screen font-mono relative overflow-hidden">
+    <div className="text-white min-h-screen font-mono relative overflow-hidden"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+      {/* Semi-transparent overlay */}
       
       {/* Custom Cursor */}
       {mounted && <Cursor />}
