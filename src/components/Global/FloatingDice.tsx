@@ -177,4 +177,4 @@ const FloatingDice: React.FC = () => {
   );
 };
 
-export default FloatingDice;\
+export default FloatingDice;
