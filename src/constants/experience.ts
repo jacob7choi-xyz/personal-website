@@ -12,7 +12,7 @@ export const currentExperience = [
   {
     id: 3,
     title: "AI Software Engineer",
-    company: "Maine Cancer Genomics Initiative @ Jackson Lab",
+    company: "Maine Cancer Genomics Initiative @ The Jackson Laboratory",
   },
   {
     id: 4,
