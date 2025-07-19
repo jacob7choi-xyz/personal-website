@@ -35,12 +35,12 @@ export const pastExperience = [
   {
     id: 3,
     title: "Legal Intern",
-    company: "Shin & Kim Law Firm, Seoul",
+    company: "Shin & Kim Law Firm (Seoul, South Korea)",
   },
   {
     id: 4,
     title: "Investment Analyst Intern",
-    company: "Colby College Endowment",
+    company: "Colby College Office of Investments",
   },
   {
     id: 5,
@@ -69,6 +69,12 @@ export const projects = [
   },
   {
     id: 3,
+    title: "Credential Vault",
+    description: "AI-human interaction research",
+    tech: "GPT-4, Claude, Prompt Engineering",
+  },
+  {
+    id: 4,
     title: "Turing Test Extended Experiments",
     description: "AI-human interaction research",
     tech: "GPT-4, Claude, Prompt Engineering",
