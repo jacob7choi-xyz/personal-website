@@ -77,6 +77,6 @@ export const projects = [
     id: 4,
     title: "Turing Test Extended Experiments",
     description: "AI-human interaction research",
-    tech: "GPT-4, Claude, Prompt Engineering",
+    tech: "GPT-4, Claude 3.7 Sonnet, Prompt Engineering",
   },
 ];
