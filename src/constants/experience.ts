@@ -70,8 +70,8 @@ export const projects = [
   {
     id: 3,
     title: "Credential Vault",
-    description: "AI-human interaction research",
-    tech: "GPT-4, Claude, Prompt Engineering",
+    description: "Decentralized identity management with immutable credential verification",
+    tech: "Ethereum, Solidity, Web3, Cryptographic Verification, Next.js 15",
   },
   {
     id: 4,
