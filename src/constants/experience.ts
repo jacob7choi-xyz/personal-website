@@ -58,20 +58,20 @@ export const projects = [
   {
     id: 1,
     title: "TuneTales",
-    description: "AI-powered music storytelling & artist discovery platform",
+    description: "AI-powered music storytelling & artist encyclopedia platform",
     tech: "Next.js, Python, Claude API, Real-time Personalization",
   },
   {
     id: 2,
     title: "HarmonyRestorer",
-    description: "Research-to-production implementation of Self-Organized Operational Neural Networks for audio restoration",
-    tech: "PyTorch, Self-ONNs, 1D Operational GANs, FastAPI, React, Gradient Clipping, Memory Optimization",
+    description: "AI audio restoration with breakthrough gradient stability",
+    tech: "PyTorch, Self-ONNs, FastAPI, React, Numerical Optimization",
   },
   {
     id: 3,
     title: "Credential Vault",
     description: "Decentralized identity management with immutable credential verification",
-    tech: "Ethereum, Solidity, Web3, Cryptographic Verification, Next.js 15",
+    tech: "Ethereum, Solidity, Web3, Next.js 15",
   },
   {
     id: 4,
