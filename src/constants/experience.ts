@@ -64,8 +64,8 @@ export const projects = [
   {
     id: 2,
     title: "HarmonyRestorer",
-    description: "AI audio restoration and enhancement platform",
-    tech: "PyTorch, Meta Demucs, Flask, Audio Processing",
+    description: "Research-to-production implementation of Self-Organized Operational Neural Networks for audio restoration",
+    tech: "PyTorch, Self-ONNs, 1D Operational GANs, FastAPI, React, Gradient Clipping, Memory Optimization",
   },
   {
     id: 3,
@@ -77,6 +77,6 @@ export const projects = [
     id: 4,
     title: "Turing Test Extended Experiments",
     description: "AI-human interaction research",
-    tech: "GPT-4, Claude 3.7 Sonnet, Prompt Engineering",
+    tech: "GPT-4o, Claude 3.7 Sonnet, Prompt Engineering",
   },
 ];
