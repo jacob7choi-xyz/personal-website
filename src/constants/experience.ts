@@ -35,7 +35,7 @@ export const pastExperience = [
   {
     id: 3,
     title: "Legal Intern",
-    company: "Shin & Kim Law Firm (Seoul, South Korea)",
+    company: "Shin & Kim Law Firm (Seoul, Korea)",
   },
   {
     id: 4,
