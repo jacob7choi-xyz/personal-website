@@ -51,6 +51,7 @@ export const pastExperience = [
     id: 6,
     title: "Musician & Performer",
     company: "Juilliard Admission, NPR \"From The Top\"",
+    link: "https://fromthetop.org/musician/jacob-choi/"
   },
 ];
 

@@ -151,7 +151,18 @@ export default function Home() {
               {pastExperience.map((exp) => (
                 <div key={exp.id} className="border-tech">
                   <div className="body-normal font-medium">{exp.title}</div>
-                  <div className="text-muted">{exp.company}</div>
+                  <div className="text-muted">
+                    {exp.link ? (
+                      <span dangerouslySetInnerHTML={{
+                        __html: exp.company.replace(
+                          '"From The Top"',
+                          `"<a href="${exp.link}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 transition-colors underline">From The Top</a>"`
+                        )
+                      }} />
+                    ) : (
+                      exp.company
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
