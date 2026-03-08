@@ -11,7 +11,7 @@ import GlitchText from "@/components/Global/GlitchText";
 
 // Constants
 import { currentExperience, pastExperience, projects, certifications, socialLinks, personalInfo } from "@/constants";
-import { fadeInUp, fadeInScale, hoverLift, hoverSlide } from "@/constants/animations";
+import { fadeInUp, fadeInScale } from "@/constants/animations";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);

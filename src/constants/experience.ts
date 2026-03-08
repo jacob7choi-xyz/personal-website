@@ -37,17 +37,17 @@ export const pastExperience = [
     company: "USC Institute for Creative Technologies",
   },
   {
-    id: 3,
+    id: 4,
     title: "Legal Intern",
     company: "Shin & Kim Law Firm (Seoul, Korea)",
   },
   {
-    id: 4,
+    id: 5,
     title: "Investment Analyst Intern",
     company: "Colby College Office of Investments",
   },
   {
-    id: 5,
+    id: 6,
     title: "Entrepreneurship Competitions",
     items: [
       { text: "Semi-Finalist Greenlight Maine", link: "https://greenlightmaine.com/entrepreneurs/" },
@@ -55,7 +55,7 @@ export const pastExperience = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     title: "Musician & Performer",
     items: [
       { text: "Juilliard Admission (Viola, BM)", link: "https://drive.google.com/file/d/1FO3V951a3Df_s3PNQpcFhH5j5kqQgFGR/view?usp=sharing" },
@@ -121,11 +121,4 @@ export const certifications = [
     status: "Completed",
     link: "https://drive.google.com/file/d/1VqSwrusijo-3-OB5XgDPo4pF-swwPaeq/view?usp=sharing"
   }
-  // {
-  //   id: 5,
-  //   title: "Cybersecurity Certification",
-  //   issuer: "TBD", // Update with actual provider
-  //   year: "2025", // Update when completed
-  //   status: "Planned"
-  // }
 ];
