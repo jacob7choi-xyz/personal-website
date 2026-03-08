@@ -1,6 +1,0 @@
-name: choiwebsite
-channels:
-  - defaults
-dependencies:
-  - nodejs
-prefix: /opt/anaconda3/envs/choiwebsite

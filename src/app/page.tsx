@@ -10,7 +10,7 @@ import Header from "@/components/Home/Header";
 import GlitchText from "@/components/Global/GlitchText";
 
 // Constants
-import { currentExperience, pastExperience, projects, socialLinks, personalInfo } from "@/constants";
+import { currentExperience, pastExperience, projects, certifications, socialLinks, personalInfo } from "@/constants";
 import { fadeInUp, fadeInScale, hoverLift, hoverSlide } from "@/constants/animations";
 
 export default function Home() {
@@ -86,6 +86,11 @@ export default function Home() {
                 />
               </div>
             </div>
+            <div className="mt-3 text-center">
+              <span className="text-tech text-sm font-mono tracking-wider">
+                Building<span className="animate-pulse">...</span>
+              </span>
+            </div>
           </motion.div>
 
           {/* Bio */}
@@ -134,7 +139,15 @@ export default function Home() {
               {currentExperience.map((exp) => (
                 <div key={exp.id} className="border-tech">
                   <div className="body-normal font-medium">{exp.title}</div>
-                  <div className="text-muted">{exp.company}</div>
+                  <div className="text-muted">
+                    {exp.link ? (
+                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                        {exp.company}
+                      </a>
+                    ) : (
+                      exp.company
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -150,18 +163,75 @@ export default function Home() {
             <div className="space-y-4 body-small">
               {pastExperience.map((exp) => (
                 <div key={exp.id} className="border-tech">
-                  <div className="body-normal font-medium">{exp.title}</div>
-                  <div className="text-muted">
+                  <div className="body-normal font-medium">
                     {exp.link ? (
-                      <span dangerouslySetInnerHTML={{
-                        __html: exp.company.replace(
-                          '"From The Top"',
-                          `"<a href="${exp.link}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 transition-colors underline">From The Top</a>"`
-                        )
-                      }} />
+                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                        {exp.title}
+                      </a>
+                    ) : (
+                      exp.title
+                    )}
+                  </div>
+                  <div className="text-muted">
+                    {exp.items ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {exp.items.map((item, i) => (
+                          <li key={i}>
+                            {item.link ? (
+                              <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                                {item.text}
+                              </a>
+                            ) : (
+                              item.text
+                            )}
+                          </li>
+                        ))}
+                      </ul>
                     ) : (
                       exp.company
                     )}
+                  </div>
+                  {exp.mentorLink && (
+                    <div className="text-xs mt-1">
+                      <a href={exp.mentorLink} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                        {exp.mentorText}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Certifications */}
+          <motion.div 
+            className="card-glass p-6"
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <h3 className="label text-tech mb-4">/certificates</h3>
+            <div className="space-y-4 body-small">
+              {certifications.map((cert) => (
+                <div key={cert.id} className="border-tech">
+                  <div className="body-normal font-medium">
+                    {cert.link ? (
+                      <a href={cert.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                        {cert.title}
+                      </a>
+                    ) : (
+                      cert.title
+                    )}
+                  </div>
+                  <div className="text-muted">{cert.issuer}</div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-tech">{cert.year}</span>
+                    <span className={`
+                      ${cert.status === 'Completed' ? 'text-green-400' : 
+                        cert.status === 'In Progress' ? 'text-yellow-400' : 
+                        'text-gray-400'}
+                    `}>
+                      {cert.status}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -178,8 +248,27 @@ export default function Home() {
             <div className="space-y-4 body-small">
               {projects.map((project) => (
                 <div key={project.id} className="border-tech">
-                  <div className="body-normal font-medium">{project.title}</div>
-                  <div className="text-muted">{project.description}</div>
+                  <div className="body-normal font-medium">
+                    {project.link ? (
+                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">
+                        {project.title}
+                      </a>
+                    ) : (
+                      project.title
+                    )}
+                  </div>
+                  <div className="text-muted">
+                    {project.descriptionLink ? (
+                      <span dangerouslySetInnerHTML={{
+                        __html: project.description.replace(
+                          project.descriptionLink.text,
+                          `<a href="${project.descriptionLink.url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 transition-colors underline">${project.descriptionLink.text}</a>`
+                        )
+                      }} />
+                    ) : (
+                      project.description
+                    )}
+                  </div>
                   <div className="text-tech text-xs mt-1">{project.tech}</div>
                 </div>
               ))}
@@ -222,7 +311,7 @@ export default function Home() {
           className="mt-20 pt-8 border-t border-gray-800"
         >
           <div className="flex-between body-small text-subtle">
-            <div>© 2025 Jacob J. Choi</div>
+            <div>© 2026 Jacob J. Choi</div>
             <div className="flex-center gap-2">
               <div className="status-online"></div>
               <span>Built with Next.js & Framer Motion</span>

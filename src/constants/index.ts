@@ -1,5 +1,5 @@
 import { animations } from "./animations";
-import { currentExperience, pastExperience, projects } from "./experience";
+import { currentExperience, pastExperience, projects, certifications } from "./experience";
 import { socialLinks, personalInfo } from "./socials";
 
 export { 
@@ -7,6 +7,7 @@ export {
   currentExperience, 
   pastExperience, 
   projects,
+  certifications,
   socialLinks,
   personalInfo
 };

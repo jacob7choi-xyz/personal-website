@@ -23,13 +23,13 @@ export const socialLinks = [
   
   export const personalInfo = {
     name: "Jacob J. Choi",
-    title: "Full-Stack Developer • AI Engineer • Entrepreneur",
-    email: "jchoi26@colby.edu",
+    title: "AI Engineer • Research to Production • Entrepreneur",
+    email: "jacob77choi@gmail.com",
     status: "\"Melos contra mundum\"",
     age: 22,
     activeProjects: 4,
     bio: {
-      intro: "Twenty-two year old product visionary building the future of music technology. Currently developing TuneTales, an AI-powered storytelling platform that transforms how people connect with music and artists.",
-      focus: "Combining musical artistry, international perspective, and AI expertise to create products that bridge the gap between technology and human creativity. Passionate about empowering artists and deepening fan connections through innovative experiences."
+      intro: "CS:AI student at Colby College (graduating May 2027, currently on gap year). AI/Agentic Pipeline Engineer at The Jackson Laboratory, building a biomedical GraphRAG system for Molecular Tumor Board decision support under the Maine Cancer Genomics Initiative, focused on LLM workflows, agent orchestration, and citation-verified evidence retrieval.",
+      focus: "Prior research at USC's Institute for Creative Technologies and a Turing study with Microsoft Research. I build things that ship to production, not just notebooks. On the side: founder of TuneTales (AI music storytelling) and HarmonyRestorer (AI audio restoration with a custom OpGAN)."
     }
   };
