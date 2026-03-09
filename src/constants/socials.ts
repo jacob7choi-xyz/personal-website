@@ -26,8 +26,6 @@ export const socialLinks = [
     title: "AI Engineer • Research to Production • Entrepreneur",
     email: "jacob77choi@gmail.com",
     status: "\"Melos contra mundum\"",
-    age: 22,
-    activeProjects: 4,
     bio: {
       intro: "CS:AI student at Colby College (graduating May 2027, currently on gap year). AI/Agentic Pipeline Engineer at The Jackson Laboratory, building a healthcare agentic system and biomedical GraphRAG for Genomic Tumor Board decision support under the Maine Cancer Genomics Initiative, focused on LLM workflows, agent orchestration, and citation-verified evidence retrieval.",
       introLinks: [
