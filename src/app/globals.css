@@ -198,10 +198,10 @@ body {
   .dot-group::before {
     content: '';
     position: absolute;
-    top: -2px;
-    bottom: -2px;
-    right: -3px;
-    width: 11px;
+    top: -3px;
+    bottom: -3px;
+    left: -4px;
+    right: -4px;
     border-radius: 6px;
     background: transparent;
     transition: background 0.2s;
@@ -215,6 +215,12 @@ body {
   .dot-group:hover .dot-label {
     opacity: 1 !important;
     transform: translateY(-50%) translateX(0) !important;
+  }
+
+  .dot-btn:hover .dot-indicator,
+  .dot-group button:hover .dot-indicator {
+    opacity: 1 !important;
+    background: var(--accent-soft) !important;
   }
 
   /* Headshot */

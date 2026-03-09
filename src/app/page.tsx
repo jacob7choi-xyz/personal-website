@@ -166,7 +166,7 @@ export default function Home() {
       window.removeEventListener("click", onClick);
       if (wheelTimer.current) clearTimeout(wheelTimer.current);
     };
-  }, [go]);
+  }, [go, goTo]);
 
   return (
     <main aria-label="Portfolio presentation" style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
@@ -199,7 +199,7 @@ export default function Home() {
                   top: "50%",
                   transform: "translateY(-50%) translateX(4px)",
                   whiteSpace: "nowrap",
-                  fontSize: 11,
+                  fontSize: 13,
                   fontFamily: "'Inter', sans-serif",
                   color: "var(--text-secondary)",
                   opacity: 0,
@@ -215,14 +215,14 @@ export default function Home() {
                     aria-label={`Go to Journey slide ${j - 1}`}
                     aria-current={j === current ? "true" : undefined}
                     style={{
-                      width: 20, height: 20, display: "flex", alignItems: "center",
-                      justifyContent: "flex-end", background: "transparent",
+                      width: "auto", height: 20, display: "flex", alignItems: "center",
+                      background: "transparent",
                       border: "none", cursor: "pointer", padding: 0,
                     }}
                   >
-                    <span style={{
-                      width: 5,
-                      height: j === current ? 20 : 5,
+                    <span className="dot-indicator" style={{
+                      width: 7,
+                      height: j === current ? 22 : 7,
                       borderRadius: 3,
                       background: j === current ? "var(--accent)" : "var(--text-tertiary)",
                       transition: "all 0.3s ease",
@@ -259,7 +259,7 @@ export default function Home() {
                 position: "absolute",
                 right: 16,
                 whiteSpace: "nowrap",
-                fontSize: 11,
+                fontSize: 13,
                 fontFamily: "'Inter', sans-serif",
                 color: "var(--text-secondary)",
                 opacity: 0,
@@ -269,9 +269,9 @@ export default function Home() {
               }}>
                 {SLIDE_LABELS[i]}
               </span>
-              <span style={{
-                width: 5,
-                height: i === current ? 20 : 5,
+              <span className="dot-indicator" style={{
+                width: 7,
+                height: i === current ? 22 : 7,
                 borderRadius: 3,
                 background: i === current ? "var(--accent)" : "var(--text-tertiary)",
                 transition: "all 0.3s ease",
