@@ -34,7 +34,7 @@ export const pastExperience = [
   {
     id: 3,
     title: "AI/ML Research Intern",
-    company: "USC Institute for Creative Technologies",
+    company: "USC Institute for Creative Technologies (Los Angeles, CA)",
   },
   {
     id: 4,
@@ -44,7 +44,7 @@ export const pastExperience = [
   {
     id: 5,
     title: "Investment Analyst Intern",
-    company: "Colby College Office of Investments",
+    company: "Colby College Office of Investments (Boston, MA)",
   },
   {
     id: 6,
@@ -60,6 +60,7 @@ export const pastExperience = [
     items: [
       { text: "Juilliard Admission (Viola, BM)", link: "https://drive.google.com/file/d/1FO3V951a3Df_s3PNQpcFhH5j5kqQgFGR/view?usp=sharing" },
       { text: "NPR \"From The Top\"", link: "https://fromthetop.org/musician/jacob-choi/" },
+      { text: "DSO Lynn Harrell Concerto Competition Finalist", link: "https://theviolinchannel.com/winners-announced-for-dallas-symphonys-lynn-harrell-concerto-competition/" },
     ],
   },
 ];

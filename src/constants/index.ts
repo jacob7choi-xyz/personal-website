@@ -1,13 +1,2 @@
-import { animations } from "./animations";
-import { currentExperience, pastExperience, projects, certifications } from "./experience";
-import { socialLinks, personalInfo } from "./socials";
-
-export { 
-  animations, 
-  currentExperience, 
-  pastExperience, 
-  projects,
-  certifications,
-  socialLinks,
-  personalInfo
-};
+export { currentExperience, pastExperience, projects, certifications } from "./experience";
+export { socialLinks, personalInfo } from "./socials";

@@ -4,30 +4,28 @@ import { useEffect, useRef, useState } from "react";
 
 export default function CursorAura() {
   const [mounted, setMounted] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
 
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setIsTouch(hasTouch || reducedMotion);
+    if (hasTouch || reducedMotion) return;
+
     const onMove = (e: MouseEvent) => {
       const el = containerRef.current;
       if (!el) return;
-      el.style.left = `${e.clientX}px`;
-      el.style.top = `${e.clientY}px`;
+      el.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     };
 
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
-  if (!mounted) return null;
-
-  if (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
-    return null;
-  }
+  if (!mounted || isTouch) return null;
 
   return (
     <div
@@ -43,12 +41,12 @@ export default function CursorAura() {
         ref={containerRef}
         style={{
           position: "absolute",
-          left: -1000,
-          top: -1000,
-          willChange: "left, top",
+          left: 0,
+          top: 0,
+          transform: "translate(-1000px, -1000px)",
+          willChange: "transform",
         }}
       >
-        {/* Glow core */}
         <div
           style={{
             position: "absolute",
@@ -60,8 +58,6 @@ export default function CursorAura() {
               "radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(167, 139, 250, 0.06) 40%, transparent 70%)",
           }}
         />
-
-        {/* Pulsing rings */}
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}

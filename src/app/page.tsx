@@ -23,7 +23,7 @@ const fadeVariants = {
   exit: { opacity: 0, filter: "blur(14px)", scale: 0.98 },
 };
 
-const TOTAL_SLIDES = 14;
+const TOTAL_SLIDES = 15;
 
 function Slide({ children }: { children: React.ReactNode }) {
   return (
@@ -39,7 +39,7 @@ function Slide({ children }: { children: React.ReactNode }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "4rem 1.5rem",
+        padding: "2.5rem 1.25rem",
       }}
     >
       <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto" }}>
@@ -52,39 +52,66 @@ function Slide({ children }: { children: React.ReactNode }) {
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const lockRef = useRef(false);
-  const touchStartRef = useRef(0);
+  const touchStartRef = useRef<{ y: number; id: number } | null>(null);
+  const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wheelAccum = useRef(0);
+
+  const LOCK_MS = 1000;
+
+  const lock = useCallback(() => {
+    lockRef.current = true;
+    setTimeout(() => { lockRef.current = false; }, LOCK_MS);
+  }, []);
 
   const go = useCallback((direction: 1 | -1) => {
     if (lockRef.current) return;
     setCurrent((prev) => {
       const next = prev + direction;
       if (next < 0 || next >= TOTAL_SLIDES) return prev;
-      lockRef.current = true;
-      setTimeout(() => { lockRef.current = false; }, 1000);
+      lock();
       return next;
     });
-  }, []);
+  }, [lock]);
 
   const goTo = useCallback((index: number) => {
     if (lockRef.current || index < 0 || index >= TOTAL_SLIDES) return;
-    lockRef.current = true;
-    setTimeout(() => { lockRef.current = false; }, 900);
-    setCurrent(index);
-  }, []);
+    setCurrent((prev) => {
+      if (index === prev) return prev;
+      lock();
+      return index;
+    });
+  }, [lock]);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (Math.abs(e.deltaY) < 15) return;
-      go(e.deltaY > 0 ? 1 : -1);
+      if (lockRef.current) return;
+
+      // Accumulate wheel delta and debounce to handle trackpad momentum
+      wheelAccum.current += e.deltaY;
+      if (wheelTimer.current) clearTimeout(wheelTimer.current);
+      wheelTimer.current = setTimeout(() => { wheelAccum.current = 0; }, 200);
+
+      if (Math.abs(wheelAccum.current) < 30) return;
+      const direction = wheelAccum.current > 0 ? 1 : -1;
+      wheelAccum.current = 0;
+      go(direction as 1 | -1);
     };
 
     const onTouchStart = (e: TouchEvent) => {
-      touchStartRef.current = e.touches[0].clientY;
+      if (e.touches.length > 1) return; // Ignore multi-touch
+      touchStartRef.current = { y: e.touches[0].clientY, id: e.touches[0].identifier };
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      const delta = touchStartRef.current - e.changedTouches[0].clientY;
+      if (!touchStartRef.current) return;
+      // Find the matching touch by identifier
+      const touch = Array.from(e.changedTouches).find(
+        (t) => t.identifier === touchStartRef.current?.id
+      );
+      if (!touch) return;
+      const delta = touchStartRef.current.y - touch.clientY;
+      touchStartRef.current = null;
       if (Math.abs(delta) < 50) return;
       go(delta > 0 ? 1 : -1);
     };
@@ -104,33 +131,45 @@ export default function Home() {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("keydown", onKey);
+      if (wheelTimer.current) clearTimeout(wheelTimer.current);
     };
   }, [go]);
 
   return (
-    <div style={{ background: "var(--bg-primary)", height: "100vh", overflow: "hidden" }}>
+    <main style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
 
       {/* Dot indicators */}
       <div style={{
-        position: "fixed", right: "2rem", top: "50%", transform: "translateY(-50%)",
-        zIndex: 10, display: "flex", flexDirection: "column", gap: "12px",
+        position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
+        zIndex: 10, display: "flex", flexDirection: "column", gap: "8px",
       }}>
         {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
           <button
             key={i}
             onClick={() => goTo(i)}
+            aria-label={`Go to slide ${i + 1}`}
             style={{
-              width: 6,
-              height: i === current ? 24 : 6,
-              borderRadius: 3,
-              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
+              width: 20,
+              height: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              background: "transparent",
               border: "none",
               cursor: "pointer",
-              transition: "all 0.3s ease",
-              opacity: i === current ? 1 : 0.5,
               padding: 0,
             }}
-          />
+          >
+            <span style={{
+              width: 5,
+              height: i === current ? 20 : 5,
+              borderRadius: 3,
+              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
+              transition: "all 0.3s ease",
+              opacity: i === current ? 1 : 0.5,
+              display: "block",
+            }} />
+          </button>
         ))}
       </div>
 
@@ -157,7 +196,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="text-3xl social-icon focus-ring"
                     style={{ color: s?.color }}
-                    title={social.name}
+                    aria-label={social.name}
                   >
                     {s?.icon}
                   </a>
@@ -238,7 +277,7 @@ export default function Home() {
         {current === 7 && (
           <Slide key="journey-6">
             <p
-              className="text-xl md:text-3xl font-light leading-relaxed tracking-tight text-center"
+              className="text-base md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
             >
               Now I&apos;m building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina, helping clinicians identify the right cancer treatment for each patient. Sponsored by the Duke Endowment.
@@ -304,7 +343,7 @@ export default function Home() {
             <p className="caption mb-4">Experience</p>
             <h3 className="heading-3 mb-12">Previously</h3>
             <div className="space-y-10">
-              {pastExperience.map((exp) => (
+              {pastExperience.filter((exp) => !exp.items).map((exp) => (
                 <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
                   <div className="body-small" style={{ color: "var(--text-tertiary)" }}>
                     {exp.link ? (
@@ -312,24 +351,37 @@ export default function Home() {
                     ) : exp.title}
                   </div>
                   <div>
-                    <div className="body" style={{ color: "var(--text-primary)" }}>
-                      {exp.items ? (
-                        <ul className="space-y-1">
-                          {exp.items.map((item, j) => (
-                            <li key={j}>
-                              {item.link ? (
-                                <a href={item.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{item.text}</a>
-                              ) : item.text}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : exp.company}
-                    </div>
+                    <div className="body" style={{ color: "var(--text-primary)" }}>{exp.company}</div>
                     {exp.mentorLink && (
                       <a href={exp.mentorLink} target="_blank" rel="noopener noreferrer" className="accent-link body-small mt-2 inline-block">
                         {exp.mentorText}
                       </a>
                     )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Slide>
+        )}
+
+        {current === 12 && (
+          <Slide key="exp-extras">
+            <p className="caption mb-4">Experience</p>
+            <h3 className="heading-3 mb-12">Competitions & Music</h3>
+            <div className="space-y-10">
+              {pastExperience.filter((exp) => exp.items).map((exp) => (
+                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
+                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{exp.title}</div>
+                  <div className="body" style={{ color: "var(--text-primary)" }}>
+                    <ul className="space-y-1">
+                      {exp.items!.map((item, j) => (
+                        <li key={j}>
+                          {item.link ? (
+                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{item.text}</a>
+                          ) : item.text}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               ))}
@@ -359,7 +411,7 @@ export default function Home() {
           </Slide>
         )}
 
-        {current === 12 && (
+        {current === 13 && (
           <Slide key="projects">
             <p className="caption mb-12">Projects</p>
             <div>
@@ -393,7 +445,7 @@ export default function Home() {
           </Slide>
         )}
 
-        {current === 13 && (
+        {current === 14 && (
           <Slide key="footer">
             <div className="text-center space-y-6">
               <p className="body" style={{ color: "var(--text-secondary)" }}>
@@ -408,6 +460,6 @@ export default function Home() {
           </Slide>
         )}
       </AnimatePresence>
-    </div>
+    </main>
   );
 }

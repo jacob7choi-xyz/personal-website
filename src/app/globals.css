@@ -12,8 +12,6 @@
   --accent-dim: rgba(167, 139, 250, 0.08);
 
   --bg-primary: #050505;
-  --bg-elevated: rgba(255, 255, 255, 0.03);
-  --bg-card-border: rgba(255, 255, 255, 0.06);
 
   --text-primary: #F0EEF1;
   --text-secondary: #9E9BA3;
@@ -32,6 +30,7 @@
 html {
   overflow: hidden;
   height: 100vh;
+  height: 100dvh;
 }
 
 body {
@@ -95,6 +94,11 @@ body {
   75% { transform: translate(5vw, -8vh); }
 }
 
+@media (max-width: 768px) {
+  .orb {
+    display: none;
+  }
+}
 
 @layer base {
   .display {
@@ -145,18 +149,6 @@ body {
 }
 
 @layer components {
-  .divider {
-    @apply h-px w-full;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--border-subtle) 20%,
-      rgba(167, 139, 250, 0.08) 50%,
-      var(--border-subtle) 80%,
-      transparent 100%
-    );
-  }
-
   .tag {
     @apply text-xs px-3 py-1 rounded-full;
     background: var(--accent-dim);
@@ -262,10 +254,6 @@ body {
 }
 
 @media print {
-  .no-print {
-    display: none !important;
-  }
-
   body {
     background: white !important;
     color: black !important;
