@@ -40,9 +40,10 @@ function Slide({ children }: { children: React.ReactNode }) {
         alignItems: "center",
         justifyContent: "center",
         padding: "2.5rem 1.25rem",
+        overflowY: "auto",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto" }}>
+      <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto", flexShrink: 0 }}>
         {children}
       </div>
     </motion.div>
@@ -432,11 +433,11 @@ export default function Home() {
                 );
                 return project.link ? (
                   <a key={project.id} href={project.link} target="_blank" rel="noopener noreferrer"
-                    className="block group py-8 transition-colors" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    className="block group py-5 md:py-8 transition-colors" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     {inner}
                   </a>
                 ) : (
-                  <div key={project.id} className="block group py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <div key={project.id} className="block group py-5 md:py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     {inner}
                   </div>
                 );
