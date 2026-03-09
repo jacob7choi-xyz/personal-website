@@ -29,7 +29,7 @@ export const pastExperience = [
     company: "Independent Study, Colby College",
     link: "https://drive.google.com/file/d/1F9lYxAleIydY2zrBPGXKbcYojcdidbvQ/view?usp=sharing",
     mentorLink: "https://www.microsoft.com/en-us/research/people/markenc/",
-    mentorText: "Mentored by Mark Encarnacion, Microsoft Research",
+    mentorText: "Mentored by Mark Encarnación, Microsoft Research",
   },
   {
     id: 3,

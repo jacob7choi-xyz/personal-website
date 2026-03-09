@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-import FloatingCubes from '@/components/Global/FloatingDice';
-
-const inter = Inter({ subsets: ["latin"] });
+import CursorAura from "@/components/Global/CursorAura";
 
 export const metadata: Metadata = {
   title: "Jacob J. Choi",
-  description: "Jacob J. Choi - Full-Stack Developer & AI Enthusiast.",
+  description: "Jacob J. Choi - AI Engineer, Researcher, Entrepreneur.",
 };
 
 export default function RootLayout({
@@ -18,12 +15,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Favicon */}
         <link rel="icon" href="/Jacob-Choi-Website-Logo.ico"/>
       </head>
-      <body className={inter.className}>
-        <FloatingCubes />
-        {children}
+      <body>
+        {/* Floating ambient orbs */}
+        <div className="orb orb-1" style={{ top: '-10%', left: '-10%' }} />
+        <div className="orb orb-2" style={{ top: '40%', right: '-15%' }} />
+        <div className="orb orb-3" style={{ bottom: '10%', left: '20%' }} />
+
+        <CursorAura />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </div>
       </body>
     </html>
   );
