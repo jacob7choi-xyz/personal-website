@@ -46,7 +46,8 @@ Complete rearchitecture from a scrolling page to a **full-viewport fade-show pre
 
 - **Desktop:** Wheel (debounced with accumulation for trackpad), arrow keys, Home/End, Space (non-interactive targets only), click (top half = back, bottom half = forward)
 - **Mobile:** Swipe up/down (50px threshold), tap (top half = back, bottom half = forward, skips interactive elements)
-- **Dot indicators:** Fixed right side, clickable to jump to any slide, hover labels show slide titles, journey dots grouped with shared label and pill background, dots highlight on hover
+- **Dot indicators (desktop):** Fixed right side, clickable to jump to any slide, hover labels show slide titles, journey dots grouped with shared label and pill background, dots highlight on hover
+- **Dot indicators (mobile):** Simplified minimal dots (no labels, no grouping, no hover effects), smaller size, lower opacity
 
 ### Visual Design
 
@@ -70,7 +71,7 @@ Complete rearchitecture from a scrolling page to a **full-viewport fade-show pre
 - Responsive text sizing (unprefixed = mobile, `md:`/`lg:` = desktop)
 - In Detail slide: headshot above bio on mobile, side-by-side on desktop (CSS `order`)
 - Reduced padding on project rows (`py-5` vs `py-8`)
-- Dot indicator tap targets sized for touch
+- Dot indicators simplified to plain dots (no labels, no grouping) for less visual clutter
 
 ## Future Plans
 
