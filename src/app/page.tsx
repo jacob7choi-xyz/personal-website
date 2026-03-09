@@ -25,6 +25,13 @@ const fadeVariants = {
 
 const TOTAL_SLIDES = 15;
 
+const SLIDE_LABELS = [
+  "Home", "Quote", null, null, null, null, null, null,
+  "In Detail", "Current", "Previously", "Credentials", "Competitions & Music", "Projects", "Contact",
+];
+
+const JOURNEY_RANGE = [2, 3, 4, 5, 6, 7];
+
 function Slide({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
@@ -130,61 +137,151 @@ export default function Home() {
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); go(1); }
-      if (e.key === "ArrowUp") { e.preventDefault(); go(-1); }
+      const tag = (e.target as HTMLElement).tagName;
+      const isInteractive = tag === "A" || tag === "BUTTON" || tag === "INPUT" || tag === "TEXTAREA";
+      if (e.key === "ArrowDown") { e.preventDefault(); go(1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); go(-1); }
+      else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(TOTAL_SLIDES - 1); }
+      else if (e.key === " " && !isInteractive) { e.preventDefault(); go(1); }
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("a, button, nav")) return;
+      go(e.clientY < window.innerHeight / 2 ? -1 : 1);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("keydown", onKey);
+    window.addEventListener("click", onClick);
 
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("click", onClick);
       if (wheelTimer.current) clearTimeout(wheelTimer.current);
     };
   }, [go]);
 
   return (
-    <main style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
+    <main aria-label="Portfolio presentation" style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
 
       {/* Dot indicators */}
-      <div style={{
+      <nav aria-label="Slide navigation" style={{
         position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
-        zIndex: 10, display: "flex", flexDirection: "column", gap: "8px",
+        zIndex: 10, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end",
       }}>
-        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-            style={{
-              width: 20,
-              height: 20,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            <span style={{
-              width: 5,
-              height: i === current ? 20 : 5,
-              borderRadius: 3,
-              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
-              transition: "all 0.3s ease",
-              opacity: i === current ? 1 : 0.5,
-              display: "block",
-            }} />
-          </button>
-        ))}
-      </div>
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => {
+          const isJourney = JOURNEY_RANGE.includes(i);
+          const isFirstJourney = i === JOURNEY_RANGE[0];
+          const isLastJourney = i === JOURNEY_RANGE[JOURNEY_RANGE.length - 1];
+
+          // Skip journey dots except render them inside the group
+          if (isJourney && !isFirstJourney) return null;
+
+          if (isFirstJourney) {
+            return (
+              <div key="journey-group" className="dot-group" style={{
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: 8,
+              }}>
+                <span className="dot-label" style={{
+                  position: "absolute",
+                  right: 24,
+                  top: "50%",
+                  transform: "translateY(-50%) translateX(4px)",
+                  whiteSpace: "nowrap",
+                  fontSize: 11,
+                  fontFamily: "'Inter', sans-serif",
+                  color: "var(--text-secondary)",
+                  opacity: 0,
+                  transition: "opacity 0.2s, transform 0.2s",
+                  pointerEvents: "none",
+                }}>
+                  Journey
+                </span>
+                {JOURNEY_RANGE.map((j) => (
+                  <button
+                    key={j}
+                    onClick={() => goTo(j)}
+                    aria-label={`Go to Journey slide ${j - 1}`}
+                    aria-current={j === current ? "true" : undefined}
+                    style={{
+                      width: 20, height: 20, display: "flex", alignItems: "center",
+                      justifyContent: "flex-end", background: "transparent",
+                      border: "none", cursor: "pointer", padding: 0,
+                    }}
+                  >
+                    <span style={{
+                      width: 5,
+                      height: j === current ? 20 : 5,
+                      borderRadius: 3,
+                      background: j === current ? "var(--accent)" : "var(--text-tertiary)",
+                      transition: "all 0.3s ease",
+                      opacity: j === current ? 1 : 0.5,
+                      display: "block",
+                    }} />
+                  </button>
+                ))}
+              </div>
+            );
+          }
+
+          return (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Go to ${SLIDE_LABELS[i]}`}
+              aria-current={i === current ? "true" : undefined}
+              className="dot-btn"
+              style={{
+                position: "relative",
+                height: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                paddingLeft: 8,
+              }}
+            >
+              <span className="dot-label" style={{
+                position: "absolute",
+                right: 16,
+                whiteSpace: "nowrap",
+                fontSize: 11,
+                fontFamily: "'Inter', sans-serif",
+                color: "var(--text-secondary)",
+                opacity: 0,
+                transform: "translateX(4px)",
+                transition: "opacity 0.2s, transform 0.2s",
+                pointerEvents: "none",
+              }}>
+                {SLIDE_LABELS[i]}
+              </span>
+              <span style={{
+                width: 5,
+                height: i === current ? 20 : 5,
+                borderRadius: 3,
+                background: i === current ? "var(--accent)" : "var(--text-tertiary)",
+                transition: "all 0.3s ease",
+                opacity: i === current ? 1 : 0.5,
+                display: "block",
+              }} />
+            </button>
+          );
+        })}
+      </nav>
 
       <AnimatePresence mode="wait">
         {current === 0 && (
@@ -335,7 +432,7 @@ export default function Home() {
         {current === 9 && (
           <Slide key="exp-now">
             <p className="caption mb-4">Experience</p>
-            <h3 className="heading-3 mb-12">Current</h3>
+            <h2 className="heading-3 mb-12">Current</h2>
             <div className="space-y-10">
               {currentExperience.map((exp) => (
                 <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
@@ -354,7 +451,7 @@ export default function Home() {
         {current === 10 && (
           <Slide key="exp-prev">
             <p className="caption mb-4">Experience</p>
-            <h3 className="heading-3 mb-12">Previously</h3>
+            <h2 className="heading-3 mb-12">Previously</h2>
             <div className="space-y-10">
               {pastExperience.filter((exp) => !exp.items).map((exp) => (
                 <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
@@ -380,7 +477,7 @@ export default function Home() {
         {current === 12 && (
           <Slide key="exp-extras">
             <p className="caption mb-4">Experience</p>
-            <h3 className="heading-3 mb-12">Competitions & Music</h3>
+            <h2 className="heading-3 mb-12">Competitions & Music</h2>
             <div className="space-y-10">
               {pastExperience.filter((exp) => exp.items).map((exp) => (
                 <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
@@ -405,7 +502,7 @@ export default function Home() {
         {current === 11 && (
           <Slide key="creds">
             <p className="caption mb-4">Experience</p>
-            <h3 className="heading-3 mb-12">Credentials</h3>
+            <h2 className="heading-3 mb-12">Credentials</h2>
             <div className="space-y-10">
               {certifications.map((cert) => (
                 <div key={cert.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
@@ -458,7 +555,7 @@ export default function Home() {
                 <a href={`mailto:${personalInfo.email}`} className="accent-link">{personalInfo.email}</a>
               </p>
               <div className="space-y-2">
-                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>2026 Jacob J. Choi</p>
+                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>{new Date().getFullYear()} Jacob J. Choi</p>
                 <p className="body-small" style={{ color: "var(--text-tertiary)" }}>Built with Next.js</p>
               </div>
             </div>

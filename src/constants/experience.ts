@@ -70,7 +70,6 @@ export const projects = [
     id: 1,
     title: "HarmonyRestorer",
     description: "AI-powered audio restoration platform that removes noise and artifacts from degraded recordings using a custom Operational GAN",
-    descriptionLink: { text: "custom Operational GAN", url: "https://arxiv.org/abs/2212.14618" },
     tech: "PyTorch, OpGAN/Self-ONNs, FastAPI, React, Docker, GCP",
     link: "https://github.com/jacob7choi-xyz/harmonyrestorer-v1",
   },
@@ -103,7 +102,7 @@ export const certifications = [
     title: "RAG and Agentic AI",
     issuer: "IBM",
     year: "2025",
-    status: "Completed",
+
     link: "https://drive.google.com/file/d/1Gc59plG-XL-BvBQS2Vw6CFn9NK_3R3b6/view?usp=sharing"
   },
   {
@@ -111,7 +110,7 @@ export const certifications = [
     title: "HBS CORe (Credential of Readiness)",
     issuer: "Harvard Business School",
     year: "2024",
-    status: "Completed",
+
     link: "https://drive.google.com/file/d/1pSY99sQz0IrGP_O81GCHUhzw3T0M_lUj/view?usp=sharing"
   },
   {
@@ -119,7 +118,7 @@ export const certifications = [
     title: "Tuck Business Bridge Program",
     issuer: "Tuck School of Business, Dartmouth",
     year: "2024",
-    status: "Completed",
+
     link: "https://drive.google.com/file/d/1VqSwrusijo-3-OB5XgDPo4pF-swwPaeq/view?usp=sharing"
   }
 ];
