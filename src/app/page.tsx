@@ -172,9 +172,9 @@ export default function Home() {
     <main aria-label="Portfolio presentation" style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
 
       {/* Dot indicators */}
-      <nav aria-label="Slide navigation" style={{
+      <nav aria-label="Slide navigation" className="hidden md:flex" style={{
         position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
-        zIndex: 10, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end",
+        zIndex: 10, flexDirection: "column", gap: "8px", alignItems: "flex-end",
       }}>
         {Array.from({ length: TOTAL_SLIDES }).map((_, i) => {
           const isJourney = JOURNEY_RANGE.includes(i);
