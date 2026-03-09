@@ -428,12 +428,14 @@ export default function Home() {
           <Slide key="projects">
             <p className="caption mb-6 md:mb-12">Projects</p>
             <div>
-              {projects.map((project) => {
-                const inner = (
+              {projects.map((project) => (
+                <div key={project.id} className="py-5 md:py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                   <div className="grid md:grid-cols-[220px_1fr_auto] gap-2 md:gap-10 items-start">
-                    <h3 className="text-base font-medium group-hover:text-[var(--accent)] transition-colors"
+                    <h3 className="text-base font-medium transition-colors"
                       style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-primary)" }}>
-                      {project.title}
+                      {project.link ? (
+                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="subtle-link hover:text-[var(--accent)]">{project.title}</a>
+                      ) : project.title}
                     </h3>
                     <div className="body-small" style={{ color: "var(--text-secondary)" }}>{project.description}</div>
                     <div className="flex flex-wrap gap-2 md:justify-end shrink-0">
@@ -442,18 +444,8 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
-                );
-                return project.link ? (
-                  <a key={project.id} href={project.link} target="_blank" rel="noopener noreferrer"
-                    className="block group py-5 md:py-8 transition-colors" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-                    {inner}
-                  </a>
-                ) : (
-                  <div key={project.id} className="block group py-5 md:py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-                    {inner}
-                  </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </Slide>
         )}
