@@ -113,6 +113,11 @@ export default function Home() {
       if (!touch) return;
       const delta = touchStartRef.current.y - touch.clientY;
       touchStartRef.current = null;
+      if (Math.abs(delta) < 10) {
+        // Tap -- advance forward
+        go(1);
+        return;
+      }
       if (Math.abs(delta) < 50) return;
       go(delta > 0 ? 1 : -1);
     };
@@ -278,7 +283,7 @@ export default function Home() {
         {current === 7 && (
           <Slide key="journey-6">
             <p
-              className="text-base md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
+              className="text-lg md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
             >
               Now I&apos;m building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina, helping clinicians identify the right cancer treatment for each patient. Sponsored by the Duke Endowment.
