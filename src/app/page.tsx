@@ -113,9 +113,16 @@ export default function Home() {
       if (!touch) return;
       const delta = touchStartRef.current.y - touch.clientY;
       touchStartRef.current = null;
+
+      // Skip tap-to-advance if user tapped a button or link
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest("a, button");
+
       if (Math.abs(delta) < 10) {
-        // Tap -- advance forward
-        go(1);
+        if (!isInteractive) {
+          // Tap left half to go back, right half to go forward
+          go(touch.clientX < window.innerWidth / 2 ? -1 : 1);
+        }
         return;
       }
       if (Math.abs(delta) < 50) return;
