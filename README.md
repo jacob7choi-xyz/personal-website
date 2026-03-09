@@ -111,6 +111,4 @@ All site content lives in `src/constants/`. Edit those files to update the site 
 
 **Jacob J. Choi**
 - **Email**: [jacob77choi@gmail.com](mailto:jacob77choi@gmail.com)
-- **LinkedIn**: [jacobjchoi](https://www.linkedin.com/in/jacobjchoi/)
-- **GitHub**: [jacob7choi-xyz](https://github.com/jacob7choi-xyz)
-- **Website**: [jacobjchoi.xyz](https://www.jacobjchoi.xyz/)
+- [LinkedIn](https://www.linkedin.com/in/jacobjchoi/) / [GitHub](https://github.com/jacob7choi-xyz) / [Website](https://www.jacobjchoi.xyz/)
