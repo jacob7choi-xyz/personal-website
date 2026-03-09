@@ -308,7 +308,7 @@ export default function Home() {
                   <Image src="/Jacob_Choi_Headshot.JPG" alt="Jacob Choi" width={500} height={500} className="rounded-2xl w-full relative z-10" />
                 </div>
               </div>
-              <div className="text-sm md:text-lg leading-relaxed space-y-3 md:space-y-6 order-2 lg:order-1" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+              <div className="text-base md:text-lg leading-relaxed space-y-3 md:space-y-6 order-2 lg:order-1" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
                 <p dangerouslySetInnerHTML={{
                   __html: personalInfo.bio.introLinks
                     ? personalInfo.bio.introLinks.reduce(
