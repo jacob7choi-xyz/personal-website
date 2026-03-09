@@ -300,15 +300,15 @@ export default function Home() {
 
         {current === 8 && (
           <Slide key="about">
-            <p className="caption mb-6 md:mb-12">In Detail</p>
-            <div className="grid lg:grid-cols-2 gap-6 md:gap-16 items-center">
+            <p className="caption mb-4 md:mb-12">In Detail</p>
+            <div className="grid lg:grid-cols-2 gap-4 md:gap-16 items-center">
               <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-                <div className="headshot-wrapper relative w-56 md:w-80 lg:w-full max-w-md">
+                <div className="headshot-wrapper relative w-72 md:w-80 lg:w-full max-w-md">
                   <div className="headshot-glow" />
                   <Image src="/Jacob_Choi_Headshot.JPG" alt="Jacob Choi" width={500} height={500} className="rounded-2xl w-full relative z-10" />
                 </div>
               </div>
-              <div className="text-xs md:text-lg leading-relaxed space-y-3 md:space-y-6 order-2 lg:order-1" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+              <div className="text-sm md:text-lg leading-relaxed space-y-3 md:space-y-6 order-2 lg:order-1" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
                 <p dangerouslySetInnerHTML={{
                   __html: personalInfo.bio.introLinks
                     ? personalInfo.bio.introLinks.reduce(
