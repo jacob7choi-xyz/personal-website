@@ -120,8 +120,8 @@ export default function Home() {
 
       if (Math.abs(delta) < 10) {
         if (!isInteractive) {
-          // Tap left half to go back, right half to go forward
-          go(touch.clientX < window.innerWidth / 2 ? -1 : 1);
+          // Tap top half to go back, bottom half to go forward
+          go(touch.clientY < window.innerHeight / 2 ? -1 : 1);
         }
         return;
       }
