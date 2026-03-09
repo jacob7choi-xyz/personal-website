@@ -290,7 +290,7 @@ export default function Home() {
         {current === 7 && (
           <Slide key="journey-6">
             <p
-              className="text-lg md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
+              className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
               style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
             >
               Now I&apos;m building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina, helping clinicians identify the right cancer treatment for each patient. Sponsored by the Duke Endowment.
