@@ -1,6 +1,6 @@
 # ADR-001: Portfolio Layout Redesign
 
-**Status:** Accepted
+**Status:** Superseded by ADR-002
 **Date:** 2026-03-08
 **Author:** Jacob J. Choi
 

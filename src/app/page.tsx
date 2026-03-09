@@ -1,390 +1,465 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-
-// Components
-import Cursor from "@/components/Global/Cursor";
-import GlitchText from "@/components/Global/GlitchText";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
-// Constants
 import { currentExperience, pastExperience, projects, certifications, socialLinks, personalInfo } from "@/constants";
-import { fadeInUp, fadeInScale } from "@/constants/animations";
 
-const socialIcons: Record<string, React.ReactNode> = {
-  GitHub: <FaGithub className="text-2xl text-[#c9d1d9]" />,
-  LinkedIn: <FaLinkedinIn className="text-2xl text-[#0A66C2]" />,
-  X: <FaXTwitter className="text-2xl text-[#e7e9ea]" />,
-  Instagram: <FaInstagram className="text-2xl text-[#E4405F]" />,
-  YouTube: <FaYoutube className="text-2xl text-[#FF0000]" />,
+const socialIcons: Record<string, { icon: React.ReactNode; color: string }> = {
+  GitHub: { icon: <FaGithub />, color: "#f0f0f0" },
+  LinkedIn: { icon: <FaLinkedinIn />, color: "#0A66C2" },
+  X: { icon: <FaXTwitter />, color: "#f0f0f0" },
+  Instagram: { icon: <FaInstagram />, color: "#E4405F" },
+  YouTube: { icon: <FaYoutube />, color: "#FF0000" },
 };
 
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
+const ease = [0.25, 0.1, 0.25, 1] as const;
 
-  useEffect(() => {
-    setMounted(true);
+const fadeVariants = {
+  enter: { opacity: 0, filter: "blur(14px)", scale: 0.98 },
+  center: { opacity: 1, filter: "blur(0px)", scale: 1 },
+  exit: { opacity: 0, filter: "blur(14px)", scale: 0.98 },
+};
+
+const TOTAL_SLIDES = 15;
+
+function Slide({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      variants={fadeVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={{ duration: 0.9, ease }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2.5rem 1.25rem",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto" }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function Home() {
+  const [current, setCurrent] = useState(0);
+  const lockRef = useRef(false);
+  const touchStartRef = useRef<{ y: number; id: number } | null>(null);
+  const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wheelAccum = useRef(0);
+
+  const LOCK_MS = 1000;
+
+  const lock = useCallback(() => {
+    lockRef.current = true;
+    setTimeout(() => { lockRef.current = false; }, LOCK_MS);
   }, []);
 
+  const go = useCallback((direction: 1 | -1) => {
+    if (lockRef.current) return;
+    setCurrent((prev) => {
+      const next = prev + direction;
+      if (next < 0 || next >= TOTAL_SLIDES) return prev;
+      lock();
+      return next;
+    });
+  }, [lock]);
+
+  const goTo = useCallback((index: number) => {
+    if (lockRef.current || index < 0 || index >= TOTAL_SLIDES) return;
+    setCurrent((prev) => {
+      if (index === prev) return prev;
+      lock();
+      return index;
+    });
+  }, [lock]);
+
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (lockRef.current) return;
+
+      // Accumulate wheel delta and debounce to handle trackpad momentum
+      wheelAccum.current += e.deltaY;
+      if (wheelTimer.current) clearTimeout(wheelTimer.current);
+      wheelTimer.current = setTimeout(() => { wheelAccum.current = 0; }, 200);
+
+      if (Math.abs(wheelAccum.current) < 30) return;
+      const direction = wheelAccum.current > 0 ? 1 : -1;
+      wheelAccum.current = 0;
+      go(direction as 1 | -1);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 1) return; // Ignore multi-touch
+      touchStartRef.current = { y: e.touches[0].clientY, id: e.touches[0].identifier };
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchStartRef.current) return;
+      // Find the matching touch by identifier
+      const touch = Array.from(e.changedTouches).find(
+        (t) => t.identifier === touchStartRef.current?.id
+      );
+      if (!touch) return;
+      const delta = touchStartRef.current.y - touch.clientY;
+      touchStartRef.current = null;
+      if (Math.abs(delta) < 50) return;
+      go(delta > 0 ? 1 : -1);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); go(1); }
+      if (e.key === "ArrowUp") { e.preventDefault(); go(-1); }
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("keydown", onKey);
+      if (wheelTimer.current) clearTimeout(wheelTimer.current);
+    };
+  }, [go]);
+
   return (
-    <div className="text-white min-h-screen font-mono relative overflow-hidden"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+    <main style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
 
-      {/* Custom Cursor */}
-      {mounted && <Cursor />}
-
-      {/* Grid Background */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="grid-pattern absolute inset-0" />
+      {/* Dot indicators */}
+      <div style={{
+        position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
+        zIndex: 10, display: "flex", flexDirection: "column", gap: "8px",
+      }}>
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            style={{
+              width: 20,
+              height: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            <span style={{
+              width: 5,
+              height: i === current ? 20 : 5,
+              borderRadius: 3,
+              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
+              transition: "all 0.3s ease",
+              opacity: i === current ? 1 : 0.5,
+              display: "block",
+            }} />
+          </button>
+        ))}
       </div>
 
-      {/* Animated Grid Lines */}
-      {mounted && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30"
-              style={{
-                top: `${15 + i * 35}%`,
-                left: 0,
-                right: 0,
-                zIndex: 1,
-              }}
-              animate={{
-                x: ["-100%", "100%"],
-              }}
-              transition={{
-                duration: 12 + i * 3,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {current === 0 && (
+          <Slide key="hero">
+            <h1 className="display mb-8">{personalInfo.name}</h1>
+            <p className="body-large mb-10 max-w-xl" style={{ color: "var(--text-secondary)" }}>
+              {personalInfo.title}
+            </p>
+            <div>
+              <a href={`mailto:${personalInfo.email}`} className="accent-link body-large focus-ring">
+                {personalInfo.email}
+              </a>
+            </div>
+            <div className="flex items-center gap-8 mt-12">
+              {socialLinks.map((social) => {
+                const s = socialIcons[social.name];
+                return (
+                  <a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-3xl social-icon focus-ring"
+                    style={{ color: s?.color }}
+                    aria-label={social.name}
+                  >
+                    {s?.icon}
+                  </a>
+                );
+              })}
+            </div>
+          </Slide>
+        )}
 
-      {/* Main Content */}
-      <div className="container-custom py-16 relative z-10">
+        {current === 1 && (
+          <Slide key="quote">
+            <div className="flex items-center justify-center" style={{ minHeight: "40vh" }}>
+              <p
+                className="text-4xl md:text-6xl lg:text-7xl font-light italic tracking-tight text-center"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-tertiary)" }}
+              >
+                {personalInfo.status.replace(/"/g, "")}
+              </p>
+            </div>
+          </Slide>
+        )}
 
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="mb-20"
-        >
-          <div className="flex flex-col lg:flex-row items-start gap-12">
-            {/* Photo */}
-            <motion.div
-              {...fadeInScale}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="shrink-0"
+        {current === 2 && (
+          <Slide key="journey-1">
+            <p
+              className="text-3xl md:text-5xl font-light tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
             >
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
-                <div className="relative bg-gray-900 rounded-lg p-1">
-                  <Image
-                    src="/Jacob_Choi_Headshot.JPG"
-                    alt="Jacob Choi"
-                    width={280}
-                    height={280}
-                    className="rounded-lg"
-                  />
+              A little bit about me...
+            </p>
+          </Slide>
+        )}
+
+        {current === 3 && (
+          <Slide key="journey-2">
+            <p
+              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
+            >
+              Got into Juilliard for viola. Chose Colby to figure out what I really wanted.
+            </p>
+          </Slide>
+        )}
+
+        {current === 4 && (
+          <Slide key="journey-3">
+            <p
+              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
+            >
+              Double majored in economics and Spanish. Tried finance. Tried law.
+            </p>
+          </Slide>
+        )}
+
+        {current === 5 && (
+          <Slide key="journey-4">
+            <p
+              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
+            >
+              None of it felt right.
+            </p>
+          </Slide>
+        )}
+
+        {current === 6 && (
+          <Slide key="journey-5">
+            <p
+              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
+            >
+              Then I tried coding.
+            </p>
+          </Slide>
+        )}
+
+        {current === 7 && (
+          <Slide key="journey-6">
+            <p
+              className="text-base md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
+            >
+              Now I&apos;m building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina, helping clinicians identify the right cancer treatment for each patient. Sponsored by the Duke Endowment.
+            </p>
+          </Slide>
+        )}
+
+        {current === 8 && (
+          <Slide key="about">
+            <p className="caption mb-12">In Detail</p>
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div className="body-large space-y-6" style={{ color: "var(--text-secondary)" }}>
+                <p dangerouslySetInnerHTML={{
+                  __html: personalInfo.bio.introLinks
+                    ? personalInfo.bio.introLinks.reduce(
+                        (text: string, link: { text: string; url: string }) =>
+                          text.replace(link.text, `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="accent-link">${link.text}</a>`),
+                        personalInfo.bio.intro
+                      )
+                    : personalInfo.bio.intro,
+                }} />
+                <p dangerouslySetInnerHTML={{
+                  __html: personalInfo.bio.focusLinks
+                    ? personalInfo.bio.focusLinks.reduce(
+                        (text: string, link: { text: string; url: string }) =>
+                          text.replace(link.text, `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="accent-link">${link.text}</a>`),
+                        personalInfo.bio.focus
+                      )
+                    : personalInfo.bio.focus,
+                }} />
+              </div>
+              <div className="flex justify-center lg:justify-end">
+                <div className="headshot-wrapper relative w-80 lg:w-full max-w-md">
+                  <div className="headshot-glow" />
+                  <Image src="/Jacob_Choi_Headshot.JPG" alt="Jacob Choi" width={500} height={500} className="rounded-2xl w-full relative z-10" />
                 </div>
               </div>
-              <div className="mt-3 text-center">
-                <span className="text-tech text-sm font-mono tracking-wider">
-                  Building<span className="animate-pulse">...</span>
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Identity */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="status-online"></div>
-                <span className="label text-tech">SYSTEM_ONLINE</span>
-              </div>
-
-              <h1 className="heading-1 mb-4">
-                <GlitchText
-                  text="Jacob J. Choi"
-                  mode="smooth"
-                  autoPlay={true}
-                  delay={800}
-                />
-              </h1>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                className="body-large text-muted mb-6"
-              >
-                {personalInfo.title}
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="flex items-center gap-4 text-sm"
-              >
-                <a
-                  href={`mailto:${personalInfo.email}`}
-                  className="link focus-ring"
-                >
-                  {personalInfo.email}
-                </a>
-                <div className="w-px h-4 bg-gray-600"></div>
-                <span className="body-small text-tech">{personalInfo.status}</span>
-              </motion.div>
             </div>
-          </div>
-        </motion.div>
+          </Slide>
+        )}
 
-        {/* Bio */}
-        <motion.div
-          {...fadeInUp}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="mb-20"
-        >
-          <div className="card-glass p-8">
-            <h2 className="label text-tech mb-4">README.md</h2>
-            <div className="body-normal text-muted leading-relaxed space-y-4 max-w-4xl">
-              <p dangerouslySetInnerHTML={{
-                __html: personalInfo.bio.introLinks
-                  ? personalInfo.bio.introLinks.reduce(
-                      (text, link) => text.replace(
-                        link.text,
-                        `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 transition-colors underline">${link.text}</a>`
-                      ),
-                      personalInfo.bio.intro
-                    )
-                  : personalInfo.bio.intro
-              }} />
-              <p>{personalInfo.bio.focus}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Experience Grid */}
-        <motion.div
-          {...fadeInUp}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="grid md:grid-cols-3 gap-8 mb-20"
-        >
-          {/* Current */}
-          <motion.div
-            className="card-glass p-6"
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <h3 className="label text-tech mb-4">/current</h3>
-            <div className="space-y-4 body-small">
+        {current === 9 && (
+          <Slide key="exp-now">
+            <p className="caption mb-4">Experience</p>
+            <h3 className="heading-3 mb-12">Current</h3>
+            <div className="space-y-10">
               {currentExperience.map((exp) => (
-                <div key={exp.id} className="border-tech">
-                  <div className="body-normal font-medium">{exp.title}</div>
-                  <div className="text-muted">
+                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
+                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{exp.title}</div>
+                  <div className="body" style={{ color: "var(--text-primary)" }}>
                     {exp.link ? (
-                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors underline decoration-gray-600 hover:decoration-gray-400">
-                        {exp.company}
-                      </a>
-                    ) : (
-                      exp.company
-                    )}
+                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{exp.company}</a>
+                    ) : exp.company}
                   </div>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </Slide>
+        )}
 
-          {/* Past */}
-          <motion.div
-            className="card-glass p-6"
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <h3 className="label text-tech mb-4">/past</h3>
-            <div className="space-y-4 body-small">
-              {pastExperience.map((exp) => (
-                <div key={exp.id} className="border-tech">
-                  <div className="body-normal font-medium">
+        {current === 10 && (
+          <Slide key="exp-prev">
+            <p className="caption mb-4">Experience</p>
+            <h3 className="heading-3 mb-12">Previously</h3>
+            <div className="space-y-10">
+              {pastExperience.filter((exp) => !exp.items).map((exp) => (
+                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
+                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>
                     {exp.link ? (
-                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors underline decoration-gray-600 hover:decoration-gray-400">
-                        {exp.title}
-                      </a>
-                    ) : (
-                      exp.title
-                    )}
+                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{exp.title}</a>
+                    ) : exp.title}
                   </div>
-                  <div className="text-muted">
-                    {exp.items ? (
-                      <ul className="list-disc list-inside space-y-1">
-                        {exp.items.map((item, i) => (
-                          <li key={i}>
-                            {item.link ? (
-                              <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors underline decoration-gray-600 hover:decoration-gray-400">
-                                {item.text}
-                              </a>
-                            ) : (
-                              item.text
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      exp.company
-                    )}
-                  </div>
-                  {exp.mentorLink && (
-                    <div className="text-xs mt-1">
-                      <a href={exp.mentorLink} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-200 transition-colors underline decoration-gray-600 hover:decoration-gray-400">
+                  <div>
+                    <div className="body" style={{ color: "var(--text-primary)" }}>{exp.company}</div>
+                    {exp.mentorLink && (
+                      <a href={exp.mentorLink} target="_blank" rel="noopener noreferrer" className="accent-link body-small mt-2 inline-block">
                         {exp.mentorText}
                       </a>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </Slide>
+        )}
 
-          {/* Certificates */}
-          <motion.div
-            className="card-glass p-6"
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <h3 className="label text-tech mb-4">/certificates</h3>
-            <div className="space-y-4 body-small">
+        {current === 12 && (
+          <Slide key="exp-extras">
+            <p className="caption mb-4">Experience</p>
+            <h3 className="heading-3 mb-12">Competitions & Music</h3>
+            <div className="space-y-10">
+              {pastExperience.filter((exp) => exp.items).map((exp) => (
+                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
+                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{exp.title}</div>
+                  <div className="body" style={{ color: "var(--text-primary)" }}>
+                    <ul className="space-y-1">
+                      {exp.items!.map((item, j) => (
+                        <li key={j}>
+                          {item.link ? (
+                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{item.text}</a>
+                          ) : item.text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Slide>
+        )}
+
+        {current === 11 && (
+          <Slide key="creds">
+            <p className="caption mb-4">Experience</p>
+            <h3 className="heading-3 mb-12">Credentials</h3>
+            <div className="space-y-10">
               {certifications.map((cert) => (
-                <div key={cert.id} className="border-tech">
-                  <div className="body-normal font-medium">
-                    {cert.link ? (
-                      <a href={cert.link} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors underline decoration-gray-600 hover:decoration-gray-400">
-                        {cert.title}
-                      </a>
-                    ) : (
-                      cert.title
-                    )}
-                  </div>
-                  <div className="text-muted">{cert.issuer}</div>
-                  <div className="flex justify-between text-xs mt-1">
-                    <span className="text-gray-400">{cert.year}</span>
-                    <span className={`
-                      ${cert.status === 'Completed' ? 'text-green-400' :
-                        cert.status === 'In Progress' ? 'text-yellow-400' :
-                        'text-gray-400'}
-                    `}>
-                      {cert.status}
-                    </span>
+                <div key={cert.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
+                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{cert.year}</div>
+                  <div>
+                    <div className="body" style={{ color: "var(--text-primary)" }}>
+                      {cert.link ? (
+                        <a href={cert.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{cert.title}</a>
+                      ) : cert.title}
+                    </div>
+                    <div className="body-small mt-1" style={{ color: "var(--text-secondary)" }}>{cert.issuer}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </Slide>
+        )}
 
-        {/* Projects */}
-        <motion.div
-          {...fadeInUp}
-          transition={{ delay: 0.8, duration: 0.8 }}
-          className="mb-20"
-        >
-          <h2 className="label text-tech mb-6">/projects</h2>
-          <div className="space-y-4">
-            {projects.map((project) => (
-              <motion.div
-                key={project.id}
-                className="card-glass p-5 group flex flex-col md:flex-row md:items-center gap-4"
-                whileHover={{ x: 5, borderColor: 'rgba(0, 229, 255, 0.4)' }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="body-normal font-semibold">
-                      {project.link ? (
-                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors">
-                          {project.title}
-                          <span className="text-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-                        </a>
-                      ) : (
-                        project.title
-                      )}
+        {current === 13 && (
+          <Slide key="projects">
+            <p className="caption mb-12">Projects</p>
+            <div>
+              {projects.map((project) => {
+                const inner = (
+                  <div className="grid md:grid-cols-[220px_1fr_auto] gap-2 md:gap-10 items-start">
+                    <h3 className="text-base font-medium group-hover:text-[var(--accent)] transition-colors"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-primary)" }}>
+                      {project.title}
                     </h3>
+                    <div className="body-small" style={{ color: "var(--text-secondary)" }}>{project.description}</div>
+                    <div className="flex flex-wrap gap-2 md:justify-end shrink-0">
+                      {project.tech.split(", ").slice(0, 3).map((t) => (
+                        <span key={t} className="tag whitespace-nowrap">{t}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-muted body-small">
-                    {project.descriptionLink ? (
-                      <span dangerouslySetInnerHTML={{
-                        __html: project.description.replace(
-                          project.descriptionLink.text,
-                          `<a href="${project.descriptionLink.url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 transition-colors underline">${project.descriptionLink.text}</a>`
-                        )
-                      }} />
-                    ) : (
-                      project.description
-                    )}
+                );
+                return project.link ? (
+                  <a key={project.id} href={project.link} target="_blank" rel="noopener noreferrer"
+                    className="block group py-8 transition-colors" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={project.id} className="block group py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    {inner}
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 md:justify-end shrink-0">
-                  {project.tech.split(", ").map((t) => (
-                    <span key={t} className="text-xs px-2 py-0.5 rounded border border-cyan-400/20 text-cyan-400/70 bg-cyan-400/5 whitespace-nowrap">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Social Links */}
-        <motion.div
-          {...fadeInUp}
-          transition={{ delay: 1, duration: 0.8 }}
-          className="flex flex-wrap items-center gap-8 mb-20"
-        >
-          {socialLinks.map((social) => (
-            <motion.a
-              key={social.name}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 focus-ring"
-              whileHover={{ y: -3, scale: 1.15 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              title={social.name}
-            >
-              {socialIcons[social.name]}
-            </motion.a>
-          ))}
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-          className="pt-8 border-t border-gray-800"
-        >
-          <div className="flex-between body-small text-subtle">
-            <div>© 2026 Jacob J. Choi</div>
-            <div className="flex-center gap-2">
-              <div className="status-online"></div>
-              <span>Built with Next.js & Framer Motion</span>
+                );
+              })}
             </div>
-          </div>
-        </motion.div>
-      </div>
+          </Slide>
+        )}
 
-      <style jsx global>{`
-        * {
-          cursor: none;
-        }
-      `}</style>
-    </div>
+        {current === 14 && (
+          <Slide key="footer">
+            <div className="text-center space-y-6">
+              <p className="body" style={{ color: "var(--text-secondary)" }}>
+                For further info, questions, or resume, contact{" "}
+                <a href={`mailto:${personalInfo.email}`} className="accent-link">{personalInfo.email}</a>
+              </p>
+              <div className="space-y-2">
+                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>2026 Jacob J. Choi</p>
+                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>Built with Next.js</p>
+              </div>
+            </div>
+          </Slide>
+        )}
+      </AnimatePresence>
+    </main>
   );
 }
