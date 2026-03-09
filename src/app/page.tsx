@@ -171,7 +171,36 @@ export default function Home() {
   return (
     <main aria-label="Portfolio presentation" style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
 
-      {/* Dot indicators */}
+      {/* Mobile dot indicators -- simple, no labels */}
+      <nav aria-label="Slide navigation" className="flex md:hidden" style={{
+        position: "fixed", right: "0.5rem", top: "50%", transform: "translateY(-50%)",
+        zIndex: 10, flexDirection: "column", gap: "6px", alignItems: "center",
+      }}>
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-current={i === current ? "true" : undefined}
+            style={{
+              width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center",
+              background: "transparent", border: "none", cursor: "pointer", padding: 0,
+            }}
+          >
+            <span style={{
+              width: 5,
+              height: i === current ? 16 : 5,
+              borderRadius: 3,
+              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
+              transition: "all 0.3s ease",
+              opacity: i === current ? 1 : 0.35,
+              display: "block",
+            }} />
+          </button>
+        ))}
+      </nav>
+
+      {/* Desktop dot indicators -- labels, grouping, hover effects */}
       <nav aria-label="Slide navigation" className="hidden md:flex" style={{
         position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
         zIndex: 10, flexDirection: "column", gap: "8px", alignItems: "flex-end",
