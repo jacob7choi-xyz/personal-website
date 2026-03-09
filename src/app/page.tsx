@@ -33,6 +33,7 @@ function Slide({ children }: { children: React.ReactNode }) {
       animate="center"
       exit="exit"
       transition={{ duration: 0.9, ease }}
+      className="slide-container"
       style={{
         position: "fixed",
         inset: 0,
@@ -40,7 +41,6 @@ function Slide({ children }: { children: React.ReactNode }) {
         alignItems: "center",
         justifyContent: "center",
         padding: "2.5rem 1.25rem",
-        overflowY: "auto",
       }}
     >
       <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto", flexShrink: 0 }}>
