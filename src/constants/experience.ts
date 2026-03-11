@@ -83,8 +83,8 @@ export const projects = [
   {
     id: 3,
     title: "Credential Vault",
-    description: "Decentralized identity management with immutable credential verification",
-    tech: "Ethereum, Solidity, Web3, Next.js 15",
+    description: "On-chain identity system with guardian recovery, key rotation history, and consent-gated credential verification",
+    tech: "Solidity, Hardhat, Next.js",
     link: "https://github.com/jacob7choi-xyz/credential-vault",
   },
   {
