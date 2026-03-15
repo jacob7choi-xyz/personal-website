@@ -25,13 +25,21 @@ A full-viewport fade-show presentation -- no scrolling. 15 slides navigate via a
 - **Cursor-following aura** with pulsing concentric rings (desktop only)
 - **Space Grotesk + Inter** typography pairing
 
+### Navigation
+
+- **Desktop**: Scroll wheel, arrow keys, Home/End, Space, click (top half = back, bottom half = forward)
+- **Mobile**: Swipe up/down, tap (top half = back, bottom half = forward)
+- **Dot nav (desktop)**: Hover labels, journey dot grouping, highlight on hover
+- **Dot nav (mobile)**: Simplified minimal dots
+
 ### Accessibility
 
 - `prefers-reduced-motion` disables all animations
 - `prefers-contrast: high` support
-- Keyboard navigation (arrow keys, spacebar)
-- Touch/swipe navigation on mobile
-- Semantic HTML with `<main>` landmark and `aria-label` attributes
+- Keyboard navigation (arrow keys, Space, Home/End)
+- Touch/swipe/tap navigation on mobile
+- Semantic HTML with `<main>`, `<nav>` landmarks and `aria-label` attributes
+- Focus rings with accent color
 
 ---
 
@@ -112,3 +120,9 @@ All site content lives in `src/constants/`. Edit those files to update the site 
 **Jacob J. Choi**
 - **Email**: [jacob77choi@gmail.com](mailto:jacob77choi@gmail.com)
 - [LinkedIn](https://www.linkedin.com/in/jacobjchoi/) / [GitHub](https://github.com/jacob7choi-xyz) / [Website](https://www.jacobjchoi.xyz/)
+
+---
+
+## License
+
+[MIT](LICENSE)
