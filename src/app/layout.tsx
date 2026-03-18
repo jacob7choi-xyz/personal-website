@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import CursorAura from "@/components/Global/CursorAura";
 
@@ -28,6 +29,7 @@ export default function RootLayout({
         <div style={{ position: 'relative', zIndex: 1 }}>
           {children}
         </div>
+        <SpeedInsights />
       </body>
     </html>
   );
