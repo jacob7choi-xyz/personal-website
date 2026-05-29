@@ -3,13 +3,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jacob J. Choi — Violist & AI Engineer",
+  title: "Jacob J. Choi — Musician x AI Engineer",
   description:
-    "Jacob J. Choi. Admitted to Juilliard for viola, now building AI systems that ship to production. Research to production, not just notebooks.",
+    "Jacob J. Choi — musician and AI engineer. Admitted to Juilliard for viola; currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
   openGraph: {
-    title: "Jacob J. Choi — Violist & AI Engineer",
+    title: "Jacob J. Choi — Musician x AI Engineer",
     description:
-      "Admitted to Juilliard for viola, now building AI systems that ship to production.",
+      "Admitted to Juilliard for viola; currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
     url: "https://www.jacobjchoi.xyz/",
     siteName: "Jacob J. Choi",
     type: "website",
