@@ -8,12 +8,7 @@ export const currentExperience = [
   {
     id: 2,
     title: "B.A. Computer Science: AI",
-    company: "Colby College, 3.86 GPA (Gap Year)",
-  },
-  {
-    id: 3,
-    title: "Founder/CEO/Product Lead",
-    company: "TuneTales - AI Music Storytelling Platform",
+    company: "Colby College, 3.86 GPA",
   },
 ];
 

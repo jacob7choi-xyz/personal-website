@@ -13,12 +13,12 @@ import {
   personalInfo,
 } from "@/constants";
 
-const ICONS: Record<string, React.ReactNode> = {
-  GitHub: <FaGithub />,
-  LinkedIn: <FaLinkedinIn />,
-  X: <FaXTwitter />,
-  Instagram: <FaInstagram />,
-  YouTube: <FaYoutube />,
+const SOCIALS: Record<string, { icon: React.ReactNode; color: string }> = {
+  GitHub: { icon: <FaGithub />, color: "#F0F0F0" },
+  LinkedIn: { icon: <FaLinkedinIn />, color: "#3B9CE0" },
+  X: { icon: <FaXTwitter />, color: "#F0F0F0" },
+  Instagram: { icon: <FaInstagram />, color: "#E4405F" },
+  YouTube: { icon: <FaYoutube />, color: "#FF3D3D" },
 };
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
@@ -57,6 +57,14 @@ const WAVE_PATH = (() => {
   return d;
 })();
 
+function emphasize(text: string, map: Record<string, string>) {
+  return Object.entries(map).reduce(
+    (acc, [phrase, color]) =>
+      acc.replace(phrase, `<span style="color:${color}">${phrase}</span>`),
+    text
+  );
+}
+
 type Link = { text: string; url: string };
 
 function linkify(text: string, links?: Link[]) {
@@ -82,8 +90,10 @@ function Waveform() {
     >
       <defs>
         <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="var(--violet)" />
-          <stop offset="100%" stopColor="var(--cyan)" />
+          <stop offset="0%" stopColor="#c4b5fd" />
+          <stop offset="40%" stopColor="#f0abfc" />
+          <stop offset="70%" stopColor="#93c5fd" />
+          <stop offset="100%" stopColor="#67e8f9" />
         </linearGradient>
       </defs>
       <motion.path
@@ -178,6 +188,7 @@ function ExternalOrText({
 
 export default function Home() {
   const year = new Date().getFullYear();
+  const reduce = useReducedMotion();
   const simplePast = pastExperience.filter((e) => !e.items);
   const groupedPast = pastExperience.filter((e) => e.items);
 
@@ -190,15 +201,22 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
         >
-          <Image
-            src="/Jacob_Choi_Headshot.JPG"
-            alt="Jacob J. Choi"
-            width={132}
-            height={164}
-            priority
-            className="rounded-md object-cover object-top mb-8 w-[104px] h-[130px] md:w-[120px] md:h-[150px]"
-            style={{ boxShadow: "0 0 0 1px var(--rule)" }}
-          />
+          <div
+            className="mb-9 inline-block rounded-2xl p-[2px]"
+            style={{
+              background: "linear-gradient(140deg, #c4b5fd, #f0abfc 45%, #67e8f9)",
+              boxShadow: "0 10px 44px rgba(140, 110, 240, 0.30)",
+            }}
+          >
+            <Image
+              src="/Jacob_Choi_Headshot.JPG"
+              alt="Jacob J. Choi"
+              width={2305}
+              height={1537}
+              priority
+              className="rounded-[14px] block h-auto w-[210px] md:w-[240px]"
+            />
+          </div>
 
           <h1
             className="serif name-gradient font-medium text-6xl md:text-8xl leading-[0.95]"
@@ -233,20 +251,26 @@ export default function Home() {
         </motion.div>
 
         <motion.div
-          className="mt-10 space-y-5 max-w-2xl"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="mt-10 max-w-2xl space-y-5"
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <p
-            className="text-[1.05rem] leading-[1.8]"
-            style={{ color: "var(--text-secondary)" }}
+            className="text-[1.1rem] leading-[1.75]"
+            style={{ color: "var(--text-primary)" }}
             dangerouslySetInnerHTML={{
-              __html: linkify(personalInfo.bio.intro, personalInfo.bio.introLinks),
+              __html: emphasize(
+                linkify(personalInfo.bio.intro, personalInfo.bio.introLinks),
+                {
+                  "biomedical GraphRAG": "var(--cyan)",
+                  "three-year grant from the Duke Endowment": "var(--violet-soft)",
+                }
+              ),
             }}
           />
           <p
-            className="text-[1.05rem] leading-[1.8]"
+            className="text-[1.02rem] leading-[1.8]"
             style={{ color: "var(--text-secondary)" }}
             dangerouslySetInnerHTML={{
               __html: linkify(personalInfo.bio.focus, personalInfo.bio.focusLinks),
@@ -313,7 +337,7 @@ export default function Home() {
       </Section>
 
       {/* ---------------------------------------------------------- Path */}
-      <Section num={ROMAN[2]} label="Path">
+      <Section num={ROMAN[2]} label="Past">
         <ul>
           {simplePast.map((e) => (
             <li
@@ -419,8 +443,9 @@ export default function Home() {
               rel="noopener noreferrer"
               aria-label={s.name}
               className="social-ico focus-ring"
+              style={{ color: SOCIALS[s.name]?.color }}
             >
-              {ICONS[s.name]}
+              {SOCIALS[s.name]?.icon}
             </a>
           ))}
         </div>
