@@ -91,10 +91,10 @@ function Waveform() {
     >
       <defs>
         <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#FF9E8A" />
-          <stop offset="34%" stopColor="#54E09C" />
-          <stop offset="64%" stopColor="#2FD2CE" />
-          <stop offset="100%" stopColor="#36ADEE" />
+          <stop offset="0%" stopColor="#c4b5fd" />
+          <stop offset="40%" stopColor="#f0abfc" />
+          <stop offset="70%" stopColor="#93c5fd" />
+          <stop offset="100%" stopColor="#67e8f9" />
         </linearGradient>
       </defs>
       <motion.path
@@ -205,8 +205,8 @@ export default function Home() {
           <div
             className="mb-9 inline-block rounded-2xl p-[2px]"
             style={{
-              background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
-              boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
+              background: "linear-gradient(140deg, #c4b5fd, #f0abfc 45%, #67e8f9)",
+              boxShadow: "0 10px 44px rgba(140, 110, 240, 0.30)",
             }}
           >
             <Image
