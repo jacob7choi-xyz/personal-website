@@ -1,596 +1,484 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
-import { currentExperience, pastExperience, projects, certifications, socialLinks, personalInfo } from "@/constants";
+import {
+  currentExperience,
+  pastExperience,
+  projects,
+  certifications,
+  awards,
+  socialLinks,
+  personalInfo,
+} from "@/constants";
 
-const socialIcons: Record<string, { icon: React.ReactNode; color: string }> = {
-  GitHub: { icon: <FaGithub />, color: "#f0f0f0" },
-  LinkedIn: { icon: <FaLinkedinIn />, color: "#0A66C2" },
-  X: { icon: <FaXTwitter />, color: "#f0f0f0" },
+const SOCIALS: Record<string, { icon: React.ReactNode; color: string }> = {
+  GitHub: { icon: <FaGithub />, color: "#F0F0F0" },
+  LinkedIn: { icon: <FaLinkedinIn />, color: "#3B9CE0" },
+  X: { icon: <FaXTwitter />, color: "#F0F0F0" },
   Instagram: { icon: <FaInstagram />, color: "#E4405F" },
-  YouTube: { icon: <FaYoutube />, color: "#FF0000" },
+  YouTube: { icon: <FaYoutube />, color: "#FF3D3D" },
 };
 
-const ease = [0.25, 0.1, 0.25, 1] as const;
+const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
-const fadeVariants = {
-  enter: { opacity: 0, filter: "blur(14px)", scale: 0.98 },
-  center: { opacity: 1, filter: "blur(0px)", scale: 1 },
-  exit: { opacity: 0, filter: "blur(14px)", scale: 0.98 },
-};
+const rule = "1px solid var(--rule-soft)";
 
-const TOTAL_SLIDES = 15;
+/* ------------------------------------------------------------------ */
+/* The waveform that bridges the two voices. Deterministic (no random, */
+/* no Date) so server and client render identically — drawn once on    */
+/* load like a single bow stroke, then still.                          */
+/* ------------------------------------------------------------------ */
+const WAVE_PATH = (() => {
+  const W = 1000;
+  const mid = 35;
+  const N = 64;
+  const pts: [number, number][] = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    const x = t * W;
+    const env = Math.sin(Math.PI * t); // fades to flat at both ends
+    const a =
+      Math.sin(t * 21) * 0.55 +
+      Math.sin(t * 8.5 + 1.3) * 0.32 +
+      Math.sin(t * 38 + 0.7) * 0.14;
+    const y = mid - a * env * (mid - 5);
+    pts.push([x, y]);
+  }
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    const xc = ((x0 + x1) / 2).toFixed(1);
+    const yc = ((y0 + y1) / 2).toFixed(1);
+    d += ` Q ${x0.toFixed(1)} ${y0.toFixed(1)} ${xc} ${yc}`;
+  }
+  return d;
+})();
 
-const SLIDE_LABELS = [
-  "Home", "Quote", null, null, null, null, null, null,
-  "In Detail", "Current", "Previously", "Credentials", "Competitions & Music", "Projects", "Contact",
-];
+function emphasize(text: string, map: Record<string, string>) {
+  return Object.entries(map).reduce(
+    (acc, [phrase, color]) =>
+      acc.replace(phrase, `<span style="color:${color}">${phrase}</span>`),
+    text
+  );
+}
 
-const JOURNEY_RANGE = [2, 3, 4, 5, 6, 7];
+type Link = { text: string; url: string };
 
-function Slide({ children }: { children: React.ReactNode }) {
+function linkify(text: string, links?: Link[]) {
+  if (!links) return text;
+  return links.reduce(
+    (acc, l) =>
+      acc.replace(
+        l.text,
+        `<a class="ink-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.text}</a>`
+      ),
+    text
+  );
+}
+
+function Waveform() {
+  const reduce = useReducedMotion();
+  return (
+    <svg
+      viewBox="0 0 1000 70"
+      preserveAspectRatio="none"
+      className="w-full h-10 md:h-14"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#FF9E8A" />
+          <stop offset="34%" stopColor="#54E09C" />
+          <stop offset="64%" stopColor="#2FD2CE" />
+          <stop offset="100%" stopColor="#36ADEE" />
+        </linearGradient>
+      </defs>
+      <motion.path
+        d={WAVE_PATH}
+        fill="none"
+        stroke="url(#voice)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+        animate={reduce ? undefined : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 1.8, ease: "easeInOut", delay: 0.4 }}
+      />
+    </svg>
+  );
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
   return (
     <motion.div
-      variants={fadeVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      transition={{ duration: 0.9, ease }}
-      className="slide-container"
-      style={{
-        position: "fixed",
-        inset: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2.5rem 1.25rem",
-      }}
+      className={className}
+      initial={reduce ? false : { opacity: 0, y: 16 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1], delay }}
     >
-      <div style={{ width: "100%", maxWidth: "56rem", margin: "0 auto", flexShrink: 0 }}>
-        {children}
-      </div>
+      {children}
     </motion.div>
   );
 }
 
+function Marker({ num, label }: { num: string; label: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-7">
+      <span className="serif italic text-2xl" style={{ color: "var(--violet)" }}>
+        {num}
+      </span>
+      <span className="eyebrow">{label}</span>
+      <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
+    </div>
+  );
+}
+
+function Section({
+  num,
+  label,
+  children,
+}: {
+  num: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section aria-label={label} className="mt-20 md:mt-24">
+      <Reveal>
+        <Marker num={num} label={label} />
+      </Reveal>
+      <Reveal delay={0.05}>{children}</Reveal>
+    </section>
+  );
+}
+
+function ExternalOrText({
+  link,
+  children,
+  variant = "meta",
+}: {
+  link?: string;
+  children: React.ReactNode;
+  variant?: "meta" | "ink";
+}) {
+  if (!link) return <>{children}</>;
+  return (
+    <a
+      className={variant === "ink" ? "ink-link" : "meta-link"}
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  );
+}
+
 export default function Home() {
-  const [current, setCurrent] = useState(0);
-  const lockRef = useRef(false);
-  const touchStartRef = useRef<{ y: number; id: number } | null>(null);
-  const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wheelAccum = useRef(0);
-
-  const LOCK_MS = 1000;
-
-  const lock = useCallback(() => {
-    lockRef.current = true;
-    setTimeout(() => { lockRef.current = false; }, LOCK_MS);
-  }, []);
-
-  const go = useCallback((direction: 1 | -1) => {
-    if (lockRef.current) return;
-    setCurrent((prev) => {
-      const next = prev + direction;
-      if (next < 0 || next >= TOTAL_SLIDES) return prev;
-      lock();
-      return next;
-    });
-  }, [lock]);
-
-  const goTo = useCallback((index: number) => {
-    if (lockRef.current || index < 0 || index >= TOTAL_SLIDES) return;
-    setCurrent((prev) => {
-      if (index === prev) return prev;
-      lock();
-      return index;
-    });
-  }, [lock]);
-
-  useEffect(() => {
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      if (lockRef.current) return;
-
-      // Accumulate wheel delta and debounce to handle trackpad momentum
-      wheelAccum.current += e.deltaY;
-      if (wheelTimer.current) clearTimeout(wheelTimer.current);
-      wheelTimer.current = setTimeout(() => { wheelAccum.current = 0; }, 200);
-
-      if (Math.abs(wheelAccum.current) < 30) return;
-      const direction = wheelAccum.current > 0 ? 1 : -1;
-      wheelAccum.current = 0;
-      go(direction as 1 | -1);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 1) return; // Ignore multi-touch
-      touchStartRef.current = { y: e.touches[0].clientY, id: e.touches[0].identifier };
-    };
-
-    const onTouchEnd = (e: TouchEvent) => {
-      if (!touchStartRef.current) return;
-      // Find the matching touch by identifier
-      const touch = Array.from(e.changedTouches).find(
-        (t) => t.identifier === touchStartRef.current?.id
-      );
-      if (!touch) return;
-      const delta = touchStartRef.current.y - touch.clientY;
-      touchStartRef.current = null;
-
-      // Skip tap-to-advance if user tapped a button or link
-      const target = e.target as HTMLElement;
-      const isInteractive = target.closest("a, button");
-
-      if (Math.abs(delta) < 10) {
-        if (!isInteractive) {
-          // Tap top half to go back, bottom half to go forward
-          go(touch.clientY < window.innerHeight / 2 ? -1 : 1);
-        }
-        return;
-      }
-      if (Math.abs(delta) < 50) return;
-      go(delta > 0 ? 1 : -1);
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName;
-      const isInteractive = tag === "A" || tag === "BUTTON" || tag === "INPUT" || tag === "TEXTAREA";
-      if (e.key === "ArrowDown") { e.preventDefault(); go(1); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); go(-1); }
-      else if (e.key === "Home") { e.preventDefault(); goTo(0); }
-      else if (e.key === "End") { e.preventDefault(); goTo(TOTAL_SLIDES - 1); }
-      else if (e.key === " " && !isInteractive) { e.preventDefault(); go(1); }
-    };
-
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("a, button, nav")) return;
-      go(e.clientY < window.innerHeight / 2 ? -1 : 1);
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("click", onClick);
-
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("click", onClick);
-      if (wheelTimer.current) clearTimeout(wheelTimer.current);
-    };
-  }, [go, goTo]);
+  const year = new Date().getFullYear();
+  const reduce = useReducedMotion();
+  const simplePast = pastExperience.filter((e) => !e.items);
+  const groupedPast = pastExperience.filter((e) => e.items);
 
   return (
-    <main aria-label="Portfolio presentation" style={{ background: "var(--bg-primary)", height: "100dvh", overflow: "hidden" }}>
-
-      {/* Mobile dot indicators -- simple, no labels */}
-      <nav aria-label="Slide navigation" className="flex md:hidden" style={{
-        position: "fixed", right: "0.5rem", top: "50%", transform: "translateY(-50%)",
-        zIndex: 10, flexDirection: "column", gap: "6px", alignItems: "center",
-      }}>
-        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-            aria-current={i === current ? "true" : undefined}
+    <main className="mx-auto max-w-3xl px-6 md:px-8 py-16 md:py-24">
+      {/* ---------------------------------------------------------- Hero */}
+      <header>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+        >
+          <div
+            className="mb-9 inline-block rounded-2xl p-[2px]"
             style={{
-              width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center",
-              background: "transparent", border: "none", cursor: "pointer", padding: 0,
+              background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
+              boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
             }}
           >
-            <span style={{
-              width: 5,
-              height: i === current ? 16 : 5,
-              borderRadius: 3,
-              background: i === current ? "var(--accent)" : "var(--text-tertiary)",
-              transition: "all 0.3s ease",
-              opacity: i === current ? 1 : 0.35,
-              display: "block",
-            }} />
-          </button>
-        ))}
-      </nav>
+            <Image
+              src="/Jacob_Choi_Headshot.JPG"
+              alt="Jacob J. Choi"
+              width={2305}
+              height={1537}
+              priority
+              className="rounded-[14px] block h-auto w-[210px] md:w-[240px]"
+            />
+          </div>
 
-      {/* Desktop dot indicators -- labels, grouping, hover effects */}
-      <nav aria-label="Slide navigation" className="hidden md:flex" style={{
-        position: "fixed", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
-        zIndex: 10, flexDirection: "column", gap: "8px", alignItems: "flex-end",
-      }}>
-        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => {
-          const isJourney = JOURNEY_RANGE.includes(i);
-          const isFirstJourney = i === JOURNEY_RANGE[0];
-          const isLastJourney = i === JOURNEY_RANGE[JOURNEY_RANGE.length - 1];
+          <h1
+            className="serif name-gradient font-medium text-6xl md:text-8xl leading-[0.95]"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            Jacob J. Choi
+          </h1>
 
-          // Skip journey dots except render them inside the group
-          if (isJourney && !isFirstJourney) return null;
+          <p className="serif text-xl md:text-2xl mt-5">
+            <span style={{ color: "var(--violet)" }}>Musician</span>
+            <span className="mono text-base mx-3" style={{ color: "var(--text-tertiary)" }}>
+              ×
+            </span>
+            <span style={{ color: "var(--cyan)" }}>AI Engineer</span>
+          </p>
 
-          if (isFirstJourney) {
-            return (
-              <div key="journey-group" className="dot-group" style={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                gap: 8,
-              }}>
-                <span className="dot-label" style={{
-                  position: "absolute",
-                  right: 24,
-                  top: "50%",
-                  transform: "translateY(-50%) translateX(4px)",
-                  whiteSpace: "nowrap",
-                  fontSize: 13,
-                  fontFamily: "'Inter', sans-serif",
-                  color: "var(--text-secondary)",
-                  opacity: 0,
-                  transition: "opacity 0.2s, transform 0.2s",
-                  pointerEvents: "none",
-                }}>
-                  Journey
+          <p
+            className="serif italic text-lg mt-2"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {personalInfo.status}
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="mt-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
+          <Waveform />
+        </motion.div>
+
+        <motion.div
+          className="mt-10 max-w-2xl space-y-5"
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+        >
+          <p
+            className="text-[1.1rem] leading-[1.75]"
+            style={{ color: "var(--text-primary)" }}
+            dangerouslySetInnerHTML={{
+              __html: emphasize(
+                linkify(personalInfo.bio.intro, personalInfo.bio.introLinks),
+                {
+                  "biomedical GraphRAG": "var(--cyan)",
+                  "three-year grant from the Duke Endowment": "var(--violet-soft)",
+                }
+              ),
+            }}
+          />
+          <p
+            className="text-[1.02rem] leading-[1.8]"
+            style={{ color: "var(--text-secondary)" }}
+            dangerouslySetInnerHTML={{
+              __html: linkify(personalInfo.bio.focus, personalInfo.bio.focusLinks),
+            }}
+          />
+        </motion.div>
+      </header>
+
+      {/* ----------------------------------------------------------- Now */}
+      <Section num={ROMAN[0]} label="Now">
+        <ul>
+          {currentExperience.map((e) => (
+            <li
+              key={e.id}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              style={{ borderBottom: rule }}
+            >
+              <span className="serif text-lg">{e.title}</span>
+              <span
+                className="mono text-[0.8rem] sm:text-right"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                <ExternalOrText link={e.link}>{e.company}</ExternalOrText>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* ------------------------------------------------- Selected Work */}
+      <Section num={ROMAN[1]} label="Selected Work">
+        <div>
+          {projects.map((p) => (
+            <a
+              key={p.id}
+              href={p.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="project-row block py-5 focus-ring"
+              style={{ borderBottom: rule }}
+            >
+              <h3 className="serif text-xl proj-title">
+                {p.title}
+                <span className="proj-arrow inline-block ml-1.5" style={{ color: "var(--cyan)" }}>
+                  ↗
                 </span>
-                {JOURNEY_RANGE.map((j) => (
-                  <button
-                    key={j}
-                    onClick={() => goTo(j)}
-                    aria-label={`Go to Journey slide ${j - 1}`}
-                    aria-current={j === current ? "true" : undefined}
-                    style={{
-                      width: "auto", height: 20, display: "flex", alignItems: "center",
-                      background: "transparent",
-                      border: "none", cursor: "pointer", padding: 0,
-                    }}
-                  >
-                    <span className="dot-indicator" style={{
-                      width: 7,
-                      height: j === current ? 22 : 7,
-                      borderRadius: 3,
-                      background: j === current ? "var(--accent)" : "var(--text-tertiary)",
-                      transition: "all 0.3s ease",
-                      opacity: j === current ? 1 : 0.5,
-                      display: "block",
-                    }} />
-                  </button>
+              </h3>
+              <p
+                className="text-[0.97rem] leading-relaxed mt-1.5 max-w-2xl"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {p.description}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {p.tech.split(", ").map((t) => (
+                  <span key={t} className="pill">
+                    {t}
+                  </span>
                 ))}
               </div>
-            );
-          }
+            </a>
+          ))}
+        </div>
+      </Section>
 
-          return (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Go to ${SLIDE_LABELS[i]}`}
-              aria-current={i === current ? "true" : undefined}
-              className="dot-btn"
-              style={{
-                position: "relative",
-                height: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                paddingLeft: 8,
-              }}
+      {/* ---------------------------------------------------------- Path */}
+      <Section num={ROMAN[2]} label="Past">
+        <ul>
+          {simplePast.map((e) => (
+            <li
+              key={e.id}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              style={{ borderBottom: rule }}
             >
-              <span className="dot-label" style={{
-                position: "absolute",
-                right: 16,
-                whiteSpace: "nowrap",
-                fontSize: 13,
-                fontFamily: "'Inter', sans-serif",
-                color: "var(--text-secondary)",
-                opacity: 0,
-                transform: "translateX(4px)",
-                transition: "opacity 0.2s, transform 0.2s",
-                pointerEvents: "none",
-              }}>
-                {SLIDE_LABELS[i]}
-              </span>
-              <span className="dot-indicator" style={{
-                width: 7,
-                height: i === current ? 22 : 7,
-                borderRadius: 3,
-                background: i === current ? "var(--accent)" : "var(--text-tertiary)",
-                transition: "all 0.3s ease",
-                opacity: i === current ? 1 : 0.5,
-                display: "block",
-              }} />
-            </button>
-          );
-        })}
-      </nav>
-
-      <AnimatePresence mode="wait">
-        {current === 0 && (
-          <Slide key="hero">
-            <h1 className="display mb-8">{personalInfo.name}</h1>
-            <p className="body-large mb-10 max-w-xl" style={{ color: "var(--text-secondary)" }}>
-              {personalInfo.title}
-            </p>
-            <div>
-              <a href={`mailto:${personalInfo.email}`} className="accent-link body-large focus-ring">
-                {personalInfo.email}
-              </a>
-            </div>
-            <div className="flex items-center gap-8 mt-12">
-              {socialLinks.map((social) => {
-                const s = socialIcons[social.name];
-                return (
-                  <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-3xl social-icon focus-ring"
-                    style={{ color: s?.color }}
-                    aria-label={social.name}
+              <span className="sm:flex-1">
+                <span className="serif text-lg">
+                  <ExternalOrText link={e.link} variant="ink">
+                    {e.title}
+                  </ExternalOrText>
+                </span>
+                {e.mentorText && (
+                  <span
+                    className="block mono text-xs mt-0.5"
+                    style={{ color: "var(--text-tertiary)" }}
                   >
-                    {s?.icon}
-                  </a>
-                );
-              })}
-            </div>
-          </Slide>
-        )}
-
-        {current === 1 && (
-          <Slide key="quote">
-            <div className="flex items-center justify-center" style={{ minHeight: "40vh" }}>
-              <p
-                className="text-4xl md:text-6xl lg:text-7xl font-light italic tracking-tight text-center"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-tertiary)" }}
+                    <ExternalOrText link={e.mentorLink}>{e.mentorText}</ExternalOrText>
+                  </span>
+                )}
+              </span>
+              <span
+                className="mono text-[0.8rem] sm:text-right"
+                style={{ color: "var(--text-secondary)" }}
               >
-                {personalInfo.status.replace(/"/g, "")}
-              </p>
-            </div>
-          </Slide>
-        )}
+                {e.company}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
-        {current === 2 && (
-          <Slide key="journey-1">
-            <p
-              className="text-3xl md:text-5xl font-light tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              A little bit about me...
-            </p>
-          </Slide>
-        )}
-
-        {current === 3 && (
-          <Slide key="journey-2">
-            <p
-              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              Got into Juilliard for viola. Chose Colby to figure out what I really wanted.
-            </p>
-          </Slide>
-        )}
-
-        {current === 4 && (
-          <Slide key="journey-3">
-            <p
-              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              Double majored in economics and Spanish. Tried finance. Tried law.
-            </p>
-          </Slide>
-        )}
-
-        {current === 5 && (
-          <Slide key="journey-4">
-            <p
-              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              None of it felt right.
-            </p>
-          </Slide>
-        )}
-
-        {current === 6 && (
-          <Slide key="journey-5">
-            <p
-              className="text-2xl md:text-4xl font-light leading-relaxed tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              Then I tried coding.
-            </p>
-          </Slide>
-        )}
-
-        {current === 7 && (
-          <Slide key="journey-6">
-            <p
-              className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-tight text-center"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-secondary)" }}
-            >
-              Now I&apos;m building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina, helping clinicians identify the right cancer treatment for each patient. Sponsored by the Duke Endowment.
-            </p>
-          </Slide>
-        )}
-
-        {current === 8 && (
-          <Slide key="about">
-            <p className="caption mb-4 md:mb-12">In Detail</p>
-            <div className="grid lg:grid-cols-2 gap-4 md:gap-16 items-center">
-              <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-                <div className="headshot-wrapper relative w-72 md:w-80 lg:w-full max-w-md">
-                  <div className="headshot-glow" />
-                  <Image src="/Jacob_Choi_Headshot.JPG" alt="Jacob Choi" width={500} height={500} className="rounded-2xl w-full relative z-10" />
-                </div>
-              </div>
-              <div className="text-base md:text-lg leading-relaxed space-y-3 md:space-y-6 order-2 lg:order-1" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                <p dangerouslySetInnerHTML={{
-                  __html: personalInfo.bio.introLinks
-                    ? personalInfo.bio.introLinks.reduce(
-                        (text: string, link: { text: string; url: string }) =>
-                          text.replace(link.text, `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="accent-link">${link.text}</a>`),
-                        personalInfo.bio.intro
-                      )
-                    : personalInfo.bio.intro,
-                }} />
-                <p dangerouslySetInnerHTML={{
-                  __html: personalInfo.bio.focusLinks
-                    ? personalInfo.bio.focusLinks.reduce(
-                        (text: string, link: { text: string; url: string }) =>
-                          text.replace(link.text, `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="accent-link">${link.text}</a>`),
-                        personalInfo.bio.focus
-                      )
-                    : personalInfo.bio.focus,
-                }} />
-              </div>
-            </div>
-          </Slide>
-        )}
-
-        {current === 9 && (
-          <Slide key="exp-now">
-            <p className="caption mb-4">Experience</p>
-            <h2 className="heading-3 mb-12">Current</h2>
-            <div className="space-y-10">
-              {currentExperience.map((exp) => (
-                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
-                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{exp.title}</div>
-                  <div className="body" style={{ color: "var(--text-primary)" }}>
-                    {exp.link ? (
-                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{exp.company}</a>
-                    ) : exp.company}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Slide>
-        )}
-
-        {current === 10 && (
-          <Slide key="exp-prev">
-            <p className="caption mb-4">Experience</p>
-            <h2 className="heading-3 mb-12">Previously</h2>
-            <div className="space-y-10">
-              {pastExperience.filter((exp) => !exp.items).map((exp) => (
-                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
-                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>
-                    {exp.link ? (
-                      <a href={exp.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{exp.title}</a>
-                    ) : exp.title}
-                  </div>
-                  <div>
-                    <div className="body" style={{ color: "var(--text-primary)" }}>{exp.company}</div>
-                    {exp.mentorLink && (
-                      <a href={exp.mentorLink} target="_blank" rel="noopener noreferrer" className="accent-link body-small mt-2 inline-block">
-                        {exp.mentorText}
-                      </a>
+      {/* ------------------------------------------------ Music & Stage */}
+      <Section num={ROMAN[3]} label="Music & Stage">
+        <div>
+          {groupedPast.map((group) => (
+            <div key={group.id} className="py-3.5" style={{ borderBottom: rule }}>
+              <h3 className="serif text-lg mb-2">{group.title}</h3>
+              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono text-[0.8rem]">
+                {group.items!.map((it, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      <ExternalOrText link={it.link}>{it.text}</ExternalOrText>
+                    </span>
+                    {idx < group.items!.length - 1 && (
+                      <span style={{ color: "var(--text-tertiary)" }}>·</span>
                     )}
-                  </div>
-                </div>
-              ))}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </Slide>
-        )}
+          ))}
+        </div>
+      </Section>
 
-        {current === 12 && (
-          <Slide key="exp-extras">
-            <p className="caption mb-4">Experience</p>
-            <h2 className="heading-3 mb-12">Competitions & Music</h2>
-            <div className="space-y-10">
-              {pastExperience.filter((exp) => exp.items).map((exp) => (
-                <div key={exp.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
-                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{exp.title}</div>
-                  <div className="body" style={{ color: "var(--text-primary)" }}>
-                    <ul className="space-y-1">
-                      {exp.items!.map((item, j) => (
-                        <li key={j}>
-                          {item.link ? (
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{item.text}</a>
-                          ) : item.text}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Slide>
-        )}
+      {/* --------------------------------------------------- Credentials */}
+      <Section num={ROMAN[4]} label="Honors & Credentials">
+        <ul>
+          {certifications.map((c) => (
+            <li
+              key={c.id}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              style={{ borderBottom: rule }}
+            >
+              <span className="serif text-base">
+                <ExternalOrText link={c.link} variant="ink">
+                  {c.title}
+                </ExternalOrText>
+              </span>
+              <span
+                className="mono text-[0.8rem] sm:text-right"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {c.issuer} · {c.year}
+              </span>
+            </li>
+          ))}
+          {awards.map((a) => (
+            <li
+              key={`award-${a.id}`}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              style={{ borderBottom: rule }}
+            >
+              <span className="serif text-base">
+                <ExternalOrText link={a.link} variant="ink">
+                  {a.title}
+                </ExternalOrText>
+              </span>
+              <span
+                className="mono text-[0.8rem] sm:text-right"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                <ExternalOrText link={a.issuerLink}>{a.issuer}</ExternalOrText> · {a.year}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
-        {current === 11 && (
-          <Slide key="creds">
-            <p className="caption mb-4">Experience</p>
-            <h2 className="heading-3 mb-12">Credentials</h2>
-            <div className="space-y-10">
-              {certifications.map((cert) => (
-                <div key={cert.id} className="grid md:grid-cols-[220px_1fr] gap-2 md:gap-10">
-                  <div className="body-small" style={{ color: "var(--text-tertiary)" }}>{cert.year}</div>
-                  <div>
-                    <div className="body" style={{ color: "var(--text-primary)" }}>
-                      {cert.link ? (
-                        <a href={cert.link} target="_blank" rel="noopener noreferrer" className="subtle-link">{cert.title}</a>
-                      ) : cert.title}
-                    </div>
-                    <div className="body-small mt-1" style={{ color: "var(--text-secondary)" }}>{cert.issuer}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Slide>
-        )}
+      {/* ------------------------------------------------------- Contact */}
+      <Section num={ROMAN[5]} label="Contact">
+        <p
+          className="text-[1.05rem] leading-[1.8] max-w-xl"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Open to conversations about AI engineering, research-to-production, and
+          good music.
+        </p>
+        <a
+          href={`mailto:${personalInfo.email}`}
+          className="serif name-gradient inline-block text-2xl md:text-3xl mt-4 focus-ring"
+        >
+          {personalInfo.email}
+        </a>
+        <div className="flex items-center gap-6 mt-8 text-2xl">
+          {socialLinks.map((s) => (
+            <a
+              key={s.name}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.name}
+              className="social-ico focus-ring"
+              style={{ color: SOCIALS[s.name]?.color }}
+            >
+              {SOCIALS[s.name]?.icon}
+            </a>
+          ))}
+        </div>
+      </Section>
 
-        {current === 13 && (
-          <Slide key="projects">
-            <p className="caption mb-6 md:mb-12">Projects</p>
-            <div>
-              {projects.map((project) => (
-                <div key={project.id} className="py-5 md:py-8" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-                  <div className="grid md:grid-cols-[220px_1fr_auto] gap-2 md:gap-10 items-start">
-                    <h3 className="text-base font-medium transition-colors"
-                      style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--text-primary)" }}>
-                      {project.link ? (
-                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="subtle-link hover:text-[var(--accent)]">{project.title}</a>
-                      ) : project.title}
-                    </h3>
-                    <div className="body-small" style={{ color: "var(--text-secondary)" }}>{project.description}</div>
-                    <div className="flex flex-wrap gap-2 md:justify-end shrink-0">
-                      {project.tech.split(", ").slice(0, 3).map((t) => (
-                        <span key={t} className="tag whitespace-nowrap">{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Slide>
-        )}
-
-        {current === 14 && (
-          <Slide key="footer">
-            <div className="text-center space-y-6">
-              <p className="body" style={{ color: "var(--text-secondary)" }}>
-                For further info, questions, or resume, contact{" "}
-                <a href={`mailto:${personalInfo.email}`} className="accent-link">{personalInfo.email}</a>
-              </p>
-              <div className="space-y-2">
-                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>{new Date().getFullYear()} Jacob J. Choi</p>
-                <p className="body-small" style={{ color: "var(--text-tertiary)" }}>Built with Next.js</p>
-              </div>
-            </div>
-          </Slide>
-        )}
-      </AnimatePresence>
+      {/* -------------------------------------------------------- Footer */}
+      <footer
+        className="mt-24 pt-8 flex flex-col sm:flex-row justify-between gap-2 mono text-xs"
+        style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
+      >
+        <span>© {year} Jacob J. Choi</span>
+        <span>Built with Next.js &amp; Framer Motion</span>
+      </footer>
     </main>
   );
 }

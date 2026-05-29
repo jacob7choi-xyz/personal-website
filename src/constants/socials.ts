@@ -27,11 +27,11 @@ export const socialLinks = [
     email: "jacob77choi@gmail.com",
     status: "\"Melos contra mundum\"",
     bio: {
-      intro: "CS:AI student at Colby College (graduating May 2027, currently on gap year). AI/Agentic Pipeline Engineer at The Jackson Laboratory, building a healthcare agentic system and biomedical GraphRAG for Genomic Tumor Board decision support under the Maine Cancer Genomics Initiative, focused on LLM workflows, agent orchestration, and citation-verified evidence retrieval.",
+      intro: "CS:AI student at Colby College (graduating May 2027). AI/Agentic Pipeline Engineer at The Jackson Laboratory, currently building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina under the Maine Cancer Genomics Initiative, helping clinicians identify the right cancer treatment for each patient, backed by a three-year grant from the Duke Endowment. Focused on agent orchestration, lexicogrammar noise reduction, and citation-verified evidence ranking and retrieval.",
       introLinks: [
         { text: "Maine Cancer Genomics Initiative", url: "https://www.jax.org/clinical-genomics/maine-cancer-genomics-initiative" }
       ],
-      focus: "Prior research at USC's Institute for Creative Technologies and a Turing study with Microsoft Research. I build things that ship to production, not just notebooks. On the side: founder of TuneTales (AI music storytelling) and HarmonyRestorer (AI audio restoration with a custom OpGAN).",
+      focus: "Prior research at USC's Institute for Creative Technologies and a Turing study with Microsoft Research. Founder of TuneTales (AI music storytelling) and creator of HarmonyRestorer (AI audio restoration with a custom OpGAN).",
       focusLinks: [
         { text: "Turing study", url: "https://drive.google.com/file/d/1F9lYxAleIydY2zrBPGXKbcYojcdidbvQ/view?usp=sharing" },
         { text: "HarmonyRestorer", url: "https://github.com/jacob7choi-xyz/harmonyrestorer-v1" },
