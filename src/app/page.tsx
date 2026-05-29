@@ -9,6 +9,7 @@ import {
   pastExperience,
   projects,
   certifications,
+  awards,
   socialLinks,
   personalInfo,
 } from "@/constants";
@@ -90,10 +91,10 @@ function Waveform() {
     >
       <defs>
         <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#c4b5fd" />
-          <stop offset="40%" stopColor="#f0abfc" />
-          <stop offset="70%" stopColor="#93c5fd" />
-          <stop offset="100%" stopColor="#67e8f9" />
+          <stop offset="0%" stopColor="#FF9E8A" />
+          <stop offset="34%" stopColor="#54E09C" />
+          <stop offset="64%" stopColor="#2FD2CE" />
+          <stop offset="100%" stopColor="#36ADEE" />
         </linearGradient>
       </defs>
       <motion.path
@@ -204,8 +205,8 @@ export default function Home() {
           <div
             className="mb-9 inline-block rounded-2xl p-[2px]"
             style={{
-              background: "linear-gradient(140deg, #c4b5fd, #f0abfc 45%, #67e8f9)",
-              boxShadow: "0 10px 44px rgba(140, 110, 240, 0.30)",
+              background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
+              boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
             }}
           >
             <Image
@@ -395,7 +396,7 @@ export default function Home() {
       </Section>
 
       {/* --------------------------------------------------- Credentials */}
-      <Section num={ROMAN[4]} label="Credentials">
+      <Section num={ROMAN[4]} label="Honors & Credentials">
         <ul>
           {certifications.map((c) => (
             <li
@@ -413,6 +414,25 @@ export default function Home() {
                 style={{ color: "var(--text-secondary)" }}
               >
                 {c.issuer} · {c.year}
+              </span>
+            </li>
+          ))}
+          {awards.map((a) => (
+            <li
+              key={`award-${a.id}`}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              style={{ borderBottom: rule }}
+            >
+              <span className="serif text-base">
+                <ExternalOrText link={a.link} variant="ink">
+                  {a.title}
+                </ExternalOrText>
+              </span>
+              <span
+                className="mono text-[0.8rem] sm:text-right"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                <ExternalOrText link={a.issuerLink}>{a.issuer}</ExternalOrText> · {a.year}
               </span>
             </li>
           ))}

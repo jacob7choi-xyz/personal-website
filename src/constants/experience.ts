@@ -117,3 +117,30 @@ export const certifications = [
     link: "https://drive.google.com/file/d/1VqSwrusijo-3-OB5XgDPo4pF-swwPaeq/view?usp=sharing"
   }
 ];
+
+export const awards = [
+  {
+    id: 1,
+    title: "Korean Ancestry Grant",
+    issuer: "William Orr Dingwall Foundation",
+    issuerLink: "https://dingwallfoundation.org/",
+    link: "https://drive.google.com/file/d/1vVUZGjFkhmm8czIiwXRD8SXOdXfD_vGZ/view?usp=sharing",
+    year: "2023, 2024",
+  },
+  {
+    id: 2,
+    title: "Safe Cycling Scholarship",
+    issuer: "Felix Gonzalez Law Firm",
+    issuerLink: "https://felixgonzalezlaw.com/",
+    year: "2023",
+    link: "https://felixgonzalezlaw.com/safe-cycling-scholarship-winners/",
+  },
+  {
+    id: 3,
+    title: "Jack Kent Cooke Young Artist Award",
+    issuer: "NPR's From The Top",
+    issuerLink: "https://fromthetop.org/",
+    link: "https://fromthetop.org/meet-the-class-of-2022/",
+    year: "2022",
+  },
+];
