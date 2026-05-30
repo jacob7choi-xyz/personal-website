@@ -8,7 +8,7 @@
 @tailwind utilities;
 
 :root {
-  /* Two voices, two colors — iridescent, Off-White "Menta" swoosh inspired */
+  /* Two voices, two colors. Iridescent, Off-White "Menta" swoosh inspired */
   --violet: #45DD9E;       /* the musician / human (iridescent green) */
   --violet-soft: #74E9B8;
   --cyan: #36C5E6;         /* the engineer / AI (teal-cyan) */
