@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
+import SignatureMark from "@/components/Global/SignatureMark";
 import {
   currentExperience,
   pastExperience,
@@ -485,10 +486,13 @@ export default function Home() {
 
       {/* -------------------------------------------------------- Footer */}
       <footer
-        className="mt-24 pt-8 flex flex-col sm:flex-row justify-between gap-2 mono text-xs"
+        className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono text-xs"
         style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
       >
-        <span>© {year} Jacob J. Choi</span>
+        <span className="flex items-center gap-2.5 text-sm">
+          © {year}
+          <SignatureMark className="h-8 w-auto" />
+        </span>
         <span>Built with Next.js &amp; Framer Motion</span>
       </footer>
     </main>
