@@ -315,9 +315,21 @@ export default function Home() {
             >
               <h3 className="serif text-xl proj-title">
                 {p.title}
-                <span className="proj-arrow inline-block ml-1.5" style={{ color: "var(--cyan)" }}>
-                  ↗
-                </span>
+                <svg
+                  className="proj-arrow inline-block ml-1.5 align-[-0.1em]"
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--cyan)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17 17 7" />
+                  <path d="M8 7h9v9" />
+                </svg>
               </h3>
               <p
                 className="text-[0.97rem] leading-relaxed mt-1.5 max-w-2xl"
