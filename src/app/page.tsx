@@ -28,7 +28,7 @@ const rule = "1px solid var(--rule-soft)";
 
 /* ------------------------------------------------------------------ */
 /* The waveform that bridges the two voices. Deterministic (no random, */
-/* no Date) so server and client render identically — drawn once on    */
+/* no Date) so server and client render identically, drawn once on     */
 /* load like a single bow stroke, then still.                          */
 /* ------------------------------------------------------------------ */
 const WAVE_PATH = (() => {
