@@ -141,7 +141,7 @@ function Marker({ num, label }: { num: string; label: string }) {
       <span className="serif italic text-2xl" style={{ color: "var(--violet)" }}>
         {num}
       </span>
-      <span className="eyebrow">{label}</span>
+      <h2 className="eyebrow">{label}</h2>
       <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
     </div>
   );
@@ -199,8 +199,8 @@ export default function Home() {
       {/* ---------------------------------------------------------- Hero */}
       <header>
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <div
@@ -245,8 +245,8 @@ export default function Home() {
 
         <motion.div
           className="mt-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={reduce ? false : { opacity: 0 }}
+          animate={reduce ? undefined : { opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
           <Waveform />
@@ -458,8 +458,7 @@ export default function Home() {
           className="text-[1.05rem] leading-[1.8] max-w-xl"
           style={{ color: "var(--text-secondary)" }}
         >
-          Open to conversations about AI engineering, research-to-production, and
-          good music.
+          {personalInfo.contactBlurb}
         </p>
         <a
           href={`mailto:${personalInfo.email}`}
@@ -489,7 +488,7 @@ export default function Home() {
         className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono text-xs"
         style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
       >
-        <span className="flex items-center gap-2.5 text-sm">
+        <span suppressHydrationWarning className="flex items-center gap-2.5 text-sm">
           © {year}
           <SignatureMark className="h-8 w-auto" />
         </span>

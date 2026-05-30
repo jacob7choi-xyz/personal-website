@@ -175,3 +175,6 @@ next-env.d.ts
 # AI assistant config
 CLAUDE.md
 AGENTS.md
+
+# signature generator font (redistributable; fetch on demand)
+scripts/*.ttf

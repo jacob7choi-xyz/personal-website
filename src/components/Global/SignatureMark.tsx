@@ -1,27 +1,30 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 import { signaturePath, signatureBox } from "@/constants/signature";
 
 // The signature path (letters + cursive connectors + flourish) is fully
-// generated upstream as one continuous path. We just draw it on.
+// generated upstream as one continuous path. We just draw it on with the
+// canonical pathLength="1" + stroke-dashoffset technique (no per-frame JS).
 const DRAW_MS = 2000;
 
 export default function SignatureMark({ className = "w-full h-auto" }: { className?: string }) {
-  const ref = useRef<SVGPathElement>(null);
+  const ref = useRef<SVGSVGElement>(null);
+  const reduce = useReducedMotion();
   const [drawn, setDrawn] = useState(false);
-  const [reduce, setReduce] = useState(false);
   const { x, y, w, h } = signatureBox;
 
   useEffect(() => {
-    const r = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (r) {
-      setReduce(true);
+    if (reduce) {
       setDrawn(true);
       return;
     }
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setDrawn(true);
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -33,10 +36,11 @@ export default function SignatureMark({ className = "w-full h-auto" }: { classNa
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [reduce]);
 
   return (
     <svg
+      ref={ref}
       viewBox={`${x} ${y} ${w} ${h}`}
       className={className}
       preserveAspectRatio="xMidYMid meet"
@@ -51,10 +55,7 @@ export default function SignatureMark({ className = "w-full h-auto" }: { classNa
           <stop offset="100%" stopColor="#36ADEE" />
         </linearGradient>
       </defs>
-      {/* pathLength="1" normalizes the whole path so dasharray/offset is exact
-          across all subpaths -> reveals L->R, lands perfectly solid (no gap). */}
       <path
-        ref={ref}
         d={signaturePath}
         fill="none"
         stroke="url(#sigGrad)"

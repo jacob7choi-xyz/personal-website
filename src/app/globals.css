@@ -182,4 +182,9 @@ body {
     color: black !important;
     background-image: none !important;
   }
+  .name-gradient {
+    -webkit-text-fill-color: black !important;
+    background: none !important;
+    color: black !important;
+  }
 }
