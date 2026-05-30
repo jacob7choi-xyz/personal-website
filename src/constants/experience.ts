@@ -86,7 +86,7 @@ export const projects = [
     id: 4,
     title: "TuneTales",
     description: "AI-powered music storytelling platform that turns artist histories into immersive, narrative-driven experiences",
-    tech: "Next.js, Python, TypeScript, Real-time Personalization",
+    tech: "Next.js, Python, TypeScript",
     link: "https://github.com/jacob7choi-xyz/tunetales-v1",
   },
 ];
