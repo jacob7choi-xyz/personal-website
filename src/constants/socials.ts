@@ -17,7 +17,7 @@ export const socialLinks = [
     },
     {
       name: "YouTube",
-      url: "https://youtube.com/@jacob7choi?si=QUGG9m33dLDOHoxM",
+      url: "https://youtube.com/@jacob7choi",
     }
   ];
   
@@ -26,6 +26,7 @@ export const socialLinks = [
     title: "AI Engineer • Research to Production • Entrepreneur",
     email: "jacob77choi@gmail.com",
     status: "\"Melos contra mundum\"",
+    contactBlurb: "Open to conversations about AI engineering, research-to-production, and good music.",
     bio: {
       intro: "CS:AI student at Colby College (graduating May 2027). AI/Agentic Pipeline Engineer at The Jackson Laboratory, currently building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina under the Maine Cancer Genomics Initiative, helping clinicians identify the right cancer treatment for each patient, backed by a three-year grant from the Duke Endowment. Focused on agent orchestration, lexicogrammar noise reduction, and citation-verified evidence ranking and retrieval.",
       introLinks: [
