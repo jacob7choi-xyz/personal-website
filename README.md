@@ -1,6 +1,6 @@
-# Jacob J. Choi - Personal Portfolio
+# Jacob J. Choi, Personal Portfolio
 
-> **"Melos contra Mundum"** - A fade-show portfolio telling the story of pivots, resilience, and building things that matter.
+> **"Melos contra mundum"**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -15,31 +15,42 @@
 
 ## About
 
-A full-viewport fade-show presentation -- no scrolling. 15 slides navigate via arrow keys, scroll wheel, or swipe. The site tells a personal journey (Juilliard to coding to clinical AI) before presenting experience, credentials, and projects.
+A single scrolling page, editorial and content first, built around one idea: musician and AI engineer as the same person. Admitted to Juilliard for viola, now building biomedical GraphRAG and agentic pipelines at The Jackson Laboratory.
+
+Six numbered sections after the hero. No slideshow, no dashboard, no filler.
 
 ### Design
 
-- **Violet accent** (`#A78BFA`) on near-black (`#050505`)
-- **Fade transitions** with blur and scale via Framer Motion `AnimatePresence`
-- **Floating gradient orbs** as ambient background
-- **Cursor-following aura** with pulsing concentric rings (desktop only)
-- **Space Grotesk + Inter** typography pairing
+- **Near black background** (`#0a0a0c`) with a faint iridescent vignette
+- **Iridescent accent sweep**, coral to green to teal to blue (`#FF9E8A`, `#54E09C`, `#2FD2CE`, `#36ADEE`), used for the name, the waveform, and the signature
+- **Two accent tokens** map to the two identities: green `#45DD9E` for the musician, teal `#36C5E6` for the engineer
+- **Warm off white text** (`#ECE8E1`) on a warm gray body (`#9A958C`)
+- **Three voices in the type**: Fraunces serif for the expressive lines, JetBrains Mono for labels and metadata, Inter for connective body text
+- **An audio waveform** as the connective motif, a deterministic sum of sines drawn once on load
+- **A self drawing cursive signature** as the footer copyright mark
 
-### Navigation
+Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handles layout, not color.
 
-- **Desktop**: Scroll wheel, arrow keys, Home/End, Space, click (top half = back, bottom half = forward)
-- **Mobile**: Swipe up/down, tap (top half = back, bottom half = forward)
-- **Dot nav (desktop)**: Hover labels, journey dot grouping, highlight on hover
-- **Dot nav (mobile)**: Simplified minimal dots
+### Page structure
+
+| Section | Content |
+|---------|---------|
+| Hero | Headshot, name, motto, waveform, lead paragraphs |
+| I. Now | Current role and degree |
+| II. Selected Work | Projects with descriptions and tech tags |
+| III. Past | Prior professional and research experience |
+| IV. Music & Stage | Performance and competition history |
+| V. Honors & Credentials | Certifications and awards |
+| VI. Contact | Email and social links |
 
 ### Accessibility
 
-- `prefers-reduced-motion` disables all animations
-- `prefers-contrast: high` support
-- Keyboard navigation (arrow keys, Space, Home/End)
-- Touch/swipe/tap navigation on mobile
-- Semantic HTML with `<main>`, `<nav>` landmarks and `aria-label` attributes
-- Focus rings with accent color
+- `prefers-reduced-motion` honored in CSS and guarded in every animated component
+- `prefers-contrast: high` boosts the text tokens
+- Print styles strip backgrounds and force black text, including the gradient name
+- Semantic landmarks, a real `h1` to `h3` hierarchy, `aria-label` on every section
+- Visible focus rings on all interactive elements
+- Icons and arrows are inline SVG, never glyph characters
 
 ---
 
@@ -49,9 +60,11 @@ A full-viewport fade-show presentation -- no scrolling. 15 slides navigate via a
 |----------|-----------|
 | Framework | Next.js 15 (App Router) |
 | Language | TypeScript 5 (strict mode) |
-| Styling | Tailwind CSS 3 + CSS custom properties |
+| Styling | Tailwind CSS 3 with CSS custom properties |
 | Animations | Framer Motion 12 |
-| Fonts | Inter, Space Grotesk |
+| Icons | react-icons |
+| Fonts | Fraunces, JetBrains Mono, Inter |
+| Telemetry | Vercel Speed Insights |
 | Deployment | Vercel |
 
 ---
@@ -59,8 +72,8 @@ A full-viewport fade-show presentation -- no scrolling. 15 slides navigate via a
 ## Quick Start
 
 ```bash
-git clone https://github.com/jacob7choi-xyz/jacob-choi-website.git
-cd jacob-choi-website
+git clone https://github.com/jacob7choi-xyz/personal-website.git
+cd personal-website
 npm install
 npm run dev
 ```
@@ -73,45 +86,44 @@ npm run start     # Serve production build
 npm run lint      # ESLint
 ```
 
+Stop the dev server before running a production build. Building while `next dev` is live corrupts the `.next` cache.
+
 ---
 
 ## Project Structure
 
 ```
+.github/workflows/ci.yml        # Lint, type check, build, audit
+docs/adr/                       # Architecture decision records
+public/                         # Headshot, favicon
+scripts/
+└── generate-signature.cjs      # Offline generator for the signature path
 src/
 ├── app/
-│   ├── layout.tsx          # Root layout, orbs, CursorAura
-│   ├── page.tsx            # 15-slide fade-show presentation
-│   └── globals.css         # Design system, orb animations, aura keyframes
+│   ├── layout.tsx              # Root layout, metadata, favicon, Speed Insights
+│   ├── page.tsx                # The page, all sections
+│   └── globals.css             # Design tokens, fonts, component classes, a11y and print
 ├── components/
 │   └── Global/
-│       └── CursorAura.tsx  # Cursor-following aura with pulsing rings
+│       └── SignatureMark.tsx   # Self drawing footer signature
 └── constants/
-    ├── experience.ts       # currentExperience, pastExperience, projects, certifications
-    ├── socials.ts          # personalInfo, socialLinks
-    └── index.ts            # Barrel exports
+    ├── index.ts                # Barrel exports
+    ├── socials.ts              # personalInfo, socialLinks
+    ├── experience.ts           # currentExperience, pastExperience, projects, certifications, awards
+    └── signature.ts            # Generated signature path, do not hand edit
 ```
 
 ## Content
 
-All site content lives in `src/constants/`. Edit those files to update the site -- no component changes needed.
+Site content lives in `src/constants/`. Edit those files to update the page. Optional fields drive conditional rendering, so an entry without a `link` or without nested `items` simply renders less.
 
----
+One exception worth knowing: the highlighted phrases in the hero bio are matched by substring in `page.tsx`, so rewording `bio.intro` means updating that map too.
 
-## Slide Order
+## Signature
 
-| # | Slide | Content |
-|---|-------|---------|
-| 0 | Hero | Name, title, email, social icons |
-| 1 | Quote | "Melos contra mundum" |
-| 2-7 | Journey | Personal narrative (6 slides) |
-| 8 | In Detail | Bio + headshot |
-| 9 | Current | Current roles |
-| 10 | Previously | Past professional experience |
-| 11 | Credentials | Certifications |
-| 12 | Competitions & Music | Entrepreneurship + music achievements |
-| 13 | Projects | Technical projects with tech tags |
-| 14 | Footer | Contact + copyright |
+The footer copyright mark is a cursive signature that draws itself on scroll. `src/constants/signature.ts` is a generated artifact, a single SVG path traced from the Great Vibes font with connectors bridging the word gaps. The browser ships the path string only, no font and no library at runtime. Drawing uses `pathLength="1"` with an animated `stroke-dashoffset`, triggered by an `IntersectionObserver`.
+
+Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`, which needs `opentype.js` installed and `scripts/GreatVibes.ttf` in place.
 
 ---
 

@@ -1,8 +1,10 @@
 # ADR-002: Fade Presentation Redesign
 
-**Status:** Accepted
+**Status:** Superseded (May 2026) by the editorial single-page redesign now in production
 **Date:** 2026-03-09
 **Author:** Jacob J. Choi
+
+> Historical record. The fade-show described here was retired in May 2026 and is archived on the `slideshow` branch. The current site is a single scrolling page. See `README.md` for what ships today.
 
 ---
 
