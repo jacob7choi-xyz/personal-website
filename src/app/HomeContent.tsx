@@ -9,14 +9,18 @@ import SignatureMark from "@/components/Global/SignatureMark";
 import {
   currentExperience,
   pastExperience,
+  achievementGroups,
   projects,
   certifications,
   awards,
   socialLinks,
   personalInfo,
+  type SocialName,
 } from "@/constants";
 
-const SOCIALS: Record<string, { icon: React.ReactNode; color: string }> = {
+/* Exhaustive over SocialName, so an unsupported network cannot compile rather
+   than rendering as an invisible link. */
+const SOCIALS: Record<SocialName, { icon: React.ReactNode; color: string }> = {
   GitHub: { icon: <FaGithub />, color: "#F0F0F0" },
   LinkedIn: { icon: <FaLinkedinIn />, color: "#3B9CE0" },
   X: { icon: <FaXTwitter />, color: "#F0F0F0" },
@@ -205,10 +209,6 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
   useEffect(() => setYear(new Date().getFullYear()), []);
 
   const reduce = useReducedMotion();
-  /* Length, not truthiness: an entry with `items: []` is truthy and would
-     otherwise render an empty group. */
-  const simplePast = pastExperience.filter((e) => !e.items?.length);
-  const groupedPast = pastExperience.filter((e) => Boolean(e.items?.length));
 
   return (
     <main className="mx-auto max-w-3xl px-6 md:px-8 py-16 md:py-24">
@@ -369,7 +369,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       {/* ---------------------------------------------------------- Path */}
       <Section num={ROMAN[2]} label="Past">
         <ul>
-          {simplePast.map((e) => (
+          {pastExperience.map((e) => (
             <li
               key={e.id}
               className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
@@ -404,16 +404,16 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       {/* ------------------------------------------------ Music & Stage */}
       <Section num={ROMAN[3]} label="Music & Stage">
         <div>
-          {groupedPast.map((group) => (
+          {achievementGroups.map((group) => (
             <div key={group.id} className="py-3.5" style={{ borderBottom: rule }}>
               <h3 className="serif text-lg mb-2">{group.title}</h3>
               <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono text-[0.8rem]">
-                {group.items!.map((it, idx) => (
+                {group.items.map((it, idx) => (
                   <li key={idx} className="flex items-center gap-2">
                     <span style={{ color: "var(--text-secondary)" }}>
                       <ExternalOrText link={it.link}>{it.text}</ExternalOrText>
                     </span>
-                    {idx < group.items!.length - 1 && (
+                    {idx < group.items.length - 1 && (
                       <span style={{ color: "var(--text-tertiary)" }}>·</span>
                     )}
                   </li>
@@ -491,10 +491,9 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
               rel="noopener noreferrer"
               aria-label={s.name}
               className="social-ico focus-ring"
-              style={{ color: SOCIALS[s.name]?.color ?? "var(--text-secondary)" }}
+              style={{ color: SOCIALS[s.name].color }}
             >
-              {/* Falls back to the name so an unmapped network is never invisible */}
-              {SOCIALS[s.name]?.icon ?? <span className="mono text-sm">{s.name}</span>}
+              {SOCIALS[s.name].icon}
             </a>
           ))}
         </div>

@@ -1,2 +1,9 @@
-export { currentExperience, pastExperience, projects, certifications, awards } from "./experience";
-export { socialLinks, personalInfo } from "./socials";
+export {
+  currentExperience,
+  pastExperience,
+  achievementGroups,
+  projects,
+  certifications,
+  awards,
+} from "./experience";
+export { socialLinks, personalInfo, type SocialName } from "./socials";
