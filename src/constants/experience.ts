@@ -98,7 +98,7 @@ export const certifications = [
     issuer: "IBM",
     year: "2025",
 
-    link: "https://drive.google.com/file/d/1YP0EfCCHBjPvEcyrZ08ay25UKFYvq4lF/view?usp=sharing"
+    link: "https://drive.google.com/file/d/1naI3W5svxoC_ZbuVDplOpHQliA4EybSh/view?usp=sharing"
   },
   {
     id: 2,
