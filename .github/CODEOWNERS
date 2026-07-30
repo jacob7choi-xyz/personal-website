@@ -1,0 +1,14 @@
+# The advisory gate lives in this repository, so a change to these paths is a
+# change to the security policy itself, not ordinary application code. Marking
+# them here means review is required on them if collaborators ever appear.
+# Today this repository has a single maintainer and every change is self-reviewed,
+# which is a documented limit of the control, not a solved problem.
+# See the threat-model section of SECURITY-AUDIT.md.
+
+/.github/                     @jacob7choi-xyz
+/scripts/audit-check.mjs      @jacob7choi-xyz
+/scripts/audit-check.test.mjs @jacob7choi-xyz
+/SECURITY-AUDIT.md            @jacob7choi-xyz
+/package.json                 @jacob7choi-xyz
+/package-lock.json            @jacob7choi-xyz
+/.nvmrc                       @jacob7choi-xyz

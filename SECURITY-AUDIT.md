@@ -77,8 +77,40 @@ is lower, not zero.
 |---|---|---|
 | Pre-merge gate | `push` and `pull_request` in `.github/workflows/ci.yml` | Stops a change from shipping while an unapproved advisory exists |
 | Scheduled scan | weekly `schedule` in the same workflow | Environmental drift: an advisory published, or an exception expiring, on a day with no commits |
-| Fail-closed evaluator | `scripts/audit-check.mjs` | Unreachable registry, malformed output, schema drift, unknown advisory, expired or exceeded exception, any critical |
-| Evaluator tests | `scripts/audit-check.test.mjs` | The ways the gate itself could wrongly pass |
+| Fail-closed evaluator | `scripts/audit-check.mjs` | Unreachable registry, malformed output, schema drift **including an advisory object whose shape it does not recognise**, unknown advisory, expired or exceeded exception, unused exception, any critical |
+| Independent counter oracle | same script, `crossCheck()` | Parser drift hiding findings npm is itself reporting: `metadata.critical > 0` fails unconditionally, and any contradiction between npm's counters and the parsed advisory list is indeterminate |
+| Evaluator tests | `scripts/audit-check.test.mjs` | 29 cases covering the ways the gate itself could wrongly pass |
+
+### Policy semantics worth knowing before editing the allowlist
+
+- **`expires` is EXCLUSIVE**, evaluated at 00:00 UTC. An exception applies while
+  `now < expires`, so the listed date is the first day it no longer suppresses.
+- **An unused exception is FATAL, not hygiene.** Every entry must match a
+  currently reported advisory. An unused but unexpired entry is dormant
+  suppression authority: if a dependency change reintroduced the advisory it would
+  be suppressed again with no human re-review. When an advisory disappears,
+  delete its entry. Expect CI to go red until you do; that friction is the point.
+- **Duplicate advisory + package entries are rejected**, since a lookup over
+  duplicates would make the policy order-dependent.
+- **An advisory object the parser cannot read is indeterminate, never clean.**
+  Verified: the previous revision of this gate reported "0 distinct advisories,
+  PASS" on a document where npm was reporting one high vulnerability, because it
+  silently skipped an advisory object with an unfamiliar shape. That was a false
+  green, and it is what the nested schema assertions and the counter oracle exist
+  to prevent.
+
+### Threat model limit: the gate is in-repo
+
+Branch protection makes this check a precondition for `main`, which is strong
+against accidental dependency drift, forgotten audits, expired waivers and routine
+Dependabot changes. It is **not** an independent trust boundary against a change
+that edits the gate itself: a pull request can modify `scripts/audit-check.mjs` or
+`.github/audit-allowlist.json`, and the check then evaluates the modified policy.
+
+For a single-maintainer repository where every change is self-reviewed, that is
+accepted rather than solved. `.github/CODEOWNERS` marks the security-relevant paths
+so review is required on them if collaborators ever appear. Building an external
+policy service would be disproportionate here.
 
 Scheduled workflows on public repositories can be disabled after 60 days without
 activity, so **the pre-merge gate remains authoritative**. The schedule is

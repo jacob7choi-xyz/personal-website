@@ -1,5 +1,11 @@
 {
-  "note": "Dated, expiring risk acceptances consumed by scripts/audit-check.mjs. Rationale and evidence for each entry live in SECURITY-AUDIT.md. An entry is keyed on advisory + package + maximum approved severity; it cannot suppress a higher severity than approved, and it cannot suppress anything at all past its expiry. `critical` is never suppressible. Adding an entry here is a security decision and should be reviewed as one.",
+  "note": "Dated, expiring risk acceptances consumed by scripts/audit-check.mjs. Rationale and evidence for each entry live in SECURITY-AUDIT.md. Adding an entry here is a security decision and should be reviewed as one.",
+  "semantics": {
+    "key": "advisory + package. Duplicates are rejected, because a lookup over duplicates would make policy order-dependent.",
+    "approvedSeverity": "Maximum. If the advisory is later reported at a higher severity the exception does not apply. `critical` can never be approved.",
+    "expires": "EXCLUSIVE, YYYY-MM-DD, evaluated at 00:00 UTC. The exception applies while now < expires, so the date itself is the first day it no longer suppresses.",
+    "unused": "FATAL. Every entry must correspond to a currently reported advisory. An unused but unexpired entry is dormant suppression authority: if a dependency change reintroduced the advisory it would be suppressed again with no human re-review. Delete entries when the advisory disappears."
+  },
   "exceptions": [
     {
       "advisory": "GHSA-r28c-9q8g-f849",
