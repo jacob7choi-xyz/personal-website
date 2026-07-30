@@ -148,7 +148,7 @@ expectReject(
   "non-string phrase (type circumvented)",
   PROSE,
   [{ kind: "accent", phrase: 42, accent: "cyan" } as unknown as Annotation],
-  "non-whitespace"
+  "must be a string"
 );
 expectReject(
   "unknown accent (type circumvented)",

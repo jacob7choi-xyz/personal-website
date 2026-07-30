@@ -128,7 +128,10 @@ export function compileAnnotatedText(prose: AnnotatedProse): readonly Segment[] 
         `unknown annotation kind "${String((a as { kind?: unknown }).kind)}" for phrase "${String((a as { phrase?: unknown }).phrase)}"`
       );
     }
-    if (typeof a.phrase !== "string" || !a.phrase.trim()) {
+    if (typeof a.phrase !== "string") {
+      throw new AnnotationError(`annotation phrase must be a string, got ${typeof a.phrase}`);
+    }
+    if (!a.phrase.trim()) {
       throw new AnnotationError("annotation phrase must contain non-whitespace text");
     }
     if (a.kind === "accent" && !(ACCENT_NAMES as readonly string[]).includes(a.accent)) {
