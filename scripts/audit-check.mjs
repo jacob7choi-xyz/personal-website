@@ -48,23 +48,40 @@ const RANK = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 };
 const COUNTERS = ["info", "low", "moderate", "high", "critical", "total"];
 const NEVER_SUPPRESSIBLE = "critical";
 
-class Indeterminate extends Error {}
+/**
+ * Every failure carries a stable machine code. The fixture suite asserts the
+ * code, not just a nonzero exit, so a test cannot pass because the wrong control
+ * fired. Codes are internal; the prose is free to change.
+ */
+class Indeterminate extends Error {
+  constructor(code, message) {
+    super(`[${code}] ${message}`);
+    this.code = code;
+  }
+}
 
 /* ------------------------------------------------------------------ args */
 
 function parseArgs(argv) {
-  const out = { input: null, allowlist: DEFAULT_ALLOWLIST };
+  const FLAGS = { "--input": "input", "--allowlist": "allowlist", "--now": "now" };
+  const out = { input: null, allowlist: DEFAULT_ALLOWLIST, now: null };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
-    if (flag !== "--input" && flag !== "--allowlist") {
-      throw new Indeterminate(`unrecognised argument "${flag}"`);
-    }
+    if (!(flag in FLAGS)) throw new Indeterminate("E_ARGS", `unrecognised argument "${flag}"`);
     const value = argv[i + 1];
     if (typeof value !== "string" || value.startsWith("--")) {
-      throw new Indeterminate(`${flag} requires a path`);
+      throw new Indeterminate("E_ARGS", `${flag} requires a value`);
     }
-    out[flag === "--input" ? "input" : "allowlist"] = value;
+    out[FLAGS[flag]] = value;
     i++;
+  }
+  if (out.now !== null) {
+    // Test-only, so expiry boundaries can be asserted deterministically. It can
+    // shift policy time, so it lives under the same in-repo trust assumption as
+    // the allowlist itself (see SECURITY-AUDIT.md).
+    const ms = Date.parse(out.now);
+    if (!Number.isFinite(ms)) throw new Indeterminate("E_ARGS", `--now is not a valid timestamp`);
+    out.now = ms;
   }
   return out;
 }
@@ -76,41 +93,45 @@ function loadAllowlist(path) {
   try {
     raw = readFileSync(path, "utf8");
   } catch (e) {
-    throw new Indeterminate(`cannot read allowlist at ${path}: ${e.message}`);
+    throw new Indeterminate("E_ALLOWLIST_READ", `cannot read allowlist at ${path}: ${e.message}`);
   }
   let doc;
   try {
     doc = JSON.parse(raw);
   } catch (e) {
-    throw new Indeterminate(`allowlist is not valid JSON: ${e.message}`);
+    throw new Indeterminate("E_ALLOWLIST_JSON", `allowlist is not valid JSON: ${e.message}`);
   }
   if (!doc || typeof doc !== "object" || !Array.isArray(doc.exceptions)) {
-    throw new Indeterminate("allowlist is missing an `exceptions` array");
+    throw new Indeterminate("E_ALLOWLIST_SHAPE", "allowlist is missing an `exceptions` array");
   }
 
   const seen = new Set();
   for (const [i, x] of doc.exceptions.entries()) {
     for (const field of ["advisory", "package", "approvedSeverity", "expires", "reason"]) {
       if (typeof x?.[field] !== "string" || !x[field]) {
-        throw new Indeterminate(`exception #${i} is missing a valid \`${field}\``);
+        throw new Indeterminate("E_ALLOWLIST_FIELD", `exception #${i} is missing a valid \`${field}\``);
       }
     }
     if (!(x.approvedSeverity in RANK)) {
-      throw new Indeterminate(`exception #${i} has unknown severity "${x.approvedSeverity}"`);
+      throw new Indeterminate(
+        "E_ALLOWLIST_SEVERITY",
+        `exception #${i} has unknown severity "${x.approvedSeverity}"`
+      );
     }
     if (x.approvedSeverity === NEVER_SUPPRESSIBLE) {
-      throw new Indeterminate(`exception #${i} approves "critical", which is never suppressible`);
+      throw new Indeterminate(
+        "E_ALLOWLIST_CRITICAL",
+        `exception #${i} approves "critical", which is never suppressible`
+      );
     }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(x.expires)) {
-      throw new Indeterminate(`exception #${i} \`expires\` must be YYYY-MM-DD (got "${x.expires}")`);
-    }
-    if (Number.isNaN(expiryMs(x.expires))) {
-      throw new Indeterminate(`exception #${i} has an unparseable \`expires\` (${x.expires})`);
-    }
+    expiryMs(x.expires, i); // throws E_ALLOWLIST_DATE on anything not a real calendar date
     // Duplicates would make policy order-dependent via the lookup below.
     const key = exceptionKey(x);
     if (seen.has(key)) {
-      throw new Indeterminate(`allowlist has duplicate entries for ${x.advisory} / ${x.package}`);
+      throw new Indeterminate(
+        "E_ALLOWLIST_DUPLICATE",
+        `allowlist has duplicate entries for ${x.advisory} / ${x.package}`
+      );
     }
     seen.add(key);
   }
@@ -118,8 +139,36 @@ function loadAllowlist(path) {
 }
 
 const exceptionKey = (x) => `${x.advisory}::${x.package}`;
-/** Exclusive: valid while now < this instant. */
-const expiryMs = (isoDate) => Date.parse(`${isoDate}T00:00:00Z`);
+
+/**
+ * Exclusive expiry: valid while now < the returned instant.
+ *
+ * The regex and a NaN check are NOT sufficient. JavaScript silently normalises
+ * impossible days in this format rather than rejecting them, verified:
+ *   2026-02-31 -> 2026-03-03
+ *   2026-02-29 -> 2026-03-01   (2026 is not a leap year)
+ *   2026-04-31 -> 2026-05-01
+ * So a reviewer could write one date and the policy would silently use another.
+ * Round-tripping the parsed value back to a string is what makes the calendar
+ * date real, independent of engine behaviour.
+ */
+function expiryMs(isoDate, index) {
+  const where = index === undefined ? "" : `exception #${index} `;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    throw new Indeterminate(
+      "E_ALLOWLIST_DATE",
+      `${where}\`expires\` must be YYYY-MM-DD (got "${isoDate}")`
+    );
+  }
+  const ms = Date.parse(`${isoDate}T00:00:00Z`);
+  if (!Number.isFinite(ms) || new Date(ms).toISOString().slice(0, 10) !== isoDate) {
+    throw new Indeterminate(
+      "E_ALLOWLIST_DATE",
+      `${where}\`expires\` is not a real calendar date (${isoDate})`
+    );
+  }
+  return ms;
+}
 
 /* ----------------------------------------------------------------- input */
 
@@ -129,7 +178,7 @@ function getAuditDocument(inputPath) {
     try {
       raw = readFileSync(inputPath, "utf8");
     } catch (e) {
-      throw new Indeterminate(`cannot read input: ${e.message}`);
+      throw new Indeterminate("E_AUDIT_READ", `cannot read input: ${e.message}`);
     }
     return parseAudit(raw);
   }
@@ -138,9 +187,10 @@ function getAuditDocument(inputPath) {
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
   });
-  if (run.error) throw new Indeterminate(`could not execute npm audit: ${run.error.message}`);
+  if (run.error) throw new Indeterminate("E_AUDIT_EXEC", `could not execute npm audit: ${run.error.message}`);
   if (!run.stdout || !run.stdout.trim()) {
     throw new Indeterminate(
+      "E_AUDIT_EMPTY",
       `npm audit produced no stdout (stderr: ${(run.stderr || "").trim().slice(0, 300)})`
     );
   }
@@ -152,24 +202,27 @@ function parseAudit(raw) {
   try {
     doc = JSON.parse(raw);
   } catch (e) {
-    throw new Indeterminate(`audit output is not valid JSON: ${e.message}`);
+    throw new Indeterminate("E_AUDIT_JSON", `audit output is not valid JSON: ${e.message}`);
   }
-  if (!doc || typeof doc !== "object") throw new Indeterminate("audit output is not an object");
+  if (!doc || typeof doc !== "object") throw new Indeterminate("E_AUDIT_SCHEMA", "audit output is not an object");
   if (doc.error) {
     const detail = doc.error.summary || doc.error.code || JSON.stringify(doc.error);
-    throw new Indeterminate(`npm audit reported an error: ${detail}`);
+    throw new Indeterminate("E_AUDIT_ERROR", `npm audit reported an error: ${detail}`);
   }
   if (typeof doc.vulnerabilities !== "object" || doc.vulnerabilities === null) {
-    throw new Indeterminate("audit output has no `vulnerabilities` object");
+    throw new Indeterminate("E_AUDIT_SCHEMA", "audit output has no `vulnerabilities` object");
   }
   const counters = doc.metadata?.vulnerabilities;
   if (typeof counters !== "object" || counters === null) {
-    throw new Indeterminate("audit output has no `metadata.vulnerabilities` object");
+    throw new Indeterminate("E_AUDIT_SCHEMA", "audit output has no `metadata.vulnerabilities` object");
   }
   for (const c of COUNTERS) {
     const v = counters[c];
     if (!Number.isInteger(v) || v < 0) {
-      throw new Indeterminate(`metadata.vulnerabilities.${c} is not a non-negative integer (${v})`);
+      throw new Indeterminate(
+        "E_AUDIT_COUNTER",
+        `metadata.vulnerabilities.${c} is not a non-negative integer (${v})`
+      );
     }
   }
   return doc;
@@ -188,30 +241,43 @@ function extractAdvisories(doc) {
   const found = new Map();
   for (const [pkg, entry] of Object.entries(doc.vulnerabilities)) {
     if (!entry || typeof entry !== "object") {
-      throw new Indeterminate(`vulnerabilities["${pkg}"] is not an object`);
+      throw new Indeterminate("E_AUDIT_SCHEMA", `vulnerabilities["${pkg}"] is not an object`);
     }
     if (!Array.isArray(entry.via)) {
-      throw new Indeterminate(`vulnerabilities["${pkg}"].via is not an array`);
+      throw new Indeterminate("E_AUDIT_SCHEMA", `vulnerabilities["${pkg}"].via is not an array`);
     }
     for (const via of entry.via) {
-      if (typeof via === "string") continue; // known: indirect reference
+      if (typeof via === "string") {
+        // Known category: a meta-vulnerability edge naming another vulnerable
+        // package. Recognising it as a string is not the same as understanding
+        // it, so prove the edge actually resolves. Verified against real output:
+        // all 20 string references resolved, so this is not over-strict.
+        if (!Object.prototype.hasOwnProperty.call(doc.vulnerabilities, via)) {
+          throw new Indeterminate(
+            "E_AUDIT_VIA_REF",
+            `"${pkg}" references unknown vulnerability package "${via}"`
+          );
+        }
+        continue;
+      }
       if (!via || typeof via !== "object") {
-        throw new Indeterminate(`vulnerabilities["${pkg}"].via contains an unsupported entry`);
+        throw new Indeterminate("E_AUDIT_ADVISORY_SHAPE", `vulnerabilities["${pkg}"].via contains an unsupported entry`);
       }
       if (typeof via.url !== "string" || !via.url) {
         throw new Indeterminate(
+          "E_AUDIT_ADVISORY_SHAPE",
           `advisory object under "${pkg}" has no \`url\`; audit schema may have changed`
         );
       }
       const id = via.url.split("/").filter(Boolean).pop();
       if (!id) {
-        throw new Indeterminate(`advisory under "${pkg}" has an unusable url "${via.url}"`);
+        throw new Indeterminate("E_AUDIT_ADVISORY_SHAPE", `advisory under "${pkg}" has an unusable url "${via.url}"`);
       }
       if (typeof via.name !== "string" || !via.name) {
-        throw new Indeterminate(`advisory ${id} has no \`name\``);
+        throw new Indeterminate("E_AUDIT_ADVISORY_SHAPE", `advisory ${id} has no \`name\``);
       }
       if (!(via.severity in RANK)) {
-        throw new Indeterminate(`advisory ${id} has unknown severity "${via.severity}"`);
+        throw new Indeterminate("E_AUDIT_SEVERITY", `advisory ${id} has unknown severity "${via.severity}"`);
       }
       const key = `${id}::${via.name}`;
       const prev = found.get(key);
@@ -231,17 +297,19 @@ function crossCheck(doc, advisories) {
   const { total, critical } = doc.metadata.vulnerabilities;
   if (total > 0 && advisories.length === 0) {
     throw new Indeterminate(
+      "E_ORACLE_MISMATCH",
       `npm reports ${total} vulnerable package(s) but no advisory objects were understood`
     );
   }
   if (total === 0 && advisories.length > 0) {
     throw new Indeterminate(
+      "E_ORACLE_MISMATCH",
       `npm reports 0 vulnerabilities but ${advisories.length} advisory object(s) were parsed`
     );
   }
   // Holds regardless of whether the corresponding advisory could be extracted.
   if (critical > 0) {
-    return [`npm reports ${critical} CRITICAL vulnerability(ies); never suppressible`];
+    return [`[E_CRITICAL] npm reports ${critical} CRITICAL vulnerability(ies); never suppressible`];
   }
   return [];
 }
@@ -255,23 +323,25 @@ function evaluate(advisories, exceptions, now) {
 
   for (const a of advisories) {
     if (a.severity === NEVER_SUPPRESSIBLE) {
-      failures.push(`${a.id} (${a.package}): CRITICAL, never suppressible`);
+      failures.push(`[E_CRITICAL] ${a.id} (${a.package}): CRITICAL, never suppressible`);
       continue;
     }
     const match = exceptions.find((x) => x.advisory === a.id && x.package === a.package);
     if (!match) {
-      failures.push(`${a.id} (${a.package}, ${a.severity}): no approved exception. ${a.title}`);
+      failures.push(`[E_UNAPPROVED] ${a.id} (${a.package}, ${a.severity}): no approved exception. ${a.title}`);
       continue;
     }
     usedKeys.add(exceptionKey(match));
     if (RANK[a.severity] > RANK[match.approvedSeverity]) {
       failures.push(
-        `${a.id} (${a.package}): severity is now ${a.severity}, only ${match.approvedSeverity} was approved`
+        `[E_SEVERITY_EXCEEDED] ${a.id} (${a.package}): severity is now ${a.severity}, only ${match.approvedSeverity} was approved`
       );
       continue;
     }
     if (now >= expiryMs(match.expires)) {
-      failures.push(`${a.id} (${a.package}): exception expired ${match.expires}, needs re-review`);
+      failures.push(
+        `[E_EXPIRED] ${a.id} (${a.package}): exception expired ${match.expires}, needs re-review`
+      );
       continue;
     }
     suppressed.push(`${a.id} (${a.package}, ${a.severity}) until ${match.expires}`);
@@ -281,7 +351,7 @@ function evaluate(advisories, exceptions, now) {
   for (const x of exceptions) {
     if (!usedKeys.has(exceptionKey(x))) {
       failures.push(
-        `${x.advisory} (${x.package}): exception is no longer reported. Remove it; leaving it would silently suppress a future reintroduction`
+        `[E_UNUSED] ${x.advisory} (${x.package}): exception is no longer reported. Remove it; leaving it would silently suppress a future reintroduction`
       );
     }
   }
@@ -295,13 +365,13 @@ function main() {
   let result;
   let count = 0;
   try {
-    const { input, allowlist } = parseArgs(process.argv.slice(2));
+    const { input, allowlist, now } = parseArgs(process.argv.slice(2));
     const exceptions = loadAllowlist(allowlist);
     const doc = getAuditDocument(input);
     const advisories = extractAdvisories(doc);
     count = advisories.length;
     const oracleFailures = crossCheck(doc, advisories);
-    result = evaluate(advisories, exceptions, Date.now());
+    result = evaluate(advisories, exceptions, now ?? Date.now());
     result.failures.unshift(...oracleFailures);
   } catch (e) {
     if (e instanceof Indeterminate) {

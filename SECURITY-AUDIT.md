@@ -85,6 +85,18 @@ is lower, not zero.
 
 - **`expires` is EXCLUSIVE**, evaluated at 00:00 UTC. An exception applies while
   `now < expires`, so the listed date is the first day it no longer suppresses.
+  Proven by fixtures 1ms either side of the boundary, not just asserted.
+- **`expires` must be a real calendar date.** A regex plus a NaN check is not
+  enough: JavaScript silently normalises impossible days in this format, verified
+  as `2026-02-31 -> 2026-03-03`, `2026-02-29 -> 2026-03-01` (2026 is not a leap
+  year) and `2026-04-31 -> 2026-05-01`. A reviewer could therefore write one
+  expiry and the policy would quietly use another. The value is round-tripped
+  back to a string, so no security rule here depends on a date parser correcting
+  human input.
+- **Every failure carries a stable machine code** (`E_UNAPPROVED`, `E_EXPIRED`,
+  `E_UNUSED`, `E_CRITICAL`, `E_ALLOWLIST_DUPLICATE`, `E_AUDIT_ADVISORY_SHAPE`,
+  `E_ORACLE_MISMATCH`, and so on). Fixtures assert the code, so a test cannot pass
+  because the wrong control fired.
 - **An unused exception is FATAL, not hygiene.** Every entry must match a
   currently reported advisory. An unused but unexpired entry is dormant
   suppression authority: if a dependency change reintroduced the advisory it would
@@ -98,6 +110,24 @@ is lower, not zero.
   silently skipped an advisory object with an unfamiliar shape. That was a false
   green, and it is what the nested schema assertions and the counter oracle exist
   to prevent.
+
+### Trust boundary: npm registry audit data is a trusted external input
+
+The gate can prove the report it received is well-formed and that every finding is
+either unapproved or covered by an unexpired exception. It cannot prove the report
+is **true**. If the registry returned a syntactically valid but incomplete or
+falsified advisory set, no amount of local parsing would detect it.
+
+That is an inherent oracle assumption, named rather than solved. Building a second
+independent scanner (OSV, GitHub Advisory API) to cross-check would be
+disproportionate for a static portfolio. Dependabot provides some ecosystem
+diversity but is not a synchronous second oracle for this gate.
+
+Related runtime assumption: **npm itself is part of this control's contract.**
+`.nvmrc` pins a Node major, and npm patches float within it, which is deliberate
+(freezing npm to stabilise a JSON shape would trade a security-patching problem
+for a parsing convenience). Schema drift is absorbed by failing closed on anything
+unrecognised, so a new npm becomes a loud investigation, never a silent pass.
 
 ### Threat model limit: the gate is in-repo
 
