@@ -71,6 +71,18 @@ export class AnnotationError extends Error {
 }
 
 /**
+ * Exhaustiveness guard. Adding a variant to `Annotation` or `Segment` without
+ * handling it becomes a COMPILE error here, rather than silently taking a
+ * fall-through branch. Also throws at runtime for values that circumvented the
+ * type.
+ */
+export function assertNever(value: never): never {
+  throw new AnnotationError(
+    `unhandled variant: ${JSON.stringify(value as unknown) ?? String(value)}`
+  );
+}
+
+/**
  * Parse, validate, then return the CANONICAL form. Validating one value and
  * rendering a different one is the pattern worth avoiding, even when they happen
  * to be identical today.
@@ -104,7 +116,19 @@ export function compileAnnotatedText(prose: AnnotatedProse): readonly Segment[] 
   const { text, annotations } = prose;
 
   const located = annotations.map((a) => {
-    if (!a.phrase.trim()) {
+    /* Reject unknown kinds UP FRONT rather than letting dispatch fall through.
+       Before this, `{ kind: "image", ... }` with the type circumvented skipped the
+       accent validation (kind was not "accent"), missed the link branch, and landed
+       in the accent branch anyway, emitting a segment with no accent field at all.
+       That is a fail-open, and it contradicted the stated contract. The type union
+       makes this unreachable in well-typed code; the check exists because the type
+       is not the security boundary. */
+    if (a.kind !== "accent" && a.kind !== "link") {
+      throw new AnnotationError(
+        `unknown annotation kind "${String((a as { kind?: unknown }).kind)}" for phrase "${String((a as { phrase?: unknown }).phrase)}"`
+      );
+    }
+    if (typeof a.phrase !== "string" || !a.phrase.trim()) {
       throw new AnnotationError("annotation phrase must contain non-whitespace text");
     }
     if (a.kind === "accent" && !(ACCENT_NAMES as readonly string[]).includes(a.accent)) {
@@ -123,9 +147,15 @@ export function compileAnnotatedText(prose: AnnotatedProse): readonly Segment[] 
       );
     }
 
-    return a.kind === "link"
-      ? { ...a, href: parseHttpsUrl(a.href, a.phrase), start, end: start + a.phrase.length }
-      : { ...a, start, end: start + a.phrase.length };
+    const end = start + a.phrase.length;
+    switch (a.kind) {
+      case "link":
+        return { ...a, href: parseHttpsUrl(a.href, a.phrase), start, end };
+      case "accent":
+        return { ...a, start, end };
+      default:
+        return assertNever(a);
+    }
   });
 
   /* Sorting by offset makes overlap detection one linear scan, and means the
@@ -146,11 +176,16 @@ export function compileAnnotatedText(prose: AnnotatedProse): readonly Segment[] 
   for (const a of ordered) {
     if (a.start > cursor) segments.push({ kind: "text", text: text.slice(cursor, a.start) });
     const slice = text.slice(a.start, a.end);
-    segments.push(
-      a.kind === "link"
-        ? { kind: "link", text: slice, href: a.href }
-        : { kind: "accent", text: slice, accent: a.accent }
-    );
+    switch (a.kind) {
+      case "link":
+        segments.push({ kind: "link", text: slice, href: a.href });
+        break;
+      case "accent":
+        segments.push({ kind: "accent", text: slice, accent: a.accent });
+        break;
+      default:
+        return assertNever(a);
+    }
     cursor = a.end;
   }
   if (cursor < text.length) segments.push({ kind: "text", text: text.slice(cursor) });

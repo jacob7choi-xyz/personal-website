@@ -55,13 +55,11 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx eslint . --ext .ts,.tsx --max-warnings 0
+        run: npm run lint
 
       - name: Type check
         run: npm run typecheck
 
-      - name: Build
-        run: npm run build
 
       # The lint step above is scoped to .ts/.tsx, so the policy engine is not
       # covered by it. Parse-check it explicitly rather than relying on execution
@@ -86,6 +84,9 @@ jobs:
       # Prove the gate itself cannot fail open before trusting its verdict.
       - name: Test the advisory gate
         run: npm run audit:test
+
+      - name: Build
+        run: npm run build
 
       # Fails closed. Replaces `npm audit --audit-level=critical`, which passed
       # while 20 distinct advisories were present.

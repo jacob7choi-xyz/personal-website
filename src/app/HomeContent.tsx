@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
 import SignatureMark from "@/components/Global/SignatureMark";
-import type { Accent, Segment } from "@/lib/annotated-text";
+import { assertNever, type Accent, type Segment } from "@/lib/annotated-text";
 import {
   currentExperience,
   pastExperience,
@@ -85,27 +85,34 @@ function AnnotatedText({ segments }: { segments: readonly Segment[] }) {
   return (
     <>
       {segments.map((seg, i) => {
-        if (seg.kind === "link") {
-          return (
-            <a
-              key={i}
-              className="ink-link"
-              href={seg.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {seg.text}
-            </a>
-          );
+        /* Exhaustive on purpose. Adding a Segment variant without handling it here
+           is a compile error, instead of silently falling through to plain text and
+           quietly dropping the formatting. That silent-degradation shape is exactly
+           what this refactor existed to remove. */
+        switch (seg.kind) {
+          case "link":
+            return (
+              <a
+                key={i}
+                className="ink-link"
+                href={seg.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {seg.text}
+              </a>
+            );
+          case "accent":
+            return (
+              <span key={i} style={{ color: ACCENT_STYLES[seg.accent] }}>
+                {seg.text}
+              </span>
+            );
+          case "text":
+            return <span key={i}>{seg.text}</span>;
+          default:
+            return assertNever(seg);
         }
-        if (seg.kind === "accent") {
-          return (
-            <span key={i} style={{ color: ACCENT_STYLES[seg.accent] }}>
-              {seg.text}
-            </span>
-          );
-        }
-        return <span key={i}>{seg.text}</span>;
       })}
     </>
   );

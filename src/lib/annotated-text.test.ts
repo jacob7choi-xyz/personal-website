@@ -129,6 +129,27 @@ expectReject(
   [{ kind: "link", phrase: "beta", href: "https://user:pw@example.com/" as HttpsUrl }],
   "credentials"
 );
+/* The fail-open this suite was extended for: an unknown kind used to skip accent
+   validation, miss the link branch, and land in the accent branch anyway, emitting
+   a segment with no accent field. */
+expectReject(
+  "unknown annotation kind (type circumvented)",
+  PROSE,
+  [{ kind: "image", phrase: "beta", accent: "cyan" } as unknown as Annotation],
+  "unknown annotation kind"
+);
+expectReject(
+  "unknown annotation kind with no accent field",
+  PROSE,
+  [{ kind: "image", phrase: "beta" } as unknown as Annotation],
+  "unknown annotation kind"
+);
+expectReject(
+  "non-string phrase (type circumvented)",
+  PROSE,
+  [{ kind: "accent", phrase: 42, accent: "cyan" } as unknown as Annotation],
+  "non-whitespace"
+);
 expectReject(
   "unknown accent (type circumvented)",
   PROSE,
