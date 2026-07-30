@@ -18,7 +18,7 @@
 
   --text-primary: #ECE8E1;   /* warm off-white */
   --text-secondary: #9A958C; /* warm gray */
-  --text-tertiary: #5E5A54;
+  --text-tertiary: #7D7870;  /* 4.51:1 on --bg, the WCAG AA floor for small text */
   --rule: rgba(255, 255, 255, 0.09);
   --rule-soft: rgba(255, 255, 255, 0.05);
 }
@@ -128,7 +128,13 @@ body {
     transform: translateY(-2px);
   }
 
-  .focus-ring:focus-visible {
+  /* One focus contract for every interactive element. `.ink-link` is included
+     because inline bio links are injected as markup and cannot carry a utility
+     class from JSX; styling by their existing class avoids touching the
+     injected strings, and keeps all three from drifting apart. */
+  .focus-ring:focus-visible,
+  .ink-link:focus-visible,
+  .meta-link:focus-visible {
     outline: 2px solid var(--violet);
     outline-offset: 3px;
     border-radius: 3px;
@@ -172,6 +178,7 @@ body {
   :root {
     --text-primary: #FFFFFF;
     --text-secondary: #C9C5BD;
+    --text-tertiary: #B5B0A6; /* 9.73:1 on black; stays dimmer than secondary */
     --bg: #000000;
   }
 }

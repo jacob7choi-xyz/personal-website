@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Actions in ci.yml are pinned to immutable commit SHAs. That removes the
+  # mutable-tag supply-chain risk but freezes them, so without this they would
+  # silently rot and stop receiving the actions' own security fixes. Dependabot
+  # rewrites the pinned SHA and the trailing version comment together.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+    open-pull-requests-limit: 5

@@ -2,22 +2,44 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
     branches: [main]
+  # Detection, not enforcement. An advisory can be published, or an exception in
+  # .github/audit-allowlist.json can expire, on a day with no commits, and
+  # push/pull_request triggers alone would never notice. Note that scheduled
+  # workflows on public repositories can be disabled after 60 days of
+  # inactivity, so the pre-merge gate above stays authoritative.
+  schedule:
+    - cron: "17 6 * * 1"
+
+# Least privilege, stated explicitly so the privilege contract is reviewable
+# rather than inherited from repository or organisation defaults.
+permissions:
+  contents: read
 
 jobs:
+  # Renaming this job renames the check that branch protection requires. Treat it
+  # as an externally referenced identifier.
   lint-and-build:
     runs-on: ubuntu-latest
 
     steps:
+      # Actions are pinned to full commit SHAs: a tag is mutable and is not a
+      # supply-chain guarantee. Dependabot keeps these current (see
+      # .github/dependabot.yml), because pins rot silently without it.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
+      # Reads .nvmrc so CI and local development cannot drift. Vercel does not
+      # read .nvmrc, so package.json `engines.node` pins the deploy runtime; those
+      # two must be kept in step. Node 20 was EOL as of 2026 and no longer
+      # receives security fixes, which is disqualifying for the runtime that
+      # executes this security gate.
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -32,5 +54,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Audit
-        run: npm audit --audit-level=critical
+      # Prove the gate itself cannot fail open before trusting its verdict.
+      - name: Test the advisory gate
+        run: node scripts/audit-check.test.mjs
+
+      # Fails closed. Replaces `npm audit --audit-level=critical`, which passed
+      # while 20 distinct advisories were present.
+      - name: Dependency advisory gate
+        run: node scripts/audit-check.mjs

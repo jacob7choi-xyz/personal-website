@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "audit:check": "node scripts/audit-check.mjs",
+    "audit:test": "node scripts/audit-check.test.mjs"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",
@@ -22,9 +24,12 @@
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.27",
     "eslint": "^8",
-    "eslint-config-next": "14.2.7",
+    "eslint-config-next": "^15.5.22",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

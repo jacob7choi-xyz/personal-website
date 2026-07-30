@@ -1,3 +1,15 @@
+/* The single source of truth for which networks the design supports. The icon
+   and color registry in HomeContent is typed `Record<SocialName, ...>`, so it is
+   exhaustiveness-checked against this union: adding a name here without a
+   registry entry fails the build, and a registry key that is not a SocialName
+   fails too. That replaces a runtime fallback with a compile-time contract. */
+export type SocialName = "GitHub" | "LinkedIn" | "X" | "Instagram" | "YouTube";
+
+type SocialLink = {
+  name: SocialName;
+  url: `https://${string}`;
+};
+
 export const socialLinks = [
     {
       name: "GitHub",
@@ -19,7 +31,7 @@ export const socialLinks = [
       name: "YouTube",
       url: "https://youtube.com/@jacob7choi",
     }
-  ];
+  ] satisfies readonly SocialLink[];
   
   export const personalInfo = {
     name: "Jacob J. Choi",
