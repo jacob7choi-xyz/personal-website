@@ -63,6 +63,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The lint step above is scoped to .ts/.tsx, so the policy engine is not
+      # covered by it. Parse-check it explicitly rather than relying on execution
+      # to be the only syntax gate.
+      - name: Syntax check the policy engine
+        run: node --check scripts/audit-check.mjs && node --check scripts/audit-check.test.mjs
+
       # Prove the gate itself cannot fail open before trusting its verdict.
       - name: Test the advisory gate
         run: node scripts/audit-check.test.mjs

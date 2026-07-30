@@ -12,12 +12,16 @@
  *    object whose shape it does not recognise. A security gate must never turn
  *    "I did not understand that input" into PASS. There is deliberately no
  *    silent `continue` over unrecognised objects.
- * 3. Two independent oracles. The advisory list is cross-checked against
- *    `metadata.vulnerabilities`, so parser drift cannot hide findings that npm
- *    itself is reporting.
- * 4. Exceptions are keyed on advisory + package + maximum approved severity +
- *    expiry. A bare advisory ID would let the same GHSA reappear through a
- *    different package, or at a higher severity, and still pass.
+ * 3. The parsed advisory list is cross-checked against `metadata.vulnerabilities`
+ *    so parser drift cannot hide findings npm is itself reporting. This is NOT
+ *    oracle independence: both views come from the same audit document, produced
+ *    by the same npm process from the same registry data. The registry stays a
+ *    single external trust boundary.
+ * 4. An exception is IDENTIFIED by advisory + package (one policy record per
+ *    GHSA/package, which is why duplicates are rejected). Maximum approved
+ *    severity and exclusive expiry are CONSTRAINTS on that record, not part of
+ *    its identity. A bare advisory ID would let the same GHSA reappear through a
+ *    different package and still pass.
  * 5. Exceptions deliberately do NOT bind installed version or dependency path.
  *    Those churn on ordinary lockfile changes, and a gate that cries wolf gets
  *    rubber-stamped.
@@ -27,7 +31,12 @@
  *    allowlist must be an exact representation of currently accepted risk.
  * 7. `critical` can never be suppressed, allowlisted or not.
  * 8. `expires` is EXCLUSIVE: an exception stops suppressing at 00:00 UTC on that
- *    date, so the date itself is the first day it no longer applies.
+ *    date, so the date itself is the first day it no longer applies. It must also
+ *    be a real calendar date, because JS normalises impossible days silently.
+ * 9. The `via` data is a GRAPH. Every reported package must resolve to an advisory
+ *    object, not merely point at another known entry.
+ * 10. Test overrides (`--now`, a custom `--allowlist`) are only accepted with
+ *    `--input`. A comment saying "test-only" is not enforcement.
  *
  * Usage:
  *   node scripts/audit-check.mjs
@@ -76,12 +85,22 @@ function parseArgs(argv) {
     i++;
   }
   if (out.now !== null) {
-    // Test-only, so expiry boundaries can be asserted deterministically. It can
-    // shift policy time, so it lives under the same in-repo trust assumption as
-    // the allowlist itself (see SECURITY-AUDIT.md).
     const ms = Date.parse(out.now);
     if (!Number.isFinite(ms)) throw new Indeterminate("E_ARGS", `--now is not a valid timestamp`);
     out.now = ms;
+  }
+  /* Fixture-mode coupling. Calling these "test-only" in a comment is not
+     enforcement: without this, `audit-check.mjs --now 2020-01-01` would run the
+     REAL npm audit and evaluate live findings under fictional policy time, making
+     an expired exception look valid. Overrides are therefore only accepted
+     alongside --input, so production mode is always: live audit + real clock +
+     canonical allowlist. */
+  if ((out.now !== null || out.allowlist !== DEFAULT_ALLOWLIST) && out.input === null) {
+    throw new Indeterminate(
+      "E_ARGS",
+      "--now and a custom --allowlist are only valid with --input (fixture mode); " +
+        "a live audit must be evaluated against the real clock and the canonical allowlist"
+    );
   }
   return out;
 }
@@ -188,6 +207,12 @@ function getAuditDocument(inputPath) {
     maxBuffer: 64 * 1024 * 1024,
   });
   if (run.error) throw new Indeterminate("E_AUDIT_EXEC", `could not execute npm audit: ${run.error.message}`);
+  /* A killed scanner that happened to flush parseable JSON is not a completed
+     scan. spawnSync hands us this for free, so distinguish abnormal termination
+     from the expected nonzero exit that findings produce. */
+  if (run.signal !== null && run.signal !== undefined) {
+    throw new Indeterminate("E_AUDIT_EXEC", `npm audit terminated by signal ${run.signal}`);
+  }
   if (!run.stdout || !run.stdout.trim()) {
     throw new Indeterminate(
       "E_AUDIT_EMPTY",
@@ -290,8 +315,66 @@ function extractAdvisories(doc) {
 }
 
 /**
- * Second, independent oracle. npm's own counters must not contradict what the
- * parser managed to read.
+ * npm's `via` data is a GRAPH, not a list: a vulnerable package can be explained
+ * either by a direct advisory object or by an edge to another vulnerable package
+ * (a meta-vulnerability). Verifying that a string edge merely POINTS at a known
+ * entry is not the same as understanding it.
+ *
+ * Counterexample this rules out: A -> B, B -> A with no advisory object anywhere
+ * in that component, alongside an unrelated C -> real advisory. Every reference
+ * exists, the aggregate counters are consistent, and the component is still
+ * unexplained. Under the old checks that combination passed.
+ *
+ * Requirement: every reported vulnerable package must reach at least one advisory
+ * object. Implemented as a monotone fixpoint rather than DFS, which handles cycles
+ * without the "memoised a negative computed mid-cycle" trap: a pure cycle with no
+ * advisory object never enters the resolved set, so it is reported.
+ *
+ * Verified against real output before shipping: all 16 entries resolve over 5
+ * advisory-object edges and 20 string edges, so this is not over-strict.
+ */
+function assertViaGraphResolves(doc) {
+  const V = doc.vulnerabilities;
+  const packages = Object.keys(V);
+  const resolved = new Set();
+
+  for (const pkg of packages) {
+    if ((V[pkg].via ?? []).some((v) => v && typeof v === "object")) resolved.add(pkg);
+  }
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const pkg of packages) {
+      if (resolved.has(pkg)) continue;
+      for (const via of V[pkg].via ?? []) {
+        if (typeof via === "string" && resolved.has(via)) {
+          resolved.add(pkg);
+          changed = true;
+          break;
+        }
+      }
+    }
+  }
+
+  const unresolved = packages.filter((p) => !resolved.has(p));
+  if (unresolved.length) {
+    throw new Indeterminate(
+      "E_AUDIT_VIA_GRAPH",
+      `${unresolved.length} reported vulnerable package(s) never resolve to an advisory object ` +
+        `(${unresolved.slice(0, 5).join(", ")}); the meta-vulnerability graph is not fully understood`
+    );
+  }
+}
+
+/**
+ * Cross-check the parsed advisories against npm's own aggregate counters.
+ *
+ * NOT an independent oracle: both views come from the same `npm audit` document,
+ * produced by the same npm process from the same registry data. This catches the
+ * parser misunderstanding one representation. It does NOT defend against npm
+ * emitting internally consistent but wrong data, nor against registry compromise
+ * or an omitted upstream advisory. The registry remains a single external trust
+ * boundary (see SECURITY-AUDIT.md).
  */
 function crossCheck(doc, advisories) {
   const { total, critical } = doc.metadata.vulnerabilities;
@@ -370,6 +453,7 @@ function main() {
     const doc = getAuditDocument(input);
     const advisories = extractAdvisories(doc);
     count = advisories.length;
+    assertViaGraphResolves(doc);
     const oracleFailures = crossCheck(doc, advisories);
     result = evaluate(advisories, exceptions, now ?? Date.now());
     result.failures.unshift(...oracleFailures);
