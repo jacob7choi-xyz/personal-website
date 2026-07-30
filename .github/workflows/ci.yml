@@ -29,7 +29,7 @@ jobs:
       # supply-chain guarantee. Dependabot keeps these current (see
       # .github/dependabot.yml), because pins rot silently without it.
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # `node-version-file` is the ONLY version input here on purpose: if
       # `node-version` were also set it would win, and the .nvmrc migration would
