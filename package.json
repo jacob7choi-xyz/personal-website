@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "audit:check": "node scripts/audit-check.mjs",
-    "audit:test": "node scripts/audit-check.test.mjs"
+    "audit:test": "node scripts/audit-check.test.mjs",
+    "test:annotations": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/lib/annotated-text.test.mts"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",

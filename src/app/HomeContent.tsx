@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
 import SignatureMark from "@/components/Global/SignatureMark";
-import { ACCENTS, compileAnnotatedText, type AnnotatedProse } from "@/lib/annotated-text";
+import type { Accent, Segment } from "@/lib/annotated-text";
 import {
   currentExperience,
   pastExperience,
@@ -65,18 +65,26 @@ const WAVE_PATH = (() => {
   return d;
 })();
 
+/* The design layer owns how an accent identifier is painted. The compiler only
+   knows which identifiers are legal, so no arbitrary CSS value can reach here. */
+const ACCENT_STYLES: Record<Accent, string> = {
+  cyan: "var(--cyan)",
+  violetSoft: "var(--violet-soft)",
+};
+
 /**
- * Renders prose with accents and inline links as ordinary React nodes.
+ * Dumb renderer. Segments arrive already validated from `defineAnnotatedProse` at
+ * the content boundary, so this component performs no policy work.
  *
- * There is no HTML string anywhere in this path, so escaping is React's job
- * rather than ours, and `href` is passed as a prop instead of interpolated into
- * an attribute. Validation happens in `compileAnnotatedText`, which throws; since
- * this route is statically prerendered, a bad annotation fails the build.
+ * There is no HTML string anywhere in this path, so escaping is React's job rather
+ * than ours, and `href` is a prop instead of text interpolated into an attribute.
+ * Index keys are fine here: the sequence is derived from immutable prose and is
+ * never reordered or edited in place.
  */
-function AnnotatedText({ prose }: { prose: AnnotatedProse }) {
+function AnnotatedText({ segments }: { segments: readonly Segment[] }) {
   return (
     <>
-      {compileAnnotatedText(prose).map((seg, i) => {
+      {segments.map((seg, i) => {
         if (seg.kind === "link") {
           return (
             <a
@@ -92,7 +100,7 @@ function AnnotatedText({ prose }: { prose: AnnotatedProse }) {
         }
         if (seg.kind === "accent") {
           return (
-            <span key={i} style={{ color: ACCENTS[seg.accent] }}>
+            <span key={i} style={{ color: ACCENT_STYLES[seg.accent] }}>
               {seg.text}
             </span>
           );
@@ -286,10 +294,10 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <p className="text-[1.1rem] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
-            <AnnotatedText prose={personalInfo.bio.intro} />
+            <AnnotatedText segments={personalInfo.bio.intro.segments} />
           </p>
           <p className="text-[1.02rem] leading-[1.8]" style={{ color: "var(--text-secondary)" }}>
-            <AnnotatedText prose={personalInfo.bio.focus} />
+            <AnnotatedText segments={personalInfo.bio.focus.segments} />
           </p>
         </motion.div>
       </header>

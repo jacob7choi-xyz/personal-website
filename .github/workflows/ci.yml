@@ -69,6 +69,12 @@ jobs:
       - name: Syntax check the policy engine
         run: node --check scripts/audit-check.mjs && node --check scripts/audit-check.test.mjs
 
+      # The annotated-prose compiler enforces correctness and security invariants
+      # for the hero bio, so it is exercised directly rather than only implicitly
+      # through the build.
+      - name: Test the annotated-text compiler
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/lib/annotated-text.test.mts
+
       # Prove the gate itself cannot fail open before trusting its verdict.
       - name: Test the advisory gate
         run: node scripts/audit-check.test.mjs
