@@ -81,7 +81,7 @@ is lower, not zero.
 | Counter cross-check | same script, `crossCheck()` | Parser drift hiding findings npm is itself reporting: `metadata.critical > 0` fails unconditionally, and any contradiction between npm's counters and the parsed advisory list is indeterminate. **Not an independent oracle:** both views come from the same audit document, produced by the same npm process from the same registry data |
 | Graph completeness | same script, `assertViaGraphResolves()` | `via` is a graph, not a list. Every reported vulnerable package must resolve to an advisory object, so an unexplained component cannot hide behind existing references and consistent counters |
 | Fixture-mode coupling | `parseArgs()` | `--now` and a custom `--allowlist` are rejected without `--input`, so a live audit can never be evaluated under fictional policy time or a substituted policy |
-| Evaluator tests | `scripts/audit-check.test.mjs` | 29 cases covering the ways the gate itself could wrongly pass |
+| Evaluator tests | `scripts/audit-check.test.mjs` | The ways the gate itself could wrongly pass: malformed and truncated documents, unsupported report versions, unrecognised advisory shapes, counter contradictions, meta-vulnerability graph failures, allowlist integrity, expiry boundaries, and argument misuse. Each case asserts a specific failure code, and legitimate inputs are covered too so the suite also proves the gate is not over-strict. CI prints the current count; it is deliberately not written down here |
 
 ### Policy semantics worth knowing before editing the allowlist
 
@@ -113,8 +113,21 @@ is lower, not zero.
   package has to reach at least one advisory object. A cycle (`A -> B`, `B -> A`)
   with no advisory in that component previously passed, because every reference
   existed and the aggregate counters agreed, while the component was entirely
-  unexplained. Verified not over-strict: all 16 entries in real output resolve
-  across 5 advisory-object edges and 20 string edges.
+  unexplained. The rule was checked against the then-current dependency tree
+  before adoption, confirming every reported package already resolved, so it was
+  not introduced on the assumption that real output would satisfy it.
+- **The npm audit report version is pinned.** Every assumption in the evaluator is
+  written against version 2. A future version could keep these field names and
+  change their semantics, and evaluating it under version 2 assumptions is exactly
+  the silent misinterpretation this gate exists to prevent, so a version bump
+  fails closed and forces the parser to be re-read.
+
+**A note on this document:** it deliberately avoids recording counts, whether of
+test cases, advisories, or dependency-graph edges. Those change with every
+lockfile update without changing any security property, and a stale count in a
+security document is worse than no count. State the invariant; let the tooling
+report the number. (This file previously said "29 cases" while the suite had grown
+past it, which is exactly the failure mode.)
 - **An advisory object the parser cannot read is indeterminate, never clean.**
   Verified: the previous revision of this gate reported "0 distinct advisories,
   PASS" on a document where npm was reporting one high vulnerability, because it

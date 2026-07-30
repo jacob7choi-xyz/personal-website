@@ -86,7 +86,7 @@ const cases = [
   { n: 8, code: "E_AUDIT_ERROR", what: "registry/network failure shape (error key)", expect: 1, audit: { error: { code: "ENOTFOUND", summary: "registry unreachable" } }, allow: list() },
   { n: 9, code: "E_AUDIT_JSON", what: "truncated / invalid JSON", expect: 1, raw: '{"vulnerabilities": {"postcss": ', allow: list() },
   { n: 10, code: "E_AUDIT_SCHEMA", what: "no vulnerabilities key", expect: 1, audit: { auditReportVersion: 2 }, allow: list() },
-  { n: 11, code: "E_AUDIT_SCHEMA", what: "no metadata block", expect: 1, audit: { vulnerabilities: {} }, allow: list() },
+  { n: 11, code: "E_AUDIT_SCHEMA", what: "no metadata block", expect: 1, audit: { auditReportVersion: 2, vulnerabilities: {} }, allow: list() },
   { n: 12, code: "E_AUDIT_JSON", what: "empty stdout / empty file", expect: 1, raw: "", allow: list() },
   { n: 13, code: "E_AUDIT_SEVERITY", what: "unrecognised severity on an advisory", expect: 1, audit: report([{ ...ADV, severity: "high", via: { source: 1, name: "postcss", url: "https://github.com/advisories/GHSA-r28c-9q8g-f849", severity: "spicy" } }]), allow: list(EXC) },
 
@@ -206,6 +206,22 @@ const cases = [
       },
       metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 } },
     },
+    allow: list(),
+  },
+  {
+    n: 39,
+    code: "E_AUDIT_VERSION",
+    what: "a FUTURE report version with familiar field names",
+    expect: 1,
+    audit: { auditReportVersion: 3, vulnerabilities: {}, metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 } } },
+    allow: list(),
+  },
+  {
+    n: 40,
+    code: "E_AUDIT_VERSION",
+    what: "missing report version entirely",
+    expect: 1,
+    audit: { vulnerabilities: {}, metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 } } },
     allow: list(),
   },
   {
