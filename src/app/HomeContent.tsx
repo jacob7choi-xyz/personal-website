@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
 import SignatureMark from "@/components/Global/SignatureMark";
@@ -109,7 +109,12 @@ function AnnotatedText({ segments }: { segments: readonly Segment[] }) {
               </span>
             );
           case "text":
-            return <span key={i}>{seg.text}</span>;
+            /* Fragment, not <span>: plain prose was previously a bare text node, so
+               wrapping it would add DOM that never existed and quietly change what
+               selectors like `p > span` match. No CSS depends on that today, but
+               "no visual change" should mean the DOM is equivalent, not merely that
+               it looks the same. */
+            return <Fragment key={i}>{seg.text}</Fragment>;
           default:
             return assertNever(seg);
         }
