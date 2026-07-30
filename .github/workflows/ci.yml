@@ -31,11 +31,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      # Reads .nvmrc so CI and local development cannot drift. Vercel does not
-      # read .nvmrc, so package.json `engines.node` pins the deploy runtime; those
-      # two must be kept in step. Node 20 was EOL as of 2026 and no longer
-      # receives security fixes, which is disqualifying for the runtime that
-      # executes this security gate.
+      # `node-version-file` is the ONLY version input here on purpose: if
+      # `node-version` were also set it would win, and the .nvmrc migration would
+      # be silently defeated while every other file looked correct.
+      #
+      # Scope of what .nvmrc actually guarantees: it pins CI, and it tells a local
+      # version manager what to install. It does NOT enforce a local runtime on
+      # its own, and `engines` is advisory to npm. So this aligns CI and the
+      # declared intent; it does not prevent a developer running a different Node.
+      # Vercel does not read .nvmrc, so `engines.node` pins the deploy runtime
+      # separately and the two must be kept in step.
+      #
+      # Node 20 ended support 2026-04-30 (nodejs.org/dist schedule.json) and no
+      # longer receives security fixes, which is disqualifying for the runtime
+      # executing this security gate. 24 is LTS through 2028-04-30.
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
