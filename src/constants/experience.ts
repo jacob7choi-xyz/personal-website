@@ -2,11 +2,17 @@
    malformed entry should fail `tsc` rather than degrade silently at render
    time. `satisfies` keeps the literal inference while enforcing the shape. */
 
-type Url = `https://${string}`;
+/* An https PREFIX constraint, not URL validation. It rejects `http://` and
+   accidental non-URLs, which is the failure mode that actually occurs in
+   developer-authored constants. It will happily accept a malformed URL that
+   starts with https://. Sufficient here because these values are authored in
+   this file, JSX escapes them, and reachability is checked separately. Do not
+   describe it as validating URLs. */
+type HttpsUrl = `https://${string}`;
 
 type LinkedItem = {
   text: string;
-  link: Url;
+  link: HttpsUrl;
 };
 
 /* At least one element, so `items: []` is a compile error instead of an empty
@@ -17,16 +23,16 @@ type CurrentRole = {
   id: number;
   title: string;
   company: string;
-  link?: Url;
+  link?: HttpsUrl;
 };
 
 type PastRole = {
   id: number;
   title: string;
   company: string;
-  link?: Url;
+  link?: HttpsUrl;
   mentorText?: string;
-  mentorLink?: Url;
+  mentorLink?: HttpsUrl;
 };
 
 /* Titled clusters of linked achievements. Deliberately a SEPARATE array from
@@ -47,7 +53,7 @@ type Project = {
   /* Comma separated, split on ", " at render time. A tech name containing a
      comma would split wrongly. */
   tech: string;
-  link: Url;
+  link: HttpsUrl;
 };
 
 type Certification = {
@@ -55,15 +61,15 @@ type Certification = {
   title: string;
   issuer: string;
   year: string;
-  link: Url;
+  link: HttpsUrl;
 };
 
 type Award = {
   id: number;
   title: string;
   issuer: string;
-  issuerLink?: Url;
-  link: Url;
+  issuerLink?: HttpsUrl;
+  link: HttpsUrl;
   year: string;
 };
 
