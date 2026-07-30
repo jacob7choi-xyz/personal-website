@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
 import SignatureMark from "@/components/Global/SignatureMark";
+import { ACCENTS, compileAnnotatedText, type AnnotatedProse } from "@/lib/annotated-text";
 import {
   currentExperience,
   pastExperience,
@@ -64,25 +65,41 @@ const WAVE_PATH = (() => {
   return d;
 })();
 
-function emphasize(text: string, map: Record<string, string>) {
-  return Object.entries(map).reduce(
-    (acc, [phrase, color]) =>
-      acc.replace(phrase, `<span style="color:${color}">${phrase}</span>`),
-    text
-  );
-}
-
-type Link = { text: string; url: string };
-
-function linkify(text: string, links?: Link[]) {
-  if (!links) return text;
-  return links.reduce(
-    (acc, l) =>
-      acc.replace(
-        l.text,
-        `<a class="ink-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.text}</a>`
-      ),
-    text
+/**
+ * Renders prose with accents and inline links as ordinary React nodes.
+ *
+ * There is no HTML string anywhere in this path, so escaping is React's job
+ * rather than ours, and `href` is passed as a prop instead of interpolated into
+ * an attribute. Validation happens in `compileAnnotatedText`, which throws; since
+ * this route is statically prerendered, a bad annotation fails the build.
+ */
+function AnnotatedText({ prose }: { prose: AnnotatedProse }) {
+  return (
+    <>
+      {compileAnnotatedText(prose).map((seg, i) => {
+        if (seg.kind === "link") {
+          return (
+            <a
+              key={i}
+              className="ink-link"
+              href={seg.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {seg.text}
+            </a>
+          );
+        }
+        if (seg.kind === "accent") {
+          return (
+            <span key={i} style={{ color: ACCENTS[seg.accent] }}>
+              {seg.text}
+            </span>
+          );
+        }
+        return <span key={i}>{seg.text}</span>;
+      })}
+    </>
   );
 }
 
@@ -268,26 +285,12 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           animate={reduce ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
         >
-          <p
-            className="text-[1.1rem] leading-[1.75]"
-            style={{ color: "var(--text-primary)" }}
-            dangerouslySetInnerHTML={{
-              __html: emphasize(
-                linkify(personalInfo.bio.intro, personalInfo.bio.introLinks),
-                {
-                  "biomedical GraphRAG": "var(--cyan)",
-                  "three-year grant from the Duke Endowment": "var(--violet-soft)",
-                }
-              ),
-            }}
-          />
-          <p
-            className="text-[1.02rem] leading-[1.8]"
-            style={{ color: "var(--text-secondary)" }}
-            dangerouslySetInnerHTML={{
-              __html: linkify(personalInfo.bio.focus, personalInfo.bio.focusLinks),
-            }}
-          />
+          <p className="text-[1.1rem] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
+            <AnnotatedText prose={personalInfo.bio.intro} />
+          </p>
+          <p className="text-[1.02rem] leading-[1.8]" style={{ color: "var(--text-secondary)" }}>
+            <AnnotatedText prose={personalInfo.bio.focus} />
+          </p>
         </motion.div>
       </header>
 
