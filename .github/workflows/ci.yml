@@ -58,7 +58,7 @@ jobs:
         run: npx eslint . --ext .ts,.tsx --max-warnings 0
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Build
         run: npm run build
@@ -73,13 +73,21 @@ jobs:
       # for the hero bio, so it is exercised directly rather than only implicitly
       # through the build.
       - name: Test the annotated-text compiler
-        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/lib/annotated-text.test.mts
+        run: npm run test:annotations
+
+      # Proves the REAL copy in the repository is valid, by importing the content
+      # modules directly. Validation lives in runtime JS that tsc never executes,
+      # so without this the guarantee would depend on the build happening to
+      # evaluate those modules, which is a property of route architecture rather
+      # than a guarantee.
+      - name: Validate real site content
+        run: npm run validate:content
 
       # Prove the gate itself cannot fail open before trusting its verdict.
       - name: Test the advisory gate
-        run: node scripts/audit-check.test.mjs
+        run: npm run audit:test
 
       # Fails closed. Replaces `npm audit --audit-level=critical`, which passed
       # while 20 distinct advisories were present.
       - name: Dependency advisory gate
-        run: node scripts/audit-check.mjs
+        run: npm run audit:check

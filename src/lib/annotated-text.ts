@@ -14,20 +14,28 @@
  * co-located with the prose, validated, and fails the build.
  *
  * WHERE validation happens matters. `defineAnnotatedProse` compiles at the point
- * the content is DEFINED, not when a component renders it. So the invariant is
- * "invalid annotated content cannot exist as usable site content", rather than the
- * weaker "invalid content fails if some component happens to render it". Content
- * that is authored but not yet rendered still fails the build, and the guarantee
- * does not quietly depend on the route staying statically prerendered.
+ * the content is DEFINED, not when a component renders it, so prose cannot be
+ * consumed as `CompiledProse` without having been validated first.
+ *
+ * State that precisely, though: this is runtime validation that runs when the
+ * content module is EVALUATED. `tsc` does not execute it. It is therefore not a
+ * compile-time guarantee, and "every build necessarily validates all authored
+ * content" would only hold as long as the build happens to evaluate that module.
+ * `npm run validate:content` exists to make the guarantee real: it imports the
+ * actual content modules directly, so validity is proven independently of whether
+ * any component renders them or how the route is rendered.
  *
  * This module is pure policy: it knows which accent identifiers are legal, but not
  * how the site paints them. That mapping belongs to the rendering layer.
  */
 
-/** Legal accent identifiers. Deliberately NOT their CSS values. */
-export type Accent = "cyan" | "violetSoft";
-
-const ACCENT_NAMES: readonly Accent[] = ["cyan", "violetSoft"];
+/**
+ * Legal accent identifiers, deliberately NOT their CSS values. Declared once as a
+ * tuple and the type derived from it, so the compile-time vocabulary and the
+ * runtime check cannot drift apart.
+ */
+export const ACCENT_NAMES = ["cyan", "violetSoft"] as const;
+export type Accent = (typeof ACCENT_NAMES)[number];
 
 /**
  * Compile-time friction only: it proves a string starts with "https://", not that
@@ -99,7 +107,7 @@ export function compileAnnotatedText(prose: AnnotatedProse): readonly Segment[] 
     if (!a.phrase.trim()) {
       throw new AnnotationError("annotation phrase must contain non-whitespace text");
     }
-    if (a.kind === "accent" && !ACCENT_NAMES.includes(a.accent)) {
+    if (a.kind === "accent" && !(ACCENT_NAMES as readonly string[]).includes(a.accent)) {
       throw new AnnotationError(`unknown accent "${a.accent}" for phrase "${a.phrase}"`);
     }
 

@@ -5,10 +5,11 @@
  * correctness and security invariants, so it gets exercised directly rather than
  * only implicitly via `npm run build`.
  *
- * No test framework, deliberately. Node runs TypeScript directly via type
- * stripping, so this is a plain script.
+ * No test framework, deliberately. `tsx` executes it with the project's own
+ * TypeScript semantics, including path aliases, so the test environment matches how
+ * the application actually resolves modules.
  *
- *   node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/lib/annotated-text.test.mts
+ *   npm run test:annotations
  */
 
 import {
@@ -17,7 +18,7 @@ import {
   AnnotationError,
   type Annotation,
   type HttpsUrl,
-} from "./annotated-text.ts";
+} from "./annotated-text";
 
 let failed = 0;
 
