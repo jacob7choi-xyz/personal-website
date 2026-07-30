@@ -155,6 +155,79 @@ const cases = [
   /* --- expiry is EXCLUSIVE at 00:00 UTC; prove the exact boundary --- */
   { n: 33, what: "1ms before expiry still suppresses", expect: 0, audit: report([ADV]), allow: list({ ...EXC, expires: "2026-10-27" }), now: "2026-10-26T23:59:59.999Z" },
   { n: 34, code: "E_EXPIRED", what: "exactly at 00:00 UTC on the expiry date does NOT", expect: 1, audit: report([ADV]), allow: list({ ...EXC, expires: "2026-10-27" }), now: "2026-10-27T00:00:00.000Z" },
+
+  /* --- the via GRAPH, not just its syntax. Every reported package must resolve
+         to an advisory object. Existing references and consistent counters are
+         not enough. --- */
+  {
+    n: 35,
+    code: "E_AUDIT_VIA_GRAPH",
+    what: "A<->B cycle with no advisory, alongside an approved C (refs all exist, counters agree)",
+    expect: 1,
+    audit: {
+      auditReportVersion: 2,
+      vulnerabilities: {
+        A: { name: "A", severity: "high", via: ["B"], effects: [], range: "*", nodes: [], fixAvailable: false },
+        B: { name: "B", severity: "high", via: ["A"], effects: [], range: "*", nodes: [], fixAvailable: false },
+        postcss: {
+          name: "postcss",
+          severity: "high",
+          via: [{ source: 1, name: "postcss", title: "real", url: "https://github.com/advisories/GHSA-r28c-9q8g-f849", severity: "high", range: "*" }],
+          effects: [], range: "*", nodes: [], fixAvailable: false,
+        },
+      },
+      metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 3, critical: 0, total: 3 } },
+    },
+    allow: list(EXC),
+  },
+  {
+    n: 36,
+    code: "E_AUDIT_VIA_REF",
+    what: "string reference to a package that is not a reported vulnerability",
+    expect: 1,
+    audit: {
+      auditReportVersion: 2,
+      vulnerabilities: {
+        A: { name: "A", severity: "high", via: ["ghost-package"], effects: [], range: "*", nodes: [], fixAvailable: false },
+      },
+      metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 } },
+    },
+    allow: list(),
+  },
+  {
+    n: 37,
+    code: "E_AUDIT_VIA_GRAPH",
+    what: "dead-end entry with an empty via array",
+    expect: 1,
+    audit: {
+      auditReportVersion: 2,
+      vulnerabilities: {
+        A: { name: "A", severity: "high", via: [], effects: [], range: "*", nodes: [], fixAvailable: false },
+      },
+      metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 } },
+    },
+    allow: list(),
+  },
+  {
+    n: 38,
+    what: "a LEGITIMATE meta-vulnerability chain resolves (A -> B -> advisory)",
+    expect: 0,
+    audit: {
+      auditReportVersion: 2,
+      vulnerabilities: {
+        A: { name: "A", severity: "high", via: ["B"], effects: [], range: "*", nodes: [], fixAvailable: false },
+        B: { name: "B", severity: "high", via: ["postcss"], effects: [], range: "*", nodes: [], fixAvailable: false },
+        postcss: {
+          name: "postcss",
+          severity: "high",
+          via: [{ source: 1, name: "postcss", title: "real", url: "https://github.com/advisories/GHSA-r28c-9q8g-f849", severity: "high", range: "*" }],
+          effects: [], range: "*", nodes: [], fixAvailable: false,
+        },
+      },
+      metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 3, critical: 0, total: 3 } },
+    },
+    allow: list(EXC),
+  },
 ];
 
 let failed = 0;
