@@ -194,17 +194,11 @@ function ExternalOrText({
 }
 
 export default function HomeContent({ initialYear }: { initialYear: number }) {
-  /* The route is statically prerendered, so the build-time year would otherwise
-     freeze in the HTML until the next deploy. `initialYear` comes from the
-     server component, so the server and the client first pass render IDENTICAL
-     markup and hydration is clean, with no suppressHydrationWarning needed.
-     The effect then reconciles to the browser's real year.
-
-     Contract, stated precisely: JS-enabled clients become current after
-     hydration. The static HTML, and therefore no-JS visitors, keep the build
-     year until the next deployment. Fully eliminating that residual would
-     require a dynamically rendered route, a guaranteed periodic rebuild, or
-     dropping the year, none of which is proportionate here. */
+  /* The route is statically prerendered, so seed the client with the build year
+     to keep hydration identical, then reconcile to the browser's year on mount.
+     No-JS clients retain the build year until the next deployment, and a page
+     left open does not update across the year boundary. Both are accepted.
+     (Mechanism and the React citation are in the project conventions doc.) */
   const [year, setYear] = useState(initialYear);
   useEffect(() => setYear(new Date().getFullYear()), []);
 

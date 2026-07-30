@@ -82,7 +82,21 @@ is lower, not zero.
 
 Scheduled workflows on public repositories can be disabled after 60 days without
 activity, so **the pre-merge gate remains authoritative**. The schedule is
-detection, not enforcement.
+detection, not enforcement: a failing scheduled scan does not and must not
+undeploy anything, it reports that the threat environment changed after the code
+was accepted.
+
+**The audit workflow stays read-only** (`permissions: contents: read`). Do not
+add deployment credentials or a deploy hook to it for any reason. A scheduled
+audit, a scheduled build, and a scheduled production deployment are three
+different things with three different privilege requirements, and only the first
+belongs here.
+
+**The npm CLI is part of this control's contract.** `node-version: 20` floats
+across Node and bundled npm releases, which can change the audit JSON shape. That
+is handled by asserting the schema and failing closed on anything unrecognised, so
+version drift becomes a loud investigation rather than a silent "no
+vulnerabilities found". Do not relax that assertion to reduce noise.
 
 If the registry is unreachable the gate fails, by design: not being able to
 determine safety is not the same as being safe. The escape hatch for a genuine
