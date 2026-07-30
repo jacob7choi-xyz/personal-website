@@ -56,6 +56,7 @@ const DEFAULT_ALLOWLIST = join(HERE, "..", ".github", "audit-allowlist.json");
 const RANK = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 };
 const COUNTERS = ["info", "low", "moderate", "high", "critical", "total"];
 const NEVER_SUPPRESSIBLE = "critical";
+const SUPPORTED_REPORT_VERSION = 2;
 
 /**
  * Every failure carries a stable machine code. The fixture suite asserts the
@@ -234,6 +235,20 @@ function parseAudit(raw) {
     const detail = doc.error.summary || doc.error.code || JSON.stringify(doc.error);
     throw new Indeterminate("E_AUDIT_ERROR", `npm audit reported an error: ${detail}`);
   }
+  /* Pin the report contract. Every assumption below (the `via` shape, the
+     meta-vulnerability edges, the counter block) is written against version 2.
+     npm could keep these field names and change their semantics, in which case
+     evaluating a newer report with v2 assumptions is exactly the silent
+     misinterpretation this gate exists to prevent. A bump should be a loud
+     failure that forces the parser to be re-read, not a quiet pass.
+     Characterised before pinning: npm 11.11.0 emits 2. */
+  if (doc.auditReportVersion !== SUPPORTED_REPORT_VERSION) {
+    throw new Indeterminate(
+      "E_AUDIT_VERSION",
+      `unsupported npm audit report version ${JSON.stringify(doc.auditReportVersion)}; ` +
+        `this evaluator is written for version ${SUPPORTED_REPORT_VERSION}`
+    );
+  }
   if (typeof doc.vulnerabilities !== "object" || doc.vulnerabilities === null) {
     throw new Indeterminate("E_AUDIT_SCHEMA", "audit output has no `vulnerabilities` object");
   }
@@ -326,12 +341,15 @@ function extractAdvisories(doc) {
  * unexplained. Under the old checks that combination passed.
  *
  * Requirement: every reported vulnerable package must reach at least one advisory
- * object. Implemented as a monotone fixpoint rather than DFS, which handles cycles
- * without the "memoised a negative computed mid-cycle" trap: a pure cycle with no
- * advisory object never enters the resolved set, so it is reported.
+ * object. Implemented as a monotone fixpoint: a pure cycle with no advisory object
+ * never enters the resolved set, so it is reported. A correct DFS or SCC pass
+ * would work equally well; the fixpoint is chosen because it is trivial to reason
+ * about and needs no cycle bookkeeping (naive DFS with negative memoisation does
+ * get this wrong, which is a property of that shortcut, not of DFS).
  *
- * Verified against real output before shipping: all 16 entries resolve over 5
- * advisory-object edges and 20 string edges, so this is not over-strict.
+ * Before this rule was introduced, the then-current dependency tree was checked to
+ * confirm every reported package already resolved, so the rule was not adopted on
+ * the assumption that real output would satisfy it.
  */
 function assertViaGraphResolves(doc) {
   const V = doc.vulnerabilities;
