@@ -3,8 +3,12 @@ name: CI
 on:
   push:
     branches: [main, develop]
+  # Both branches, deliberately. Dependabot targets `develop`, so covering only
+  # `main` would leave dependency pull requests with no PRE-merge check: they would
+  # be validated by the push trigger only after landing on develop, which is the
+  # wrong order for a gate.
   pull_request:
-    branches: [main]
+    branches: [main, develop]
   # Detection, not enforcement. An advisory can be published, or an exception in
   # .github/audit-allowlist.json can expire, on a day with no commits, and
   # push/pull_request triggers alone would never notice. Note that scheduled
