@@ -12,7 +12,8 @@
     "test:annotations": "tsx src/lib/annotated-text.test.ts",
     "validate:content": "tsx scripts/validate-content.ts",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm run test:annotations && npm run validate:content && npm run audit:test && npm run build && npm run audit:check"
+    "verify": "npm run lint && npm run typecheck && npm run test:annotations && npm run validate:content && npm run verify:signature && npm run audit:test && npm run build && npm run audit:check",
+    "verify:signature": "node scripts/generate-signature.cjs --check"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",
@@ -29,7 +30,7 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^8",
     "eslint-config-next": "^15.5.22",
-    "opentype.js": "^2.0.0",
+    "opentype.js": "2.0.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.23.1",
