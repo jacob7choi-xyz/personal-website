@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { fraunces, inter, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,7 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // The three font classes define --font-fraunces / --font-inter / --font-mono
+    // for the whole document. They belong on <html> rather than <body> because
+    // globals.css sets a family on body itself, which would not see a variable
+    // declared on that same element in every case.
+    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="icon" href="/Jacob-Choi-Website-Logo.ico" />
       </head>
