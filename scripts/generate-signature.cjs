@@ -11,6 +11,16 @@ const FONT = path.join(__dirname, "GreatVibes.ttf");
    believed it was verifying another. */
 const OUT = path.join(__dirname, "..", "src", "constants", "signature.ts");
 const CHECK = process.argv.includes("--check");
+/* Reject anything else, so a typo cannot silently run the mutating path. */
+{
+  const unknown = process.argv.slice(2).filter((a) => a !== "--check");
+  if (unknown.length) {
+    console.error(`generate-signature: unrecognised argument "${unknown[0]}"`);
+    process.exit(1);
+  }
+}
+/* In --check mode the only output that should reach CI logs is the verdict. */
+const log = (...a) => { if (!CHECK) console.log(...a); };
 const STEPS = 8;
 const FS = 220;
 
@@ -88,7 +98,7 @@ for (const gl of glyphs) {
 // flourish: grows out of the final letter's bottom-right ink, sweeps left
 const iA = glyphs[glyphs.length - 1].baseRight;
 d += `M${iA.x.toFixed(1)} ${iA.y.toFixed(1)} C${(iA.x - 110).toFixed(1)} ${(iA.y + 68).toFixed(1)}, 760 104, 420 102 C220 101, 70 92, 95 48`;
-console.log(`i anchor: ${iA.x.toFixed(0)},${iA.y.toFixed(0)}`);
+log(`i anchor: ${iA.x.toFixed(0)},${iA.y.toFixed(0)}`);
 
 // bbox over all letter points (+ room for connectors/flourish below)
 let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;

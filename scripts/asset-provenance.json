@@ -1,0 +1,33 @@
+{
+  "note": "Recorded provenance for binary and licence assets committed to this repository, checked by scripts/verify-provenance.mjs. Editing an asset without updating its hash here fails the build, so provenance cannot silently drift away from what was reviewed. The upstream reference is pinned to an immutable commit, never a branch: a branch can be rewritten and would then no longer retrieve the artifact that was actually reviewed.",
+  "assets": [
+    {
+      "file": "scripts/GreatVibes.ttf",
+      "sha256": "8d509802186f1b51572531ecf313e8098f9a5bfdfaca93f0c9b34467f9982d15",
+      "bytes": 457588,
+      "upstream": {
+        "repository": "google/fonts",
+        "commit": "a6039f387a790a092e417b4e8dbdd5b57fe4d6d4",
+        "path": "ofl/greatvibes/GreatVibes-Regular.ttf",
+        "url": "https://raw.githubusercontent.com/google/fonts/a6039f387a790a092e417b4e8dbdd5b57fe4d6d4/ofl/greatvibes/GreatVibes-Regular.ttf"
+      },
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-07-30",
+      "why": "Read by scripts/generate-signature.cjs to produce src/constants/signature.ts. Committed so a clean clone can regenerate the signature."
+    },
+    {
+      "file": "scripts/GreatVibes-OFL.txt",
+      "sha256": "61093a21f5e63dedf54222b3c09997e54c0fe43e3851d21386e02ddcbc246d49",
+      "bytes": 4399,
+      "upstream": {
+        "repository": "google/fonts",
+        "commit": "a6039f387a790a092e417b4e8dbdd5b57fe4d6d4",
+        "path": "ofl/greatvibes/OFL.txt",
+        "url": "https://raw.githubusercontent.com/google/fonts/a6039f387a790a092e417b4e8dbdd5b57fe4d6d4/ofl/greatvibes/OFL.txt"
+      },
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-07-30",
+      "why": "The OFL requires the licence and copyright notice to accompany the font when it is redistributed. Taken from the same upstream commit as the binary, not a different distribution."
+    }
+  ]
+}
