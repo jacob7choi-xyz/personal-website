@@ -39,7 +39,7 @@ Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handl
 | I. Now | Current role and degree |
 | II. Selected Work | Projects with descriptions and tech tags |
 | III. Past | Prior professional and research experience |
-| IV. Music & Stage | Performance and competition history |
+| IV. Competitions & Stage | Entrepreneurship competitions and performance history |
 | V. Honors & Credentials | Certifications and awards |
 | VI. Contact | Email and social links |
 
