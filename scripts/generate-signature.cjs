@@ -1,10 +1,16 @@
 // Offline: "Jacob J. Choi" -> one continuous SVG path with cursive connectors
 // bridging the word gaps (b->J, .->C), assembled in writing order.
 const fs = require("fs");
+const path = require("path");
 const opentype = require("opentype.js");
 
 const TEXT = "Jacob J. Choi";
-const FONT = require("path").join(__dirname, "GreatVibes.ttf");
+const FONT = path.join(__dirname, "GreatVibes.ttf");
+/* Relative to this file, never an absolute machine path: the generator has to work
+   in any clone, and a hardcoded path silently wrote into one checkout while a test
+   believed it was verifying another. */
+const OUT = path.join(__dirname, "..", "src", "constants", "signature.ts");
+const CHECK = process.argv.includes("--check");
 const STEPS = 8;
 const FS = 220;
 
@@ -101,9 +107,31 @@ const out =
 export const signaturePath = ${JSON.stringify(d)};
 export const signatureBox = ${JSON.stringify(box)};
 `;
-fs.writeFileSync("/Users/choija/Desktop/jacob-choi-website/src/constants/signature.ts", out);
+if (CHECK) {
+  /* Non-mutating verification for CI: regenerate in memory and compare against the
+     committed artifact. Nothing is written, so a failure cannot be masked by the
+     file having just been overwritten. */
+  const current = fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : null;
+  if (current === null) {
+    console.error(`signature check: FAIL, ${OUT} does not exist`);
+    process.exit(1);
+  }
+  if (current !== out) {
+    console.error("signature check: FAIL, regenerated output differs from the committed signature.");
+    console.error(`  committed:   ${current.length} chars`);
+    console.error(`  regenerated: ${out.length} chars`);
+    console.error("  The font, opentype.js version, or generator parameters changed.");
+    console.error("  Re-run without --check to accept the new output, and review the rendered signature.");
+    process.exit(1);
+  }
+  console.log(`signature check: PASS (reproduces committed signature, box ${box.w}x${box.h}, path ${d.length} chars)`);
+  process.exit(0);
+}
+
+fs.writeFileSync(OUT, out);
 console.log(`wrote signature.ts: box ${box.w}x${box.h}, path ${d.length} chars`);
 
 const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}"><rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" fill="#0a0a0c"/><path d="${d}" fill="none" stroke="#54E09C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-fs.writeFileSync("/tmp/sig_verify.svg", svg);
-console.log("wrote /tmp/sig_verify.svg");
+const svgOut = path.join(require("os").tmpdir(), "sig_verify.svg");
+fs.writeFileSync(svgOut, svg);
+console.log(`wrote ${svgOut}`);

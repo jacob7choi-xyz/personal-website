@@ -73,6 +73,13 @@ jobs:
       - name: Test the annotated-text compiler
         run: npm run test:annotations
 
+      # Regenerates the footer signature from the committed font and pinned
+      # opentype.js, and fails if it does not reproduce the committed artifact.
+      # Without this, a dependency or font change could silently break
+      # reproducibility while every other check stayed green.
+      - name: Verify signature reproducibility
+        run: npm run verify:signature
+
       # Proves the REAL copy in the repository is valid, by importing the content
       # modules directly. Validation lives in runtime JS that tsc never executes,
       # so without this the guarantee would depend on the build happening to
