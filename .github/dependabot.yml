@@ -1,4 +1,18 @@
 version: 2
+
+# target-branch is set on every ecosystem below, deliberately.
+#
+# Dependabot defaults to the DEFAULT branch, which here is `main`. That broke this
+# repository's invariant the first time a dependency PR was merged: `main` gained
+# content `develop` did not have, when previously `main` only ever accumulated
+# merge commits from `develop`. It was resolved by fast-forwarding `develop`, which
+# works because `develop` is always strictly behind, but it is a step someone has
+# to remember. The failure mode if they do not is real: edit package.json on a
+# stale `develop`, merge to `main`, and quietly revert a dependency bump.
+#
+# Targeting `develop` restores the invariant that `main` only ever receives
+# `develop`, so nothing has to be remembered. The cost is one extra hop for an
+# update to reach production: dependabot -> develop -> pull request -> main.
 updates:
   # Actions in ci.yml are pinned to immutable commit SHAs. That removes the
   # mutable-tag supply-chain risk but freezes them, so without this they would
@@ -6,6 +20,7 @@ updates:
   # rewrites the pinned SHA and the trailing version comment together.
   - package-ecosystem: github-actions
     directory: "/"
+    target-branch: develop
     schedule:
       interval: weekly
     commit-message:
@@ -13,6 +28,7 @@ updates:
 
   - package-ecosystem: npm
     directory: "/"
+    target-branch: develop
     schedule:
       interval: weekly
     commit-message:
