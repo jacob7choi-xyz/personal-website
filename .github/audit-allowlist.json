@@ -34,13 +34,6 @@
       "approvedSeverity": "high",
       "expires": "2026-10-27",
       "reason": "Inherited libvips CVEs. Requires processing an untrusted image. next.config.mjs defines no remotePatterns, so next/image can only process the single repository-owned JPG. Patched upstream in 0.35.0; the exposed copy is 0.34.5 pinned inside next."
-    },
-    {
-      "advisory": "GHSA-mh99-v99m-4gvg",
-      "package": "brace-expansion",
-      "approvedSeverity": "high",
-      "expires": "2026-10-27",
-      "reason": "Memory-exhaustion DoS via unbounded expansion. Reached only through the ESLint 8 toolchain during lint and CI, and requires pathological glob patterns in our own configuration. Dev and CI only, not request-time reachable. Patched upstream in 5.0.8."
     }
   ]
 }
