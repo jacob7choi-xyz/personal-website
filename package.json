@@ -12,8 +12,9 @@
     "test:annotations": "tsx src/lib/annotated-text.test.ts",
     "validate:content": "tsx scripts/validate-content.ts",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm run test:annotations && npm run validate:content && npm run verify:signature && npm run audit:test && npm run build && npm run audit:check",
-    "verify:signature": "node scripts/generate-signature.cjs --check"
+    "verify": "npm run lint && npm run typecheck && npm run test:annotations && npm run validate:content && npm run verify:provenance && npm run verify:signature && npm run audit:test && npm run build && npm run audit:check",
+    "verify:signature": "node scripts/generate-signature.cjs --check",
+    "verify:provenance": "node scripts/verify-provenance.mjs"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",
