@@ -43,7 +43,6 @@ for expiry:
 | GHSA-6g55-p6wh-862q | postcss | 8.4.31 | **8.5.12** | app -> next -> postcss | build | attacker-controlled `sourceMappingURL` | No | high | 2026-10-27 |
 | GHSA-qx2v-qp2m-jg93 | postcss | 8.4.31 | **8.5.10** | app -> next -> postcss | build | user-controlled CSS stringified into HTML | No | moderate | 2026-10-27 |
 | GHSA-f88m-g3jw-g9cj | sharp | 0.34.5 | **0.35.0** | app -> next -> sharp | build (image optimisation) | processing an untrusted image | No | high | 2026-10-27 |
-| GHSA-mh99-v99m-4gvg | brace-expansion | <=5.0.7 | **5.0.8** | app -> eslint-config-next -> ... | dev and CI only | pathological expansion input in our own config | No | high | 2026-10-27 |
 
 **A patch exists upstream for every one of these.** None is unfixable. The
 accurate statement is that the current `next@15.5.22` dependency graph does not
@@ -61,6 +60,19 @@ thoroughly as the framework does. Security-first does not mean driving a scanner
 count to zero at any cost. If an advisory here becomes request-time reachable, an
 override becomes justified and must then be verified by build and by rendering,
 not merely by a green audit.
+
+### Resolved since this document was written
+
+**GHSA-mh99-v99m-4gvg (`brace-expansion`)** was accepted as dev-and-CI-only. On
+2026-07-31 a lockfile refresh, carried in an unrelated `framer-motion` update,
+pulled `brace-expansion` to **5.0.8**, the patched version, and npm stopped
+reporting it. Its exception was removed the same day.
+
+Worth recording how that surfaced: nobody noticed by reading the diff. The gate
+failed with `E_UNUSED`, because an exception that no longer matches a reported
+advisory is dormant suppression authority: if a future dependency change
+reintroduced the advisory, the stale entry would have suppressed it silently with
+no human re-review. The friction was the point.
 
 ### Why the ESLint 8 chain is not cleared
 

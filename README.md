@@ -83,8 +83,14 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 npm run build     # Production build
 npm run start     # Serve production build
-npm run lint      # ESLint
+npm run verify    # Everything CI runs, chained fail-closed
 ```
+
+`npm run verify` is the canonical local gate. It chains lint, type check, the
+annotated-text compiler tests, real-content validation, the asset provenance lock,
+signature reproducibility, the advisory-gate self-tests, the build, and the live
+dependency advisory gate. CI runs the same npm scripts rather than duplicating the
+commands, so local and CI cannot drift apart.
 
 Stop the dev server before running a production build. Building while `next dev` is live corrupts the `.next` cache.
 
@@ -93,31 +99,48 @@ Stop the dev server before running a production build. Building while `next dev`
 ## Project Structure
 
 ```
-.github/workflows/ci.yml        # Lint, type check, build, audit
+.github/workflows/ci.yml        # The gate: lint, types, tests, provenance, build, advisories
+docs/AUDIT-2026-07.md           # Canonical audit record
 docs/adr/                       # Architecture decision records
 public/                         # Headshot, favicon
 scripts/
-└── generate-signature.cjs      # Offline generator for the signature path
+├── generate-signature.cjs      # Offline generator for the signature path
+├── GreatVibes.ttf              # Font it reads, committed with its OFL licence
+├── asset-provenance.json       # Recorded hashes for committed binary assets
+├── verify-provenance.mjs       # Asset lock: committed files must match the record
+├── audit-check.mjs             # Fail-closed dependency advisory gate
+├── audit-check.test.mjs        # Adversarial fixtures for that gate
+└── validate-content.ts         # Validates the real annotated site copy
 src/
 ├── app/
 │   ├── layout.tsx              # Root layout, metadata, favicon, Speed Insights
-│   ├── page.tsx                # The page, all sections
+│   ├── page.tsx                # Server component: computes the build year, renders HomeContent
+│   ├── HomeContent.tsx         # The page itself, all sections
 │   └── globals.css             # Design tokens, fonts, component classes, a11y and print
 ├── components/
 │   └── Global/
 │       └── SignatureMark.tsx   # Self drawing footer signature
+├── lib/
+│   └── annotated-text.ts       # Compiles bio prose plus annotations into typed segments
 └── constants/
     ├── index.ts                # Barrel exports
-    ├── socials.ts              # personalInfo, socialLinks
-    ├── experience.ts           # currentExperience, pastExperience, projects, certifications, awards
+    ├── socials.ts              # personalInfo, socialLinks, bio prose and its annotations
+    ├── experience.ts           # currentExperience, pastExperience, achievementGroups, projects, certifications, awards
     └── signature.ts            # Generated signature path, do not hand edit
 ```
 
 ## Content
 
-Site content lives in `src/constants/`. Edit those files to update the page. Optional fields drive conditional rendering, so an entry without a `link` or without nested `items` simply renders less.
+Site content lives in `src/constants/`. Edit those files to update the page. The
+arrays carry explicit types checked with `satisfies`, so a malformed entry fails
+the type check rather than rendering wrong.
 
-One exception worth knowing: the highlighted phrases in the hero bio are matched by substring in `page.tsx`, so rewording `bio.intro` means updating that map too.
+The hero bio is prose with **annotations co-located beside it**: the coloured
+phrases and inline links are declared next to the text they refer to, not hidden in
+a component. Each annotated phrase must appear exactly once, ranges may not
+overlap, links must be real `https` URLs, and accents come from a closed
+vocabulary. Reword an annotated phrase without updating its annotation and the
+build fails naming the phrase, instead of silently dropping the highlight.
 
 ## Signature
 
