@@ -28,6 +28,9 @@ const TEXT_SECONDARY = "#9A958C";
 
 export default async function Image() {
   const fraunces = readFileSync(join(process.cwd(), "src/assets/Fraunces-Display600.ttf"));
+  const headshot = `data:image/jpeg;base64,${readFileSync(
+    join(process.cwd(), "public/Jacob_Choi_Headshot.JPG")
+  ).toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -36,8 +39,9 @@ export default async function Image() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           background: BG,
           padding: "0 92px",
           position: "relative",
@@ -65,11 +69,12 @@ export default async function Image() {
           }}
         />
 
+        <div style={{ display: "flex", flexDirection: "column" }}>
         <div
           style={{
             display: "flex",
             fontFamily: "Fraunces",
-            fontSize: 128,
+            fontSize: 112,
             lineHeight: 1.05,
             letterSpacing: "-0.02em",
             backgroundImage: SWEEP,
@@ -107,10 +112,39 @@ export default async function Image() {
         >
           &quot;Melos contra mundum&quot;
         </div>
+        </div>
+
+        {/* Portrait, subordinate to the type. Same rounded gradient frame the site
+            puts around it, so the card and the hero read as the same object. */}
+        <div
+          style={{
+            display: "flex",
+            padding: 3,
+            borderRadius: 26,
+            backgroundImage: SWEEP,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={headshot}
+            width={300}
+            height={300}
+            /* Squarer frame plus objectPosition crops toward the face. The source
+               is a wide environmental shot, so at preview size the uncropped frame
+               reads as a dark landscape rather than a person. */
+            style={{ borderRadius: 23, objectFit: "cover", objectPosition: "68% 32%" }}
+            alt=""
+          />
+        </div>
 
         {/* The waveform motif, flattened. Satori has no SVG path animation, and a
             still stroke is what the site shows after its draw-on anyway. */}
-        <svg width="1016" height="56" viewBox="0 0 1000 70" style={{ marginTop: 40 }}>
+        <svg
+          width="1016"
+          height="56"
+          viewBox="0 0 1000 70"
+          style={{ position: "absolute", left: 92, bottom: 78 }}
+        >
           <defs>
             <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#FF9E8A" />
@@ -135,7 +169,7 @@ export default async function Image() {
           style={{
             position: "absolute",
             right: 92,
-            bottom: 64,
+            bottom: 40,
             display: "flex",
             fontFamily: "Fraunces",
             fontSize: 24,
