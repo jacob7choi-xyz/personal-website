@@ -418,8 +418,12 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* ------------------------------------------------ Music & Stage */}
-      <Section num={ROMAN[3]} label="Music & Stage">
+      {/* --------------------------------------- Competitions & Stage */}
+      {/* Named by domain, not by prestige, for two reasons. It has to describe
+          BOTH groups in achievementGroups (entrepreneurship competitions as well
+          as performance), and it has to stay distinguishable from section V,
+          "Honors & Credentials". Synonyms of "honors" fail the second test. */}
+      <Section num={ROMAN[3]} label="Competitions & Stage">
         <div>
           {achievementGroups.map((group) => (
             <div key={group.id} className="py-3.5" style={{ borderBottom: rule }}>
