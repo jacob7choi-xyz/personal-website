@@ -263,6 +263,13 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
               width={2305}
               height={1537}
               priority
+              /* MUST match the rendered width below. `width`/`height` describe the
+                 SOURCE and only fix the aspect ratio; they say nothing about display
+                 size. Without `sizes`, Next cannot know this fills a 210-240px slot,
+                 so it emitted a single-candidate srcset at w=3840 and every visitor
+                 downloaded a 3840px image for it. Keep the two in step: change the
+                 Tailwind widths and this has to change with them. */
+              sizes="(min-width: 768px) 240px, 210px"
               className="rounded-[14px] block h-auto w-[210px] md:w-[240px]"
             />
           </div>
