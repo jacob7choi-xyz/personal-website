@@ -26,6 +26,33 @@
       "licence": "SIL Open Font License 1.1",
       "reviewed": "2026-07-30",
       "why": "The OFL requires the licence and copyright notice to accompany the font when it is redistributed. Taken from the same upstream commit as the binary, not a different distribution."
+    },
+    {
+      "file": "src/assets/Fraunces-Display600.ttf",
+      "sha256": "8fc920380eab65b8a5dbadc897598d488d1c69dc2de32314bcec05c6dfe3bdda",
+      "bytes": 72784,
+      "upstream": {
+        "repository": "google/fonts",
+        "commit": "ac502d8eff76ef4d9477cdcc8ef7d0c84fde5372",
+        "path": "ofl/fraunces/Fraunces[SOFT,WONK,opsz,wght].ttf"
+      },
+      "derivation": "Static instance of the upstream VARIABLE font, produced offline with fontTools 4.63.0: instantiateVariableFont(wght=600, opsz=144, SOFT=0, WONK=0). Upstream source sha256 177ff6c0f14e5550a3c624247cd1189611d4eb65d000b14944c63d967958abbb (360440 bytes). Satori cannot render the variable font, so the display weight is baked once rather than at build time. Re-derive and compare to verify.",
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-07-31",
+      "why": "Read by src/app/opengraph-image.tsx to render the link-preview card. Build-time only; never shipped to visitors."
+    },
+    {
+      "file": "src/assets/Fraunces-OFL.txt",
+      "sha256": "bdf4c22802eaf804f998195871c6b8938aac2ac14b2d78a8bd66a6f1eced833b",
+      "bytes": 4391,
+      "upstream": {
+        "repository": "google/fonts",
+        "commit": "ac502d8eff76ef4d9477cdcc8ef7d0c84fde5372",
+        "path": "ofl/fraunces/OFL.txt"
+      },
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-07-31",
+      "why": "The OFL requires the licence to accompany the font, including derived instances. Fraunces declares no Reserved Font Name, so a derived instance may keep the family name."
     }
   ]
 }

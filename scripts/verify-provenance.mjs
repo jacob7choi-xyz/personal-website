@@ -106,7 +106,11 @@ for (const [i, a] of doc.assets.entries()) {
     fail(`asset #${i} stores an \`upstream.url\`; it is derived from repository/commit/path and must not be recorded separately`);
   }
   console.log(`  ok  ${a.file} (${a.bytes} bytes, ${a.licence})`);
-  console.log(`      reviewed against ${url}`);
+  /* For a derived asset the upstream URL is the SOURCE it was built from, not a
+     location this file can be fetched from. Label it accordingly rather than
+     implying the committed bytes live there. */
+  console.log(`      ${a.derivation ? "derived from" : "reviewed against"} ${url}`);
+  if (a.derivation) console.log(`      ${a.derivation.split(".")[0]}.`);
 }
 
 console.log(`verify-provenance: PASS (${doc.assets.length} asset(s) match their recorded provenance)`);
