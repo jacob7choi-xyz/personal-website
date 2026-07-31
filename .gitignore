@@ -176,5 +176,9 @@ next-env.d.ts
 CLAUDE.md
 AGENTS.md
 
-# signature generator font (redistributable; fetch on demand)
+# The signature generator is tracked, so the font it needs must be too, or a
+# fresh clone cannot regenerate src/constants/signature.ts. Great Vibes is under
+# the SIL Open Font License 1.1 (see scripts/GreatVibes-OFL.txt), which permits
+# redistribution. Other fonts are still ignored by default.
 scripts/*.ttf
+!scripts/GreatVibes.ttf
