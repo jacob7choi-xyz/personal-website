@@ -47,11 +47,21 @@ curl -fsL "https://raw.githubusercontent.com/google/fonts/$C/ofl/greatvibes/OFL.
 
 ## What is enforced automatically
 
-- `npm run verify:provenance` hashes the committed assets and compares them against
-  `asset-provenance.json`. Offline by design, so it cannot be weakened by network
-  conditions. Verified to fail on: a one-byte font change, a modified licence, a
-  deleted asset, a hash edited in the record, and an upstream recorded as a branch
-  rather than a commit SHA.
+- `npm run verify:provenance` is a **lock on the reviewed files**, not a live check
+  of upstream truth. It proves each committed asset still hashes to the value
+  recorded here; it does not re-contact `google/fonts` on every run. That upstream
+  relationship was established by hand at review time, documented above. Offline by
+  design, so network conditions cannot weaken it. It covers exactly the assets
+  listed in `asset-provenance.json` and does not discover new ones.
+
+  Verified to fail on: a one-byte font change, a modified licence, a deleted asset,
+  a hash edited in the record, an upstream recorded as a branch rather than a full
+  commit SHA, a stored `upstream.url` contradicting repository/commit/path, a path
+  traversal or absolute path in `file`, a non-positive byte count, a blank licence
+  field, and a duplicate asset entry.
+
+  The retrieval URL is **derived** from repository + commit + path rather than
+  stored, so the record cannot contradict itself.
 - `npm run verify:signature` regenerates the signature in memory and compares it to
   the committed artifact, so a font or dependency change cannot silently alter it.
 

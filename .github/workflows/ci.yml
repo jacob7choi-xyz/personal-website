@@ -73,9 +73,11 @@ jobs:
       - name: Test the annotated-text compiler
         run: npm run test:annotations
 
-      # Committed binary assets must still be the ones that were reviewed. The
-      # signature check alone would pass if someone swapped the font AND
-      # regenerated the artifact in the same commit.
+      # A LOCK on the reviewed files, not a live upstream check: assets recorded in
+      # scripts/asset-provenance.json must still hash to the reviewed values. It
+      # covers exactly what is listed there, so a new asset must be added
+      # deliberately. The signature check alone would pass if someone swapped the
+      # font AND regenerated the artifact in the same commit.
       - name: Verify asset provenance
         run: npm run verify:provenance
 

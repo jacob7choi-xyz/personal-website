@@ -1,5 +1,5 @@
 {
-  "note": "Recorded provenance for binary and licence assets committed to this repository, checked by scripts/verify-provenance.mjs. Editing an asset without updating its hash here fails the build, so provenance cannot silently drift away from what was reviewed. The upstream reference is pinned to an immutable commit, never a branch: a branch can be rewritten and would then no longer retrieve the artifact that was actually reviewed.",
+  "note": "Recorded provenance for binary and licence assets committed to this repository, checked by scripts/verify-provenance.mjs. This is a LOCK, not a live upstream check: it proves each committed file still hashes to the value that was reviewed, so an asset cannot be swapped without a visible edit here. The upstream relationship itself was established by hand at review time. The retrieval URL is deliberately NOT stored; it is derived from repository + commit + path so the record cannot contradict itself. The commit is pinned and must be a full SHA, because a branch can be rewritten and would then no longer return the reviewed artifact.",
   "assets": [
     {
       "file": "scripts/GreatVibes.ttf",
@@ -8,8 +8,7 @@
       "upstream": {
         "repository": "google/fonts",
         "commit": "a6039f387a790a092e417b4e8dbdd5b57fe4d6d4",
-        "path": "ofl/greatvibes/GreatVibes-Regular.ttf",
-        "url": "https://raw.githubusercontent.com/google/fonts/a6039f387a790a092e417b4e8dbdd5b57fe4d6d4/ofl/greatvibes/GreatVibes-Regular.ttf"
+        "path": "ofl/greatvibes/GreatVibes-Regular.ttf"
       },
       "licence": "SIL Open Font License 1.1",
       "reviewed": "2026-07-30",
@@ -22,8 +21,7 @@
       "upstream": {
         "repository": "google/fonts",
         "commit": "a6039f387a790a092e417b4e8dbdd5b57fe4d6d4",
-        "path": "ofl/greatvibes/OFL.txt",
-        "url": "https://raw.githubusercontent.com/google/fonts/a6039f387a790a092e417b4e8dbdd5b57fe4d6d4/ofl/greatvibes/OFL.txt"
+        "path": "ofl/greatvibes/OFL.txt"
       },
       "licence": "SIL Open Font License 1.1",
       "reviewed": "2026-07-30",
