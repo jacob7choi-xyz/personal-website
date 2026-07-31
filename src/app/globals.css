@@ -1,7 +1,11 @@
 /* Fraunces = the musician's voice (engraved, expressive serif).
    JetBrains Mono = the engineer's voice (precise, technical).
-   Inter = neutral connective body text. */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+   Inter = neutral connective body text.
+
+   Loaded by next/font in src/app/fonts.ts and self-hosted, so there is no
+   @import here and no request to Google at page load. The families arrive as
+   the CSS custom properties consumed below; do not reintroduce a literal
+   family name, it will not match the hashed name next/font generates. */
 
 @tailwind base;
 @tailwind components;
@@ -38,7 +42,7 @@ html {
 body {
   color: var(--text-primary);
   background: var(--bg);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -55,11 +59,11 @@ body {
 
 @layer base {
   .serif {
-    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+    font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
   }
 
   .mono {
-    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
   }
 }
 
@@ -74,7 +78,7 @@ body {
   }
 
   .eyebrow {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono), monospace;
     font-size: 0.7rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -108,7 +112,7 @@ body {
   }
 
   .pill {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono), monospace;
     font-size: 0.68rem;
     letter-spacing: 0.02em;
     color: var(--text-secondary);
