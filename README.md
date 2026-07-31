@@ -123,7 +123,7 @@ One exception worth knowing: the highlighted phrases in the hero bio are matched
 
 The footer copyright mark is a cursive signature that draws itself on scroll. `src/constants/signature.ts` is a generated artifact, a single SVG path traced from the Great Vibes font with connectors bridging the word gaps. The browser ships the path string only, no font and no library at runtime. Drawing uses `pathLength="1"` with an animated `stroke-dashoffset`, triggered by an `IntersectionObserver`.
 
-Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`, which needs `opentype.js` installed and `scripts/GreatVibes.ttf` in place.
+Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`. Everything it needs is in the repository: `opentype.js` is a declared dev dependency and the Great Vibes font is committed alongside its OFL licence, so a fresh clone reproduces the committed path byte for byte.
 
 ---
 
