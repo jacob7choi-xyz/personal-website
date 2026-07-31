@@ -63,7 +63,8 @@ Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handl
 | Styling | Tailwind CSS 3 with CSS custom properties |
 | Animations | Framer Motion 12 |
 | Icons | react-icons |
-| Fonts | Fraunces, JetBrains Mono, Inter |
+| Fonts | Fraunces, JetBrains Mono, Inter, self hosted via `next/font` |
+| SEO | Generated `robots.txt`, `sitemap.xml`, and link preview card |
 | Telemetry | Vercel Speed Insights |
 | Deployment | Vercel |
 
@@ -113,10 +114,17 @@ scripts/
 └── validate-content.ts         # Validates the real annotated site copy
 src/
 ├── app/
-│   ├── layout.tsx              # Root layout, metadata, favicon, Speed Insights
+│   ├── layout.tsx              # Root layout, metadata, canonical, favicon, Speed Insights
 │   ├── page.tsx                # Server component: computes the build year, renders HomeContent
 │   ├── HomeContent.tsx         # The page itself, all sections
-│   └── globals.css             # Design tokens, fonts, component classes, a11y and print
+│   ├── fonts.ts                # next/font declarations, self hosted at build time
+│   ├── opengraph-image.tsx     # Link preview card, generated at build time from the design tokens
+│   ├── robots.ts               # Generates /robots.txt
+│   ├── sitemap.ts              # Generates /sitemap.xml
+│   └── globals.css             # Design tokens, component classes, a11y and print
+├── assets/
+│   ├── Fraunces-Display600.ttf # Static instance for the preview card, committed with its OFL licence
+│   └── Fraunces-OFL.txt
 ├── components/
 │   └── Global/
 │       └── SignatureMark.tsx   # Self drawing footer signature
