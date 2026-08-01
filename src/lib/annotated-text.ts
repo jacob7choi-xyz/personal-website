@@ -77,9 +77,24 @@ export class AnnotationError extends Error {
  * type.
  */
 export function assertNever(value: never): never {
-  throw new AnnotationError(
-    `unhandled variant: ${JSON.stringify(value as unknown) ?? String(value)}`
-  );
+  /* Build the description defensively. `JSON.stringify` THROWS on a circular
+     structure or a BigInt, and `??` does not catch a throw, it only catches the
+     `undefined` returned for undefined/function/symbol. This helper exists to
+     guarantee an AnnotationError for values that circumvented the type system,
+     which is exactly the population most likely to be malformed, so a native
+     TypeError escaping from here would break the contract the helper enforces.
+     `String()` is itself fallible on an object with a throwing `toString`. */
+  let repr: string;
+  try {
+    repr = JSON.stringify(value as unknown) ?? String(value);
+  } catch {
+    try {
+      repr = String(value);
+    } catch {
+      repr = "<unrepresentable>";
+    }
+  }
+  throw new AnnotationError(`unhandled variant: ${repr}`);
 }
 
 /**
