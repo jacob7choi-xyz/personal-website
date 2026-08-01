@@ -12,23 +12,34 @@ const DRAW_MS = 2000;
 export default function SignatureMark({ className = "w-full h-auto" }: { className?: string }) {
   const ref = useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
-  const [drawn, setDrawn] = useState(false);
+  const [entered, setEntered] = useState(false);
   const { x, y, w, h } = signatureBox;
 
+  /* Reduced motion is known during render, so it is DERIVED rather than pushed
+     into state from an effect. Previously the effect called setDrawn(true) for
+     this case, which is a synchronous setState in an effect body: an extra render
+     for a fact already available, and flagged by react-hooks/set-state-in-effect.
+     Only the observer genuinely needs state, because intersection is not knowable
+     until after paint. */
+  const drawn = reduce || entered;
+
   useEffect(() => {
-    if (reduce) {
-      setDrawn(true);
-      return;
-    }
+    /* Nothing to observe: the mark is already shown by the derived value above. */
+    if (reduce) return;
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") {
-      setDrawn(true);
+      /* Deliberate synchronous setState, and the narrowest remaining case: a
+         browser with no IntersectionObserver cannot tell us when the mark scrolls
+         into view, so it is revealed immediately rather than never. One extra
+         render on a path no current browser takes.
+         eslint-disable-next-line react-hooks/set-state-in-effect */
+      setEntered(true);
       return;
     }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setDrawn(true);
+          setEntered(true);
           io.disconnect();
         }
       },
