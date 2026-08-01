@@ -15,6 +15,7 @@
 import {
   compileAnnotatedText,
   defineAnnotatedProse,
+  assertNever,
   AnnotationError,
   type Annotation,
   type HttpsUrl,
@@ -176,6 +177,48 @@ try {
   console.log("  FAIL defineAnnotatedProse accepted invalid content");
 } catch {
   console.log("  ok   defineAnnotatedProse rejects invalid content at definition time");
+}
+
+/* assertNever must ALWAYS throw AnnotationError, including for values that cannot
+   be serialised. `JSON.stringify` throws on a circular structure and on a BigInt,
+   and the population reaching assertNever is by definition type-circumvented, so
+   it is exactly where an unserialisable value is plausible. Without the guard
+   these two cases raise a native TypeError instead, which is the wrong error type
+   and defeats the fail-closed contract. Both would have passed a test that only
+   asserted "something was thrown", so each asserts the CLASS. */
+{
+  const circular: Record<string, unknown> = {};
+  circular.self = circular;
+  /* The third case must defeat BOTH fallbacks to reach the inner catch: circular
+     so JSON.stringify throws, AND a throwing toString so String() throws too. A
+     throwing toString alone is not enough, because stringify serialises the
+     object's properties without ever calling it, so that case could never go red
+     and would have been decoration. */
+  const hostile: Record<string, unknown> = {
+    toString() {
+      throw new Error("nope");
+    },
+  };
+  hostile.self = hostile;
+  const unserialisable: [string, unknown][] = [
+    ["circular structure", circular],
+    ["BigInt", BigInt(1)],
+    ["circular AND throwing toString", hostile],
+  ];
+  for (const [what, value] of unserialisable) {
+    try {
+      assertNever(value as never);
+      failed++;
+      console.log(`  FAIL assertNever(${what}) did not throw`);
+    } catch (e) {
+      if (e instanceof AnnotationError) {
+        console.log(`  ok   assertNever(${what}) still throws AnnotationError`);
+      } else {
+        failed++;
+        console.log(`  FAIL assertNever(${what}) threw ${(e as Error).constructor.name}, expected AnnotationError`);
+      }
+    }
+  }
 }
 
 if (failed) {

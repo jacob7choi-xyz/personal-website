@@ -90,8 +90,10 @@ npm run verify    # Everything CI runs, chained fail-closed
 `npm run verify` is the canonical local gate. It chains lint, type check, the
 annotated-text compiler tests, real-content validation, the asset provenance lock,
 signature reproducibility, the advisory-gate self-tests, the build, and the live
-dependency advisory gate. CI runs the same npm scripts rather than duplicating the
-commands, so local and CI cannot drift apart.
+dependency advisory gate. CI invokes these same npm scripts rather than
+duplicating the commands, so the shared steps cannot drift apart. CI is not a
+strict superset in the other direction either: it additionally runs
+`node --check` over the policy engine, which `npm run verify` does not.
 
 Stop the dev server before running a production build. Building while `next dev` is live corrupts the `.next` cache.
 
