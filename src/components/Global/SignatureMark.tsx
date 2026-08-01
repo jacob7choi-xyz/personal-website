@@ -12,34 +12,34 @@ const DRAW_MS = 2000;
 export default function SignatureMark({ className = "w-full h-auto" }: { className?: string }) {
   const ref = useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
-  const [entered, setEntered] = useState(false);
+  const [drawn, setDrawn] = useState(false);
   const { x, y, w, h } = signatureBox;
 
-  /* Reduced motion is known during render, so it is DERIVED rather than pushed
-     into state from an effect. Previously the effect called setDrawn(true) for
-     this case, which is a synchronous setState in an effect body: an extra render
-     for a fact already available, and flagged by react-hooks/set-state-in-effect.
-     Only the observer genuinely needs state, because intersection is not knowable
-     until after paint. */
-  const drawn = reduce || entered;
-
+  /* `drawn` is deliberately STICKY STATE rather than a value derived from
+     `reduce`. Deriving it (`const drawn = reduce || entered`) looks cleaner and
+     silences the lint rule below, but it is wrong: `useReducedMotion` tracks the
+     preference live, so a visitor turning reduced motion OFF mid-session would
+     flip `reduce` to false while nothing had yet reported intersection, and the
+     already-visible signature would blink out and redraw. Once revealed, it must
+     stay revealed. This was tried and reverted, so do not "simplify" it again. */
   useEffect(() => {
-    /* Nothing to observe: the mark is already shown by the derived value above. */
-    if (reduce) return;
+    if (reduce) {
+      /* Reduced motion: reveal immediately with no transition. Synchronous
+         setState in an effect is exactly what the rule flags, but the sticky
+         behaviour described above depends on it and has no derived equivalent. */
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDrawn(true);
+      return;
+    }
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") {
-      /* Deliberate synchronous setState, and the narrowest remaining case: a
-         browser with no IntersectionObserver cannot tell us when the mark scrolls
-         into view, so it is revealed immediately rather than never. One extra
-         render on a path no current browser takes.
-         eslint-disable-next-line react-hooks/set-state-in-effect */
-      setEntered(true);
+      setDrawn(true);
       return;
     }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setEntered(true);
+          setDrawn(true);
           io.disconnect();
         }
       },
