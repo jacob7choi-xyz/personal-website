@@ -237,6 +237,16 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
      left open does not update across the year boundary. Both are accepted.
      (Mechanism and the React citation are in the project conventions doc.) */
   const [year, setYear] = useState(initialYear);
+  /* Suppressed with a specific reason, not as a blanket exception.
+     react-hooks/set-state-in-effect guards against CASCADING RENDERS. That cannot
+     happen here: the effect sets the same primitive the state was seeded with, and
+     React bails out of a re-render when the next state is Object.is-equal, so on
+     every normal load this is a no-op. It re-renders only when the build year and
+     the client year genuinely differ, which is exactly the case it exists to fix.
+     There is also no compliant alternative: correcting a prerendered temporal
+     value REQUIRES the server and the first client pass to emit identical markup
+     and the change to happen afterwards, because React does not patch a mismatch. */
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setYear(new Date().getFullYear()), []);
 
   const reduce = useReducedMotion();
