@@ -58,8 +58,9 @@ Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handl
 
 | Category | Technology |
 |----------|-----------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript 5 (strict mode) |
+| Linting | ESLint 9 with flat config (`eslint.config.mjs`) |
 | Styling | Tailwind CSS 3 with CSS custom properties |
 | Animations | Framer Motion 12 |
 | Icons | react-icons |
