@@ -124,7 +124,6 @@ export default async function Image() {
             backgroundImage: SWEEP,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={headshot}
             width={300}

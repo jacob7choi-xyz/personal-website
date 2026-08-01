@@ -15,8 +15,19 @@ export default function SignatureMark({ className = "w-full h-auto" }: { classNa
   const [drawn, setDrawn] = useState(false);
   const { x, y, w, h } = signatureBox;
 
+  /* `drawn` is deliberately STICKY STATE rather than a value derived from
+     `reduce`. Deriving it (`const drawn = reduce || entered`) looks cleaner and
+     silences the lint rule below, but it is wrong: `useReducedMotion` tracks the
+     preference live, so a visitor turning reduced motion OFF mid-session would
+     flip `reduce` to false while nothing had yet reported intersection, and the
+     already-visible signature would blink out and redraw. Once revealed, it must
+     stay revealed. This was tried and reverted, so do not "simplify" it again. */
   useEffect(() => {
     if (reduce) {
+      /* Reduced motion: reveal immediately with no transition. Synchronous
+         setState in an effect is exactly what the rule flags, but the sticky
+         behaviour described above depends on it and has no derived equivalent. */
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDrawn(true);
       return;
     }
