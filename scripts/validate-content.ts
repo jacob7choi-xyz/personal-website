@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Validates the REAL site content ahead of time.
  *
@@ -13,7 +12,7 @@
  * annotation is invalid, this fails, regardless of whether a component renders it
  * or how the route is rendered.
  *
- * It deliberately does NOT re-test the compiler; `src/lib/annotated-text.test.mts`
+ * It deliberately does NOT re-test the compiler; `src/lib/annotated-text.test.ts`
  * covers that. This answers a different question: is the copy currently in the
  * repository valid?
  *

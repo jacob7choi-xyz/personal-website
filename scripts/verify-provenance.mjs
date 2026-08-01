@@ -27,7 +27,7 @@
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..");
@@ -82,7 +82,11 @@ for (const [i, a] of doc.assets.entries()) {
 
   const assetPath = resolve(ROOT, a.file);
   const rel = relative(ROOT, assetPath);
-  if (rel.startsWith("..") || isAbsolute(rel)) fail(`${a.file} escapes the repository root`);
+  /* Only a `..` SEGMENT means escape. A bare startsWith("..") also rejects a
+     legitimate in-repo path like `..fonts/x.ttf`, which is inside the root. */
+  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    fail(`${a.file} escapes the repository root`);
+  }
   let buf;
   try {
     buf = readFileSync(assetPath);

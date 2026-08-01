@@ -1,0 +1,29 @@
+# Line endings are part of this repository's contract, not a preference.
+#
+# Two gates compare bytes, not semantics:
+#
+#   verify:signature   regenerates src/constants/signature.ts and compares it to
+#                      the committed file with strict string equality
+#   verify:provenance  hashes committed assets, including the .txt licences, and
+#                      requires an exact SHA-256 and byte count
+#
+# Both therefore depend on the working tree holding the same bytes that were
+# reviewed. A clone on a machine configured with core.autocrlf=true would receive
+# CRLF for every text file and fail both checks while the repository content was
+# entirely unchanged, turning a reproducibility guarantee into a platform-specific
+# one and producing a false failure in a security-adjacent gate.
+#
+# Pinning LF in the working tree makes "reproducible from a clean clone" true on
+# every platform rather than only on the ones that happen not to rewrite bytes.
+* text=auto eol=lf
+
+# Binaries must never be touched by end-of-line conversion. The fonts and the
+# headshot are hash-locked in scripts/asset-provenance.json, so a single rewritten
+# byte would break the provenance lock. Marked explicitly rather than relying on
+# Git's content heuristic, because the heuristic is not part of any contract.
+*.ttf   -text
+*.woff2 -text
+*.JPG   -text
+*.jpg   -text
+*.png   -text
+*.ico   -text
