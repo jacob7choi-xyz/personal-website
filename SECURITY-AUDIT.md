@@ -3,9 +3,10 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-07-29.** Every disposition below expires **2026-10-27**. On
-expiry the gate fails until each entry is re-reviewed. That is intentional. A
-risk acceptance without an expiry becomes a permanent blind spot.
+**Evidence date: 2026-09-11.** There are currently no accepted risk exceptions.
+Any entry added later must carry an expiry, because a risk acceptance without one
+becomes a permanent blind spot. On expiry the gate fails until that entry is
+re-reviewed. That is intentional.
 
 ## How to read this
 
@@ -37,20 +38,16 @@ for expiry:
 
 ## Current dispositions
 
-| Advisory | Package | Installed | Patched upstream | Dependency path | Execution phase | Exploit precondition | Present here | Severity | Accepted until |
-|---|---|---|---|---|---|---|---|---|---|
-| GHSA-r28c-9q8g-f849 | postcss | 8.4.31 | **8.5.18** | app -> next -> postcss | build | attacker-controlled CSS or `sourceMappingURL` | No | high | 2026-10-27 |
-| GHSA-6g55-p6wh-862q | postcss | 8.4.31 | **8.5.12** | app -> next -> postcss | build | attacker-controlled `sourceMappingURL` | No | high | 2026-10-27 |
-| GHSA-qx2v-qp2m-jg93 | postcss | 8.4.31 | **8.5.10** | app -> next -> postcss | build | user-controlled CSS stringified into HTML | No | moderate | 2026-10-27 |
-| GHSA-f88m-g3jw-g9cj | sharp | 0.34.5 | **0.35.0** | app -> next -> sharp | build (image optimisation) | processing an untrusted image | No | high | 2026-10-27 |
+**None.** `.github/audit-allowlist.json` carries an empty `exceptions` array, and
+`npm audit` reports zero advisories across the whole tree.
 
-**A patch exists upstream for every one of these.** None is unfixable. The
-accurate statement is that the current `next@15.5.22` dependency graph does not
-select them, and `npm audit fix` cannot reach them: its only computed remedy is a
-downgrade to `next@9.3.3`, which is not a remedy.
+This is the intended steady state, not a gap in the record. Every disposition this
+file used to carry was retired by upgrading, not by re-accepting it, on
+2026-09-11. What that took is recorded below.
 
-Our **direct** `postcss` devDependency is already 8.5.25 and is not affected. The
-exposure is the 8.4.31 copy pinned inside `next`.
+With no entries there is no expiry to defend and nothing suppressed. The next
+advisory to appear fails the gate on its own merits and has to be argued from
+scratch, which is the correct default.
 
 ### Why not force the versions with `overrides`
 
@@ -63,6 +60,35 @@ not merely by a green audit.
 
 ### Resolved since this document was written
 
+**2026-09-11: every remaining disposition cleared by upgrade.** Two critical
+Next.js advisories were published on 2026-09-08: GHSA-2xp9-vwfh-vxw4,
+unauthenticated RCE in the Image Optimization API when AVIF files are used, and
+GHSA-p293-qw3h-jr36, unauthenticated RCE on Windows-hosted servers at CVSS 9.0.
+Only the first is reachable on this deployment, since Vercel is Linux and the
+site does serve an optimised image. Neither was exceptable in any case: the
+policy refuses to approve `critical` at any severity ceiling, so the only route
+was the patch. Moving `next` 16.2.12 to 16.3.4 closed both and pulled newer
+`postcss` and `sharp` along with it, which retired all four exceptions this file
+previously listed.
+
+Three findings survived that upgrade and were then closed by in-range updates
+rather than by exception, because each parent's declared range already admitted
+the patched version:
+
+| Advisory | Package | Was | Now | Admitted by |
+|---|---|---|---|---|
+| GHSA-2v37-7h3g-55p8 | nanoid | 3.3.16 | 3.3.19 | `postcss` declares `^3.3.16` |
+| GHSA-2883-xcg3-v3hh | js-yaml | 4.3.1 | 4.3.2 | `@eslint/eslintrc` declares `^4.3.0` |
+| GHSA-w9m9-85wc-3x92 | postcss-selector-parser | 6.1.2 | 6.1.4 | `tailwindcss` declares `^6.1.2` |
+
+The general lesson is worth recording, because an earlier revision of this file
+reasoned its way to a written exception for advisories in exactly this shape:
+**check the parent's declared range before drafting a disposition.** All three
+were already satisfiable by `npm update`, needing no `overrides` and no risk
+acceptance. An exception is the right instrument only when the graph genuinely
+cannot select a patched version. That was true of the old `postcss` and `sharp`
+entries when they were written, and it is precisely what stopped being true here.
+
 **GHSA-mh99-v99m-4gvg (`brace-expansion`)** was accepted as dev-and-CI-only. On
 2026-07-31 a lockfile refresh, carried in an unrelated `framer-motion` update,
 pulled `brace-expansion` to **5.0.8**, the patched version, and npm stopped
@@ -74,14 +100,15 @@ advisory is dormant suppression authority: if a future dependency change
 reintroduced the advisory, the stale entry would have suppressed it silently with
 no human re-review. The friction was the point.
 
-### Why the ESLint 8 chain is not cleared
+### The ESLint 8 chain, resolved
 
-`brace-expansion` and the other toolchain findings resolve by moving to ESLint 9
-and flat config. That is a real migration, not a version bump, and it is not
-justified by a DoS that requires us to attack our own lint config. Dev
-dependencies are still in the threat model, because they execute during install,
-lint, build and CI, which is genuine supply-chain surface. The correct priority
-is lower, not zero.
+This file used to explain why the ESLint 8 toolchain findings stayed open:
+clearing them meant a real migration to ESLint 9 and flat config, not a version
+bump. That migration shipped on 2026-07-31 in `3ccbcdd`, and the last survivor of
+the chain, `js-yaml`, closed on 2026-09-11. The durable half of the argument
+still stands and is why the note is kept: dev dependencies remain in the threat
+model, because they execute during install, lint, build and CI. Their correct
+priority is lower, never zero.
 
 ## Controls
 
@@ -203,10 +230,13 @@ variable that silently disables the check.
 
 ## Re-review triggers
 
-Ahead of the expiry date, re-review on any of:
+With an empty allowlist the gate is itself the trigger: a new advisory fails CI on
+the next push or the next weekly scan. These remain the changes that should prompt
+a deliberate re-read of the assumptions above, rather than waiting for a scanner to
+speak first:
 
-- A dependency upgrade that changes which version of `postcss`, `sharp` or the
-  lint toolchain is installed.
+- A dependency upgrade that changes which version of `next`, `postcss`, `sharp`
+  or the lint toolchain is installed.
 - Any change to `next.config.mjs`, especially adding `remotePatterns` or image
   configuration.
 - Introducing user-supplied content, uploads, forms, API routes or auth.
