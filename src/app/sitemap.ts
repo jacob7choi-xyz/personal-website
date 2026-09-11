@@ -11,7 +11,7 @@ import type { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://www.jacobjchoi.xyz/",
+      url: "https://www.jacobjchoi.com/",
       // BUILD time, not content-change time, and the difference is real: a
       // dependency bump redeploys and moves this without a word of copy changing.
       // Accepted because crawlers treat lastModified as a hint rather than a

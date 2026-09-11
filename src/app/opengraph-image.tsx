@@ -176,7 +176,7 @@ export default async function Image() {
             color: "#7D7870",
           }}
         >
-          jacobjchoi.xyz
+          jacobjchoi.com
         </div>
       </div>
     ),

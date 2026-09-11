@@ -17,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: { userAgent: "*", allow: "/" },
     // Absolute by specification: a Sitemap directive in robots.txt must be a
     // full URL, unlike the relative paths metadataBase resolves elsewhere.
-    sitemap: "https://www.jacobjchoi.xyz/sitemap.xml",
+    sitemap: "https://www.jacobjchoi.com/sitemap.xml",
   };
 }
