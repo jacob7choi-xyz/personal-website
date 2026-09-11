@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   // og:image to the apex while og:url was declared with www. Both hosts serve the
   // image, so nothing was broken, but the pair disagreed and the value depended on
   // environment variables instead of on this file.
-  metadataBase: new URL("https://www.jacobjchoi.xyz"),
+  metadataBase: new URL("https://www.jacobjchoi.com"),
   title: "Jacob J. Choi, Musician x AI Engineer",
   description:
     "Jacob J. Choi, musician and AI engineer. Admitted to Juilliard for viola, currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "Jacob J. Choi, Musician x AI Engineer",
     description:
       "Admitted to Juilliard for viola, currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
-    url: "https://www.jacobjchoi.xyz/",
+    url: "https://www.jacobjchoi.com/",
     siteName: "Jacob J. Choi",
     type: "website",
   },

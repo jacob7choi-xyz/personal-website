@@ -6,34 +6,5 @@
     "expires": "EXCLUSIVE, YYYY-MM-DD, evaluated at 00:00 UTC. The exception applies while now < expires, so the date itself is the first day it no longer suppresses.",
     "unused": "FATAL. Every entry must correspond to a currently reported advisory. An unused but unexpired entry is dormant suppression authority: if a dependency change reintroduced the advisory it would be suppressed again with no human re-review. Delete entries when the advisory disappears."
   },
-  "exceptions": [
-    {
-      "advisory": "GHSA-r28c-9q8g-f849",
-      "package": "postcss",
-      "approvedSeverity": "high",
-      "expires": "2026-10-27",
-      "reason": "Path traversal via sourceMappingURL auto-loading. Requires attacker-controlled CSS. Only first-party CSS is processed, at build time. Patched upstream in 8.5.18; our direct postcss is already 8.5.25, the exposed copy is the 8.4.31 pinned inside next."
-    },
-    {
-      "advisory": "GHSA-6g55-p6wh-862q",
-      "package": "postcss",
-      "approvedSeverity": "high",
-      "expires": "2026-10-27",
-      "reason": "Arbitrary file read via attacker-controlled sourceMappingURL. Same precondition and same dependency path as GHSA-r28c. Patched upstream in 8.5.12."
-    },
-    {
-      "advisory": "GHSA-qx2v-qp2m-jg93",
-      "package": "postcss",
-      "approvedSeverity": "moderate",
-      "expires": "2026-10-27",
-      "reason": "XSS via unescaped </style> in stringify output. Requires user-controlled CSS being parsed and stringified into HTML. This site has no user-supplied CSS and no runtime CSS processing. Patched upstream in 8.5.10."
-    },
-    {
-      "advisory": "GHSA-f88m-g3jw-g9cj",
-      "package": "sharp",
-      "approvedSeverity": "high",
-      "expires": "2026-10-27",
-      "reason": "Inherited libvips CVEs. Requires processing an untrusted image. next.config.mjs defines no remotePatterns, so next/image can only process the single repository-owned JPG. Patched upstream in 0.35.0; the exposed copy is 0.34.5 pinned inside next."
-    }
-  ]
+  "exceptions": []
 }

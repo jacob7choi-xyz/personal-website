@@ -9,7 +9,7 @@
 
 ## Live
 
-**[jacobjchoi.xyz](https://www.jacobjchoi.xyz/)**
+**[jacobjchoi.com](https://www.jacobjchoi.com/)**
 
 ---
 
@@ -165,7 +165,7 @@ Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`. 
 
 **Jacob J. Choi**
 - **Email**: [jacob77choi@gmail.com](mailto:jacob77choi@gmail.com)
-- [LinkedIn](https://www.linkedin.com/in/jacobjchoi/) / [GitHub](https://github.com/jacob7choi-xyz) / [Website](https://www.jacobjchoi.xyz/)
+- [LinkedIn](https://www.linkedin.com/in/jacobjchoi/) / [GitHub](https://github.com/jacob7choi-xyz) / [Website](https://www.jacobjchoi.com/)
 
 ---
 
