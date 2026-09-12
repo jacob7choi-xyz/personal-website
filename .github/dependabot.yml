@@ -34,3 +34,17 @@ updates:
     commit-message:
       prefix: chore
     open-pull-requests-limit: 5
+    # @types/node tracks the Node RELEASE line, so its major is not a normal
+    # upgrade: it is a statement about which runtime the code is compiled
+    # against. This project deploys on Node 24 (engines.node, and .nvmrc for
+    # CI), so types from a later line would describe APIs the deploy runtime
+    # does not have. tsc would accept them and the failure would surface at
+    # runtime instead.
+    #
+    # It had drifted to ^25 and Dependabot proposed ^26 on 2026-09-11, which is
+    # what prompted this. Majors are ignored so the pin follows the runtime
+    # deliberately; minors and patches still flow. When engines.node moves, bump
+    # this by hand in the same pass and delete nothing here.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
