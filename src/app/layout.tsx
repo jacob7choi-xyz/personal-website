@@ -12,14 +12,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.jacobjchoi.com"),
   title: "Jacob J. Choi, AI Engineer x Musician",
   description:
-    "AI engineer at The Jackson Laboratory, building an AI tumor board prep system that cuts case prep from over 60 minutes to under 5. Admitted to Juilliard for viola.",
+    "AI engineer at The Jackson Laboratory, building an AI tumor board system that cuts case prep from over 60 minutes to under 5. Admitted to Juilliard for viola.",
   // The site answers on both the apex and www. A canonical names one of them as
   // the indexable address so the two are not treated as competing duplicates.
   alternates: { canonical: "/" },
   openGraph: {
     title: "Jacob J. Choi, AI Engineer x Musician",
     description:
-      "Building an AI tumor board prep system at The Jackson Laboratory that cuts oncologists' case prep from over 60 minutes to under 5. Admitted to Juilliard for viola.",
+      "Building an AI tumor board system at The Jackson Laboratory that cuts oncologists' case prep from over 60 minutes to under 5. Admitted to Juilliard for viola.",
     url: "https://www.jacobjchoi.com/",
     siteName: "Jacob J. Choi",
     type: "website",
