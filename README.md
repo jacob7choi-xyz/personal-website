@@ -15,7 +15,7 @@
 
 ## About
 
-A single scrolling page, editorial and content first, built around one idea: AI engineer and musician as the same person. Building biomedical GraphRAG and agentic pipelines at The Jackson Laboratory. Admitted to Juilliard for viola.
+A single scrolling page, editorial and content first, built around one idea: AI engineer and musician as the same person. Building an AI tumor board system at The Jackson Laboratory. Admitted to Juilliard for viola.
 
 Six numbered sections after the hero. No slideshow, no dashboard, no filler.
 

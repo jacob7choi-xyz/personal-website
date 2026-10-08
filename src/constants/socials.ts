@@ -49,9 +49,9 @@ export const socialLinks = [
        instead of silently dropping the highlight. See src/lib/annotated-text.ts. */
     bio: {
       intro: defineAnnotatedProse({
-        text: "CS:AI student at Colby College (graduating May 2027). AI/Agentic Pipeline Engineer at The Jackson Laboratory, currently building a production agentic system and biomedical GraphRAG corpus for rural patients in Maine and North Carolina under the Maine Cancer Genomics Initiative, helping clinicians identify the right cancer treatment for each patient, backed by a three-year grant from the Duke Endowment. Focused on agent orchestration, lexicogrammar noise reduction, and citation-verified evidence ranking and retrieval.",
+        text: "CS:AI student at Colby College (graduating May 2027). AI/Agentic Pipeline Engineer at The Jackson Laboratory, building an AI tumor board system that cuts oncologists' prep time from over 60 minutes to under 5, for rural patients in Maine and North Carolina under the Maine Cancer Genomics Initiative, backed by a three-year grant from the Duke Endowment. Focused on agent orchestration, biomedical GraphRAG, lexicogrammar noise reduction, and citation-verified evidence ranking and retrieval.",
         annotations: [
-          { kind: "accent", phrase: "biomedical GraphRAG", accent: "cyan" },
+          { kind: "accent", phrase: "AI tumor board system", accent: "cyan" },
           { kind: "link", phrase: "Maine Cancer Genomics Initiative", href: "https://www.jax.org/clinical-genomics/maine-cancer-genomics-initiative" },
           { kind: "accent", phrase: "three-year grant from the Duke Endowment", accent: "violetSoft" },
         ],
