@@ -3,9 +3,9 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-09-11.** There are currently no accepted risk exceptions.
-Any entry added later must carry an expiry, because a risk acceptance without one
-becomes a permanent blind spot. On expiry the gate fails until that entry is
+**Evidence date: 2026-10-07.** Two accepted risk exceptions, both expiring
+2026-11-07. Every entry must carry an expiry, because a risk acceptance without
+one becomes a permanent blind spot. On expiry the gate fails until that entry is
 re-reviewed. That is intentional.
 
 ## How to read this
@@ -38,16 +38,39 @@ for expiry:
 
 ## Current dispositions
 
-**None.** `.github/audit-allowlist.json` carries an empty `exceptions` array, and
-`npm audit` reports zero advisories across the whole tree.
+Two entries, both accepted 2026-10-07 and expiring **2026-11-07** (exclusive).
+Both packages are marked dev by npm, and `npm audit --omit=dev` reports zero
+advisories. That is the npm view; the execution-phase view, which is the one that
+matters, is stated per entry.
 
-This is the intended steady state, not a gap in the record. Every disposition this
-file used to carry was retired by upgrading, not by re-accepting it, on
-2026-09-11. What that took is recorded below.
+An exception is used here only because the dependency graph genuinely cannot
+select a patched version. That was checked against each parent's declared range
+before writing either entry, which is the lesson recorded under 2026-09-11 below.
 
-With no entries there is no expiry to defend and nothing suppressed. The next
-advisory to appear fails the gate on its own merits and has to be argued from
-scratch, which is the correct default.
+| Advisory | Package | Severity | Why no upgrade | Execution phase | Exploit precondition | Satisfied here? |
+|---|---|---|---|---|---|---|
+| GHSA-vfj7-8cjw-p6xm | braces 3.0.3 | high | **No patched version exists.** Affected `<= 3.0.3`, which is the latest release | Build and lint time (content-glob and file resolution) | Attacker-supplied deeply nested brace patterns crash the process with a `RangeError` | No. Patterns come only from developer-authored config (`tailwind.config.ts` content globs, the ESLint config) |
+| GHSA-rj75-hqrm-r3gf | postcss-selector-parser 6.1.4 | moderate | Fixed only in **7.1.6**. `tailwindcss` 3.4.19, the latest 3.x, declares `^6.1.2`, `postcss-nested` declares `^6.1.1`, and 6.1.4 is the last 6.x | Build time | Parsing untrusted selectors synchronously in a request path. The advisory states ordinary build-time use on trusted sources is not affected | No. Only first-party CSS and class names from this repository are processed |
+
+Dependency paths, from `npm explain`, so a reviewer can re-derive them:
+
+- `braces`: `tailwindcss` -> `chokidar` / `micromatch` / `fast-glob` -> `braces`,
+  and `eslint-config-next` -> `@next/eslint-plugin-next` -> `fast-glob` 3.3.1 ->
+  `micromatch` -> `braces`. Because of the second path, **a Tailwind 4 migration
+  alone would not clear this entry.**
+- `postcss-selector-parser`: `tailwindcss` directly, and `tailwindcss` ->
+  `postcss-nested`.
+
+These are not "irrelevant because dev". Lint and build execute in CI and on the
+maintainer's machine, so they are supply-chain surface. The honest classification
+is: no identified exploit path under the assumptions above, not request-time
+reachable, lower priority, not zero.
+
+**At expiry, re-check in this order:** a patched `braces` release; a
+`tailwindcss` 3.x or `eslint-config-next` release that changes either path; the
+Tailwind 4 migration (open as a Dependabot pull request) for the selector parser.
+If none has landed, re-review against the assumptions and either renew with a new
+date or escalate. Do not renew by editing the date alone.
 
 ### Why not force the versions with `overrides`
 
@@ -59,6 +82,27 @@ override becomes justified and must then be verified by build and by rendering,
 not merely by a green audit.
 
 ### Resolved since this document was written
+
+**2026-10-07: a critical `next/og` RCE and eleven others cleared by upgrade.**
+The weekly scheduled scan on `main` failed on 2026-10-05, and by 2026-10-07 the
+gate reported 14 distinct advisories, including GHSA-vcvr-r3jv-pc5j: RCE in the
+Node `ImageResponse` from `next/og` (CVSS 4.0 9.5, fixed in 16.3.6). Seven more
+Next.js advisories published 2026-10-07 are fixed in 16.3.8, so 16.3.8 was taken
+as the smallest version clearing all eight.
+
+Reachability was established before patching rather than assumed, because this
+site does use `ImageResponse`. The advisory requires attacker-controlled values in
+SVG content, attributes or styles. `src/app/opengraph-image.tsx` reads no params,
+search params or request data, is prerendered as static content, and production
+served it from cache with a body byte-identical with and without an injected
+query string. So: no identified exploit path. It was patched anyway, because
+`critical` is never exceptable and the gate blocked every merge.
+
+`next` and `eslint-config-next` moved together to 16.3.8. Four more closed by
+in-range updates, each admitted by its parent's declared range: `sharp` 0.35.5
+(GHSA-wq5f-xc86-pv6w), `source-map-js` 1.2.2 (GHSA-68fv-2mgg-jv7q), and
+`brace-expansion` 1.1.21 and 5.0.12 (three advisories). Advisory identities went
+from 14 to 2 with none new. The two survivors are the current dispositions above.
 
 **2026-09-11: every remaining disposition cleared by upgrade.** Two critical
 Next.js advisories were published on 2026-09-08: GHSA-2xp9-vwfh-vxw4,
@@ -217,8 +261,9 @@ audit, a scheduled build, and a scheduled production deployment are three
 different things with three different privilege requirements, and only the first
 belongs here.
 
-**The npm CLI is part of this control's contract.** `node-version: 20` floats
-across Node and bundled npm releases, which can change the audit JSON shape. That
+**The npm CLI is part of this control's contract.** CI takes its Node major from
+`.nvmrc`, and patch releases of Node and the bundled npm float within that major,
+which can change the audit JSON shape. That
 is handled by asserting the schema and failing closed on anything unrecognised, so
 version drift becomes a loud investigation rather than a silent "no
 vulnerabilities found". Do not relax that assertion to reduce noise.
@@ -230,10 +275,10 @@ variable that silently disables the check.
 
 ## Re-review triggers
 
-With an empty allowlist the gate is itself the trigger: a new advisory fails CI on
-the next push or the next weekly scan. These remain the changes that should prompt
-a deliberate re-read of the assumptions above, rather than waiting for a scanner to
-speak first:
+The gate is itself a trigger: a new advisory fails CI on the next push or the next
+weekly scan, and each current exception fails it on expiry. These remain the
+changes that should prompt a deliberate re-read of the assumptions above, rather
+than waiting for a scanner to speak first:
 
 - A dependency upgrade that changes which version of `next`, `postcss`, `sharp`
   or the lint toolchain is installed.
@@ -243,3 +288,6 @@ speak first:
 - Introducing third-party or user-supplied CSS.
 - Any advisory here being reported at a higher severity, or through a new
   dependency path.
+- Any glob pattern or CSS selector starting to come from somewhere other than
+  developer-authored files in this repository. Both current exceptions rest on
+  that.
