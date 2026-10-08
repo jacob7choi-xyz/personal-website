@@ -132,10 +132,10 @@ body {
     transform: translateY(-2px);
   }
 
-  /* One focus contract for every interactive element. `.ink-link` is included
-     because inline bio links are injected as markup and cannot carry a utility
-     class from JSX; styling by their existing class avoids touching the
-     injected strings, and keeps all three from drifting apart. */
+  /* One focus contract for every interactive element. `.ink-link` and
+     `.meta-link` are matched by class so every link rendered through
+     AnnotatedText or ExternalOrText gets the same outline without each call
+     site having to remember `.focus-ring`, and the three cannot drift apart. */
   .focus-ring:focus-visible,
   .ink-link:focus-visible,
   .meta-link:focus-visible {

@@ -15,7 +15,7 @@ import { join } from "node:path";
  * The font is a STATIC instance of Fraunces. Satori cannot render the variable
  * font the site loads (it fails with "Cannot read properties of undefined"), so
  * the display weight is instanced once, offline, and committed. Derivation and
- * hashes are in src/assets/Fraunces-PROVENANCE.md.
+ * hashes are recorded in scripts/asset-provenance.json.
  */
 export const alt = "Jacob J. Choi, Musician x AI Engineer";
 export const size = { width: 1200, height: 630 };
