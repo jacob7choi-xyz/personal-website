@@ -6,5 +6,20 @@
     "expires": "EXCLUSIVE, YYYY-MM-DD, evaluated at 00:00 UTC. The exception applies while now < expires, so the date itself is the first day it no longer suppresses.",
     "unused": "FATAL. Every entry must correspond to a currently reported advisory. An unused but unexpired entry is dormant suppression authority: if a dependency change reintroduced the advisory it would be suppressed again with no human re-review. Delete entries when the advisory disappears."
   },
-  "exceptions": []
+  "exceptions": [
+    {
+      "advisory": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "approvedSeverity": "high",
+      "expires": "2026-11-07",
+      "reason": "No patched version exists (affected <= 3.0.3, the latest release). Dev-only: reached through tailwindcss 3 (chokidar, micromatch, fast-glob) and eslint-config-next (@next/eslint-plugin-next, fast-glob, micromatch); the production-graph audit is clean. Exploit requires attacker-supplied brace patterns; every pattern here is developer-authored config. Accepted 2026-10-07, see SECURITY-AUDIT.md."
+    },
+    {
+      "advisory": "GHSA-rj75-hqrm-r3gf",
+      "package": "postcss-selector-parser",
+      "approvedSeverity": "moderate",
+      "expires": "2026-11-07",
+      "reason": "Fixed only in 7.1.6; tailwindcss 3.4.19 (latest 3.x) and postcss-nested declare ^6.1.x and 6.1.4 is the last 6.x, so this graph cannot select the fix. Dev-only, build time. Exploit requires parsing attacker-supplied selectors; only first-party CSS is processed. Accepted 2026-10-07, see SECURITY-AUDIT.md."
+    }
+  ]
 }
