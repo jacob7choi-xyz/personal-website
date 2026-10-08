@@ -158,27 +158,19 @@ export const projects = [
   },
   {
     id: 2,
-    title: "Polymarket Research",
-    description:
-      "Arbitrage detection and calibration research across 9,900+ prediction markets with production-grade resilience and observability",
-    tech: "Python, httpx, Pydantic, Prometheus, Docker, SQLite",
-    link: "https://github.com/jacob7choi-xyz/polymarket-research",
-  },
-  {
-    id: 3,
-    title: "Credential Vault",
-    description:
-      "On-chain identity system with guardian recovery, key rotation history, and consent-gated credential verification",
-    tech: "Next.js, Solidity, Hardhat",
-    link: "https://github.com/jacob7choi-xyz/credential-vault",
-  },
-  {
-    id: 4,
     title: "TuneTales",
     description:
       "AI-powered music storytelling platform that turns artist histories into immersive, narrative-driven experiences",
     tech: "Next.js, Python, TypeScript",
     link: "https://github.com/jacob7choi-xyz/tunetales-v1",
+  },
+  {
+    id: 3,
+    title: "Polymarket Research",
+    description:
+      "Arbitrage detection and calibration research across 9,900+ prediction markets with production-grade resilience and observability",
+    tech: "Python, httpx, Pydantic, Prometheus, Docker, SQLite",
+    link: "https://github.com/jacob7choi-xyz/polymarket-research",
   },
 ] satisfies readonly Project[];
 
