@@ -10,16 +10,16 @@ export const metadata: Metadata = {
   // image, so nothing was broken, but the pair disagreed and the value depended on
   // environment variables instead of on this file.
   metadataBase: new URL("https://www.jacobjchoi.com"),
-  title: "Jacob J. Choi, Musician x AI Engineer",
+  title: "Jacob J. Choi, AI Engineer x Musician",
   description:
-    "Jacob J. Choi, musician and AI engineer. Admitted to Juilliard for viola, currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
+    "Jacob J. Choi, AI engineer and musician. Building biomedical GraphRAG and agentic AI at The Jackson Laboratory. Admitted to Juilliard for viola.",
   // The site answers on both the apex and www. A canonical names one of them as
   // the indexable address so the two are not treated as competing duplicates.
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Jacob J. Choi, Musician x AI Engineer",
+    title: "Jacob J. Choi, AI Engineer x Musician",
     description:
-      "Admitted to Juilliard for viola, currently building biomedical GraphRAG and agentic AI at The Jackson Laboratory.",
+      "Building biomedical GraphRAG and agentic AI at The Jackson Laboratory. Admitted to Juilliard for viola.",
     url: "https://www.jacobjchoi.com/",
     siteName: "Jacob J. Choi",
     type: "website",

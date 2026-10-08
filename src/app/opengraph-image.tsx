@@ -17,7 +17,7 @@ import { join } from "node:path";
  * the display weight is instanced once, offline, and committed. Derivation and
  * hashes are recorded in scripts/asset-provenance.json.
  */
-export const alt = "Jacob J. Choi, Musician x AI Engineer";
+export const alt = "Jacob J. Choi, AI Engineer x Musician";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -95,9 +95,9 @@ export default async function Image() {
             fontSize: 44,
           }}
         >
-          <span style={{ color: "#45DD9E" }}>Musician</span>
-          <span style={{ color: TEXT_SECONDARY, fontSize: 30 }}>x</span>
           <span style={{ color: "#36C5E6" }}>AI Engineer</span>
+          <span style={{ color: TEXT_SECONDARY, fontSize: 30 }}>x</span>
+          <span style={{ color: "#45DD9E" }}>Musician</span>
         </div>
 
         <div
