@@ -64,10 +64,11 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-
-      # The lint step above is scoped to .ts/.tsx, so the policy engine is not
-      # covered by it. Parse-check it explicitly rather than relying on execution
-      # to be the only syntax gate.
+      # A syntax gate for the policy engine that does not depend on the lint
+      # configuration. ESLint also lints these .mjs files since the flat-config
+      # migration, so this is a second check, not the only one. It stays so a
+      # future lint-config change cannot silently drop the gate's own code from
+      # every check that runs before the gate executes.
       - name: Syntax check the policy engine
         run: node --check scripts/audit-check.mjs && node --check scripts/audit-check.test.mjs
 
