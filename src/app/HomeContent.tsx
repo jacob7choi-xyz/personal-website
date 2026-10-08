@@ -292,11 +292,11 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           </h1>
 
           <p className="serif text-xl md:text-2xl mt-5">
-            <span style={{ color: "var(--violet)" }}>Musician</span>
+            <span style={{ color: "var(--cyan)" }}>AI Engineer</span>
             <span className="mono text-base mx-3" style={{ color: "var(--text-tertiary)" }}>
               ×
             </span>
-            <span style={{ color: "var(--cyan)" }}>AI Engineer</span>
+            <span style={{ color: "var(--violet)" }}>Musician</span>
           </p>
 
           <p
