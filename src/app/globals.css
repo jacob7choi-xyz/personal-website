@@ -77,9 +77,33 @@ body {
     color: transparent;
   }
 
+  /* Typographic roles, one value each. Size and line-height only: the family
+     comes from composing with .serif or .mono, so each family is declared once
+     (in @layer base above). This replaced four paragraph sizes between 0.97
+     and 1.1rem, three title sizes, three body line-heights and three metadata
+     sizes, picked one call site at a time. */
+  .lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+
+  .body-copy {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .item-title {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .meta {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
   .eyebrow {
-    font-family: var(--font-mono), monospace;
-    font-size: 0.7rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--text-tertiary);
@@ -112,8 +136,7 @@ body {
   }
 
   .pill {
-    font-family: var(--font-mono), monospace;
-    font-size: 0.68rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.02em;
     color: var(--text-secondary);
     border: 1px solid var(--rule);
