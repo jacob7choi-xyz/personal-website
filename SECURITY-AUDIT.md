@@ -3,7 +3,7 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-10-07.** Two accepted risk exceptions, both expiring
+**Evidence date: 2026-10-15.** Two accepted risk exceptions, both expiring
 2026-11-07. Every entry must carry an expiry, because a risk acceptance without
 one becomes a permanent blind spot. On expiry the gate fails until that entry is
 re-reviewed. That is intentional.
@@ -82,6 +82,27 @@ override becomes justified and must then be verified by build and by rendering,
 not merely by a green audit.
 
 ### Resolved since this document was written
+
+**2026-10-15: three Next.js advisories the gate could not yet see.** Next.js
+16.4.1 (released 2026-10-14) fixes GHSA-673q-mjm6-r5xr (critical, RCE in
+`use cache` functions returning typed arrays), GHSA-2464-fhr4-w9xw (critical,
+RCE in the Image Optimization API with SVG files on glibc Linux) and
+GHSA-p3m5-59mp-jv5r (high, CPU denial of service through Server Actions). All
+three list `next` up to 16.4.0 as affected, so the deployed 16.3.8 was in range.
+
+On the day of the upgrade all three returned 404 from GitHub's global advisory
+database, which is what `npm audit` reads, so the gate reported PASS while the
+installed version was affected. They were found by reading the release notes
+and the advisories on the vercel/next.js repository. This is the trust boundary
+stated below made concrete: the gate is only as current as the registry, and a
+vendor can publish a fix days before the database ingests it.
+
+Exploit preconditions, checked against the code: no `use cache` or Cache
+Components; no Server Actions (`use server`); no SVG in `public/`, no
+`remotePatterns` and no `dangerouslyAllowSVG`, and the live optimizer answers
+an SVG request with 400. So no identified exploit path under these
+assumptions. Patched immediately regardless, because two are critical and the
+advisory text recommends upgrading even without matching code.
 
 **2026-10-07: a critical `next/og` RCE and eleven others cleared by upgrade.**
 The weekly scheduled scan on `main` failed on 2026-10-05, and by 2026-10-07 the
