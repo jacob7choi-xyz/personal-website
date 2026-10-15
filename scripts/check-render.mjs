@@ -1,0 +1,239 @@
+#!/usr/bin/env node
+/**
+ * Rendered-visibility check. Fails CLOSED.
+ *
+ * Why this exists: from 2026-05-30 to 2026-10-15 the site rendered an
+ * essentially blank page for visitors with prefers-reduced-motion, and for
+ * visitors without JavaScript. The server HTML ships every animated block at
+ * opacity 0, and the reduced-motion branch never moved it. The code looked
+ * correct and the docs said reduced motion was "honored"; only rendering under
+ * the emulated preference showed the problem. This makes that a gate instead of
+ * a one-off check.
+ *
+ * What it does: serves the existing production build (`next start`, bound to
+ * 127.0.0.1 only), drives headless Chrome over the DevTools protocol, and for
+ * each case asserts that the hero and every section are fully visible, the
+ * waveform is drawn, nothing overflows horizontally, and the console carries no
+ * unexpected errors.
+ *
+ *   npm run build && npm run check:render
+ *
+ * Chrome is located via CHROME_PATH or the usual install paths. If none is
+ * found the check fails; a skipped check would read as a pass.
+ */
+
+import { execFileSync, spawn } from "node:child_process";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const PORT = Number(process.env.CHECK_RENDER_PORT ?? 3217);
+const BASE = `http://127.0.0.1:${PORT}/`;
+const OVERALL_TIMEOUT_MS = 120_000;
+
+/* Cases chosen to cover the failure that shipped: no-motion paths at both
+   breakpoints, plus normal motion so the check also proves the animated path
+   still ends visible after the reveals fire. */
+const CASES = [
+  { motion: "reduce", width: 390 },
+  { motion: "reduce", width: 1440 },
+  { motion: "nojs", width: 390 },
+  { motion: "nojs", width: 1440 },
+  { motion: "no-preference", width: 1440 },
+];
+
+/* Console lines that are expected locally and are not defects. Speed Insights
+   loads its script from a path that only exists on Vercel. Matched exactly by
+   prefix so an unrelated error cannot hide behind it. */
+const EXPECTED_CONSOLE = ["[Vercel Speed Insights] Failed to load script"];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const children = [];
+const profiles = [];
+
+function cleanup() {
+  for (const c of children) {
+    try {
+      c.kill("SIGTERM");
+    } catch {}
+  }
+  for (const p of profiles) {
+    try {
+      rmSync(p, { recursive: true, force: true });
+    } catch {}
+  }
+}
+
+function fail(message) {
+  console.error(`check-render: FAIL\n  ${message}`);
+  cleanup();
+  process.exit(1);
+}
+
+process.on("SIGINT", () => fail("interrupted"));
+process.on("SIGTERM", () => fail("terminated"));
+setTimeout(() => fail(`timed out after ${OVERALL_TIMEOUT_MS / 1000}s`), OVERALL_TIMEOUT_MS).unref();
+
+function findChrome() {
+  const candidates = [
+    process.env.CHROME_PATH,
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+  ].filter(Boolean);
+  return candidates.find((p) => existsSync(p));
+}
+
+async function waitFor(url, label) {
+  for (let i = 0; i < 100; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+    } catch {}
+    await sleep(200);
+  }
+  fail(`${label} did not become ready at ${url}`);
+}
+
+async function startServer() {
+  if (!existsSync(".next/BUILD_ID")) fail("no production build found; run `npm run build` first");
+  const server = spawn("node_modules/.bin/next", ["start", "-H", "127.0.0.1", "-p", String(PORT)], {
+    stdio: "ignore",
+  });
+  children.push(server);
+  server.on("exit", (code) => {
+    if (code !== null && code !== 0) fail(`next start exited with code ${code} (is port ${PORT} free?)`);
+  });
+  await waitFor(BASE, "next start");
+}
+
+async function openPage(chromePath) {
+  const port = 9600 + Math.floor(Math.random() * 300);
+  const profile = mkdtempSync(join(tmpdir(), "check-render-"));
+  profiles.push(profile);
+  const chrome = spawn(
+    chromePath,
+    ["--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--hide-scrollbars", "--disable-gpu", "about:blank"],
+    { stdio: "ignore" },
+  );
+  children.push(chrome);
+  const list = await (await waitFor(`http://127.0.0.1:${port}/json/list`, "Chrome")).json();
+  const target = list.find((t) => t.type === "page");
+  if (!target) fail("Chrome exposed no page target");
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => {
+    ws.addEventListener("open", resolve);
+    ws.addEventListener("error", () => reject(new Error("DevTools socket error")));
+  });
+  let id = 0;
+  const pending = new Map();
+  const consoleLines = [];
+  ws.addEventListener("message", (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.id && pending.has(msg.id)) {
+      pending.get(msg.id)(msg);
+      pending.delete(msg.id);
+    } else if (msg.method === "Runtime.consoleAPICalled" && ["error", "warning", "log"].includes(msg.params.type)) {
+      consoleLines.push(msg.params.args.map((a) => a.value ?? a.description ?? "").join(" "));
+    } else if (msg.method === "Runtime.exceptionThrown") {
+      consoleLines.push(`exception: ${msg.params.exceptionDetails.text}`);
+    }
+  });
+  const send = (method, params = {}) =>
+    new Promise((resolve) => {
+      const n = ++id;
+      pending.set(n, resolve);
+      ws.send(JSON.stringify({ id: n, method, params }));
+    });
+  const evaluate = async (expression) => {
+    const res = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+    if (res.result?.exceptionDetails) fail(`probe threw: ${res.result.exceptionDetails.text}`);
+    return res.result.result.value;
+  };
+  return { chrome, ws, send, evaluate, consoleLines };
+}
+
+/* Runs in the page. Reads computed values, so it measures what a visitor
+   actually sees rather than what the markup intends. */
+const PROBE = `(() => {
+  const opacity = (el) => (el ? Number(getComputedStyle(el).opacity) : -1);
+  const hero = [...document.querySelectorAll('header > div')].map(opacity);
+  const sections = [...document.querySelectorAll('section')].map((s) => opacity(s.children[1]));
+  const wave = document.querySelector('svg[viewBox="0 0 1000 70"] path');
+  const dash = wave ? getComputedStyle(wave).strokeDasharray : null;
+  return {
+    hero,
+    sections,
+    waveOpacity: opacity(wave),
+    waveDrawn: dash === 'none' || dash === '1px, 1px',
+    overflowX: document.documentElement.scrollWidth > innerWidth,
+  };
+})()`;
+
+async function runCase(chromePath, { motion, width }) {
+  const label = `${motion} @ ${width}px`;
+  const page = await openPage(chromePath);
+  const noJs = motion === "nojs";
+  await page.send("Runtime.enable");
+  await page.send("Page.enable");
+  await page.send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: width < 500 });
+  if (noJs) await page.send("Emulation.setScriptExecutionDisabled", { value: true });
+  await page.send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-motion", value: noJs ? "no-preference" : motion }],
+  });
+  await page.send("Page.navigate", { url: `${BASE}?check=${motion}-${width}` });
+  await sleep(3500);
+  if (motion === "no-preference") {
+    /* Viewport-triggered reveals only fire when scrolled into view, as for a
+       real visitor. Skipped without JavaScript: page timers never run then. */
+    await page.evaluate(`(async () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+      for (let y = 0; y < document.documentElement.scrollHeight; y += 300) {
+        scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 150));
+      }
+      await new Promise((r) => setTimeout(r, 1200));
+      return true;
+    })()`);
+  }
+  const r = await page.evaluate(PROBE);
+  page.ws.close();
+  page.chrome.kill("SIGTERM");
+
+  const problems = [];
+  if (r.hero.length === 0) problems.push("no hero blocks found");
+  if (r.hero.some((o) => o < 0.99)) problems.push(`hero not fully visible: ${JSON.stringify(r.hero)}`);
+  if (r.sections.length === 0) problems.push("no sections found");
+  if (r.sections.some((o) => o < 0.99)) problems.push(`section(s) not fully visible: ${JSON.stringify(r.sections)}`);
+  if (r.waveOpacity < 0.99 || !r.waveDrawn) problems.push(`waveform not drawn (opacity ${r.waveOpacity})`);
+  if (r.overflowX) problems.push("horizontal overflow");
+  const unexpected = page.consoleLines.filter((line) => !EXPECTED_CONSOLE.some((ok) => line.startsWith(ok)));
+  if (unexpected.length) problems.push(`unexpected console output: ${JSON.stringify(unexpected.slice(0, 3))}`);
+
+  console.log(`  ${problems.length ? "FAIL" : "ok  "} ${label}: hero ${JSON.stringify(r.hero)}, ${r.sections.length} sections visible=${!r.sections.some((o) => o < 0.99)}`);
+  for (const p of problems) console.log(`         ${p}`);
+  return problems.length === 0;
+}
+
+const chromePath = findChrome();
+if (!chromePath) fail("no Chrome or Chromium found; set CHROME_PATH");
+/* Logged so a green CI job is evidence of WHAT ran, not only that it passed. */
+let chromeVersion = "unknown";
+try {
+  chromeVersion = execFileSync(chromePath, ["--version"], { encoding: "utf8", timeout: 15_000 }).trim();
+} catch {}
+console.log(`check-render: ${chromeVersion} at ${chromePath}`);
+await startServer();
+let allOk = true;
+for (const c of CASES) {
+  allOk = (await runCase(chromePath, c)) && allOk;
+}
+cleanup();
+if (!allOk) {
+  console.error("check-render: FAIL");
+  process.exit(1);
+}
+console.log(`check-render: PASS (${CASES.length} cases)`);
+process.exit(0);

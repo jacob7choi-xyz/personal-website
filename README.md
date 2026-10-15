@@ -37,7 +37,7 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 
 | Section | Content |
 |---------|---------|
-| Hero | Headshot, name, motto, waveform, lead paragraphs |
+| Hero | Headshot, name, AI Engineer x Musician, motto, waveform, lead paragraphs |
 | I. Now | Current role and degree |
 | II. Selected Work | Projects with descriptions and tech tags |
 | III. Past | Prior professional and research experience |
@@ -47,7 +47,7 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 
 ### Accessibility
 
-- `prefers-reduced-motion`: every animation jumps straight to its final state, with no movement. Content never depends on an animation finishing; checked with an emulated reduced-motion browser and with JavaScript disabled
+- `prefers-reduced-motion`: every animation jumps straight to its final state, with no movement. Content never depends on an animation finishing, with JavaScript disabled too. Enforced in CI by `npm run check:render`, which renders the built site in headless Chrome under reduced motion, without JavaScript and with normal motion, and fails if any section is not fully visible
 - `prefers-contrast: high` boosts the text tokens
 - Print styles strip backgrounds and force black text, including the gradient name
 - Semantic landmarks, a real `h1` to `h3` hierarchy, `aria-label` on every section
@@ -92,8 +92,10 @@ npm run verify    # Everything CI runs, chained fail-closed
 
 `npm run verify` is the canonical local gate. It chains lint, type check, the
 annotated-text compiler tests, real-content validation, the asset provenance lock,
-signature reproducibility, the advisory-gate self-tests, the build, and the live
-dependency advisory gate. CI invokes these same npm scripts rather than
+signature reproducibility, the advisory-gate self-tests, the build, the rendered
+visibility check, and the live dependency advisory gate. The rendered check needs
+a local Chrome or Chromium (or `CHROME_PATH`); without one it fails rather than
+skipping. CI invokes these same npm scripts rather than
 duplicating the commands, so the shared steps cannot drift apart. CI is not a
 strict superset in the other direction either: it additionally runs
 `node --check` over the policy engine, which `npm run verify` does not.
@@ -105,17 +107,20 @@ Stop the dev server before running a production build. Building while `next dev`
 ## Project Structure
 
 ```
-.github/workflows/ci.yml        # The gate: lint, types, tests, provenance, build, advisories
+.github/workflows/ci.yml        # The gate: lint, types, tests, provenance, build, rendered check, advisories
 docs/AUDIT-2026-07.md           # Canonical audit record
 docs/adr/                       # Architecture decision records
 public/                         # Headshot, favicon
 scripts/
 ├── generate-signature.cjs      # Offline generator for the signature path
-├── GreatVibes.ttf              # Font it reads, committed with its OFL licence
+├── GreatVibes.ttf              # Font it reads
+├── GreatVibes-OFL.txt          # Its licence, which must travel with the font
+├── GreatVibes-PROVENANCE.md    # Where the font came from, pinned upstream and hashes
 ├── asset-provenance.json       # Recorded hashes for committed binary assets
 ├── verify-provenance.mjs       # Asset lock: committed files must match the record
 ├── audit-check.mjs             # Fail-closed dependency advisory gate
 ├── audit-check.test.mjs        # Adversarial fixtures for that gate
+├── check-render.mjs            # Headless Chrome: every section visible under reduced motion and without JS
 └── validate-content.ts         # Validates the real annotated site copy
 src/
 ├── app/
@@ -134,7 +139,8 @@ src/
 │   └── Global/
 │       └── SignatureMark.tsx   # Self drawing footer signature
 ├── lib/
-│   └── annotated-text.ts       # Compiles bio prose plus annotations into typed segments
+│   ├── annotated-text.ts       # Compiles bio prose plus annotations into typed segments
+│   └── annotated-text.test.ts  # Direct tests for that compiler
 └── constants/
     ├── index.ts                # Barrel exports
     ├── socials.ts              # personalInfo, socialLinks, bio prose and its annotations

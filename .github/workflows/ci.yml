@@ -108,6 +108,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Renders the built site in headless Chrome under reduced motion, with
+      # JavaScript disabled, and with normal motion, and fails if the hero or any
+      # section is not fully visible. From 2026-05-30 to 2026-10-15 the page was
+      # blank for reduced-motion and no-JS visitors while every other check here
+      # passed. Serves on 127.0.0.1 only; fails closed if Chrome is missing.
+      - name: Rendered visibility check
+        run: npm run check:render
+
       # Fails closed. Replaces `npm audit --audit-level=critical`, which passed
       # while 20 distinct advisories were present.
       - name: Dependency advisory gate
