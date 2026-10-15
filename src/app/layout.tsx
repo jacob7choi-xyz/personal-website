@@ -39,6 +39,13 @@ export default function RootLayout({
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="icon" href="/Jacob-Choi-Website-Logo.ico" />
+        {/* Without JavaScript nothing animates, so the opacity-0 starting state
+            the server renders for every animated block would never clear. This
+            shows the end state instead: animated wrappers, the waveform, and
+            the footer signature. Inert whenever scripts run. */}
+        <noscript>
+          <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}`}</style>
+        </noscript>
       </head>
       <body>
         {children}
