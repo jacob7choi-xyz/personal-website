@@ -361,7 +361,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
             >
               <span className="serif item-title sm:shrink-0">{e.title}</span>
               <span
-                className="mono meta whitespace-pre-line sm:text-right"
+                className="mono meta sm:text-right"
                 style={{ color: "var(--text-secondary)" }}
               >
                 <ExternalOrText link={e.link}>{e.company}</ExternalOrText>
