@@ -23,13 +23,17 @@
  */
 
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const PORT = Number(process.env.CHECK_RENDER_PORT ?? 3217);
 const BASE = `http://127.0.0.1:${PORT}/`;
-const OVERALL_TIMEOUT_MS = 120_000;
+const OVERALL_TIMEOUT_MS = 300_000;
+/* Generous on purpose: a slow CI runner once took ~12s just for
+   `chrome --version`, and a 20s startup budget failed the required check on
+   main (2026-10-15) without testing anything. */
+const CHROME_START_TIMEOUT_MS = 60_000;
 
 /* Cases chosen to cover the failure that shipped: no-motion paths at both
    breakpoints, plus normal motion so the check also proves the animated path
@@ -109,19 +113,42 @@ async function startServer() {
   await waitFor(BASE, "next start");
 }
 
-async function openPage(chromePath) {
-  const port = 9600 + Math.floor(Math.random() * 300);
+/* One Chrome for the whole run; each case gets its own fresh tab. Chrome picks
+   a free debugging port itself (--remote-debugging-port=0) and writes it to
+   DevToolsActivePort in the profile, so there is no port to collide on. */
+async function startChrome(chromePath) {
   const profile = mkdtempSync(join(tmpdir(), "check-render-"));
   profiles.push(profile);
   const chrome = spawn(
     chromePath,
-    ["--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--hide-scrollbars", "--disable-gpu", "about:blank"],
-    { stdio: "ignore" },
+    ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--hide-scrollbars", "--disable-gpu", "about:blank"],
+    { stdio: ["ignore", "ignore", "pipe"] },
   );
   children.push(chrome);
-  const list = await (await waitFor(`http://127.0.0.1:${port}/json/list`, "Chrome")).json();
-  const target = list.find((t) => t.type === "page");
-  if (!target) fail("Chrome exposed no page target");
+  let stderrTail = "";
+  chrome.stderr.on("data", (d) => {
+    stderrTail = (stderrTail + d.toString()).slice(-2000);
+  });
+  const portFile = join(profile, "DevToolsActivePort");
+  const started = Date.now();
+  while (Date.now() - started < CHROME_START_TIMEOUT_MS) {
+    if (chrome.exitCode !== null) fail(`Chrome exited during startup (code ${chrome.exitCode}). stderr tail:\n${stderrTail}`);
+    if (existsSync(portFile)) {
+      const port = Number(readFileSync(portFile, "utf8").split("\n")[0]);
+      if (Number.isInteger(port) && port > 0) {
+        await waitFor(`http://127.0.0.1:${port}/json/version`, "Chrome DevTools endpoint");
+        return port;
+      }
+    }
+    await sleep(250);
+  }
+  fail(`Chrome did not start within ${CHROME_START_TIMEOUT_MS / 1000}s. stderr tail:\n${stderrTail}`);
+}
+
+async function openPage(devtoolsPort) {
+  const res = await fetch(`http://127.0.0.1:${devtoolsPort}/json/new?about:blank`, { method: "PUT" });
+  if (!res.ok) fail(`could not open a tab: HTTP ${res.status}`);
+  const target = await res.json();
   const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((resolve, reject) => {
     ws.addEventListener("open", resolve);
@@ -148,11 +175,15 @@ async function openPage(chromePath) {
       ws.send(JSON.stringify({ id: n, method, params }));
     });
   const evaluate = async (expression) => {
-    const res = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-    if (res.result?.exceptionDetails) fail(`probe threw: ${res.result.exceptionDetails.text}`);
-    return res.result.result.value;
+    const r = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+    if (r.result?.exceptionDetails) fail(`probe threw: ${r.result.exceptionDetails.text}`);
+    return r.result.result.value;
   };
-  return { chrome, ws, send, evaluate, consoleLines };
+  const close = async () => {
+    ws.close();
+    await fetch(`http://127.0.0.1:${devtoolsPort}/json/close/${target.id}`).catch(() => {});
+  };
+  return { send, evaluate, consoleLines, close };
 }
 
 /* Runs in the page. Reads computed values, so it measures what a visitor
@@ -172,9 +203,9 @@ const PROBE = `(() => {
   };
 })()`;
 
-async function runCase(chromePath, { motion, width }) {
+async function runCase(devtoolsPort, { motion, width }) {
   const label = `${motion} @ ${width}px`;
-  const page = await openPage(chromePath);
+  const page = await openPage(devtoolsPort);
   const noJs = motion === "nojs";
   await page.send("Runtime.enable");
   await page.send("Page.enable");
@@ -199,8 +230,7 @@ async function runCase(chromePath, { motion, width }) {
     })()`);
   }
   const r = await page.evaluate(PROBE);
-  page.ws.close();
-  page.chrome.kill("SIGTERM");
+  await page.close();
 
   const problems = [];
   if (r.hero.length === 0) problems.push("no hero blocks found");
@@ -226,9 +256,10 @@ try {
 } catch {}
 console.log(`check-render: ${chromeVersion} at ${chromePath}`);
 await startServer();
+const devtoolsPort = await startChrome(chromePath);
 let allOk = true;
 for (const c of CASES) {
-  allOk = (await runCase(chromePath, c)) && allOk;
+  allOk = (await runCase(devtoolsPort, c)) && allOk;
 }
 cleanup();
 if (!allOk) {
