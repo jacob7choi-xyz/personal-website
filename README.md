@@ -45,7 +45,7 @@ Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handl
 
 ### Accessibility
 
-- `prefers-reduced-motion` honored in CSS and guarded in every animated component
+- `prefers-reduced-motion`: every animation jumps straight to its final state, with no movement. Content never depends on an animation finishing; checked with an emulated reduced-motion browser and with JavaScript disabled
 - `prefers-contrast: high` boosts the text tokens
 - Print styles strip backgrounds and force black text, including the gradient name
 - Semantic landmarks, a real `h1` to `h3` hierarchy, `aria-label` on every section

@@ -33,6 +33,15 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
 const rule = "1px solid var(--rule-soft)";
 
+/* Reduced motion means "arrive at the end state with no movement", never "do
+   not animate". The server cannot know the visitor's preference, so it always
+   renders `initial` (opacity 0) into the HTML. Disabling the animation outright
+   (`initial={false}`, no `animate`) left nothing to move those elements off
+   opacity 0, and visitors with reduced motion saw a blank page from 2026-05-30
+   until this was caught. Keep `initial` unconditional so server and client
+   agree, keep the visible end state unconditional, and only swap the timing. */
+const INSTANT = { duration: 0 } as const;
+
 /* ------------------------------------------------------------------ */
 /* The waveform that bridges the two voices. Deterministic (no random, */
 /* no Date) so server and client render identically, drawn once on     */
@@ -146,9 +155,9 @@ function Waveform() {
         stroke="url(#voice)"
         strokeWidth="1.5"
         strokeLinecap="round"
-        initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-        animate={reduce ? undefined : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 1.8, ease: "easeInOut", delay: 0.4 }}
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={reduce ? INSTANT : { duration: 1.8, ease: "easeInOut", delay: 0.4 }}
       />
     </svg>
   );
@@ -167,10 +176,11 @@ function Reveal({
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={reduce ? { opacity: 1, y: 0 } : undefined}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1], delay }}
+      transition={reduce ? INSTANT : { duration: 0.5, ease: [0.22, 0.61, 0.36, 1], delay }}
     >
       {children}
     </motion.div>
@@ -256,9 +266,9 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       {/* ---------------------------------------------------------- Hero */}
       <header>
         <motion.div
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={reduce ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reduce ? INSTANT : { duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <div
             className="mb-9 inline-block rounded-2xl p-[2px]"
@@ -309,18 +319,18 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
         <motion.div
           className="mt-10"
-          initial={reduce ? false : { opacity: 0 }}
-          animate={reduce ? undefined : { opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={reduce ? INSTANT : { duration: 0.8, delay: 0.3 }}
         >
           <Waveform />
         </motion.div>
 
         <motion.div
           className="mt-10 max-w-2xl space-y-5"
-          initial={reduce ? false : { opacity: 0, y: 14 }}
-          animate={reduce ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reduce ? INSTANT : { duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <p className="text-[1.1rem] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
             <AnnotatedText segments={personalInfo.bio.intro.segments} />
