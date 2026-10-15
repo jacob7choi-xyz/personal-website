@@ -77,7 +77,10 @@ export const currentExperience = [
   {
     id: 1,
     title: "AI/Agentic Pipeline Engineer",
-    company: "Maine Cancer Genomics Initiative @ The Jackson Laboratory",
+    /* The "\n" is a deliberate line break (the Now row renders with
+       whitespace-pre-line): program on one line, institution on the next,
+       instead of letting the column wrap mid-name. */
+    company: "Maine Cancer Genomics Initiative\n@ The Jackson Laboratory",
     link: "https://www.jax.org/clinical-genomics/maine-cancer-genomics-initiative",
   },
   {
