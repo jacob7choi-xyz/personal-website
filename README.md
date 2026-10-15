@@ -31,6 +31,8 @@ Six numbered sections after the hero. No slideshow, no dashboard, no filler.
 
 Design tokens are CSS custom properties in `src/app/globals.css`. Tailwind handles layout, not color.
 
+Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, `.item-title`, `.meta`, `.eyebrow` and `.pill`, each combined with `.serif` or `.mono` for the family. Add or change a role rather than setting a one-off size at a call site.
+
 ### Page structure
 
 | Section | Content |

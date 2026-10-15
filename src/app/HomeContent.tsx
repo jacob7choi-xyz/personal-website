@@ -33,6 +33,15 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
 const rule = "1px solid var(--rule-soft)";
 
+/* Structural layout scale. The typographic roles (.lead, .body-copy,
+   .item-title, .meta, .eyebrow, .pill) live in globals.css; these are the
+   layout pieces that need responsive utilities, which @layer component
+   classes cannot carry. One value each, so rows and paragraphs cannot drift
+   apart again. */
+const PROSE = "max-w-2xl"; // one measure for every paragraph
+const ROW_Y = "py-5"; // vertical padding of every list row
+const ROW = `flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 ${ROW_Y}`;
+
 /* Reduced motion means "arrive at the end state with no movement", never "do
    not animate". The server cannot know the visitor's preference, so it always
    renders `initial` (opacity 0) into the HTML. Disabling the animation outright
@@ -189,11 +198,11 @@ function Reveal({
 
 function Marker({ num, label }: { num: string; label: string }) {
   return (
-    <div className="flex items-center gap-4 mb-7">
+    <div className="flex items-center gap-4 mb-8">
       <span className="serif italic text-2xl" style={{ color: "var(--violet)" }}>
         {num}
       </span>
-      <h2 className="eyebrow">{label}</h2>
+      <h2 className="mono eyebrow">{label}</h2>
       <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
     </div>
   );
@@ -271,7 +280,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           transition={reduce ? INSTANT : { duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <div
-            className="mb-9 inline-block rounded-2xl p-[2px]"
+            className="mb-8 inline-block rounded-2xl p-[2px]"
             style={{
               background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
               boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
@@ -327,15 +336,15 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </motion.div>
 
         <motion.div
-          className="mt-10 max-w-2xl space-y-5"
+          className={`mt-10 ${PROSE} space-y-5`}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? INSTANT : { duration: 0.6, delay: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
         >
-          <p className="text-[1.1rem] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
+          <p className="lead" style={{ color: "var(--text-primary)" }}>
             <AnnotatedText segments={personalInfo.bio.intro.segments} />
           </p>
-          <p className="text-[1.02rem] leading-[1.8]" style={{ color: "var(--text-secondary)" }}>
+          <p className="body-copy" style={{ color: "var(--text-secondary)" }}>
             <AnnotatedText segments={personalInfo.bio.focus.segments} />
           </p>
         </motion.div>
@@ -347,12 +356,12 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           {currentExperience.map((e) => (
             <li
               key={e.id}
-              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              className={ROW}
               style={{ borderBottom: rule }}
             >
-              <span className="serif text-lg">{e.title}</span>
+              <span className="serif item-title sm:shrink-0">{e.title}</span>
               <span
-                className="mono text-[0.8rem] sm:text-right"
+                className="mono meta sm:text-right"
                 style={{ color: "var(--text-secondary)" }}
               >
                 <ExternalOrText link={e.link}>{e.company}</ExternalOrText>
@@ -371,10 +380,10 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
               href={p.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="project-row block py-5 focus-ring"
+              className={`project-row block ${ROW_Y} focus-ring`}
               style={{ borderBottom: rule }}
             >
-              <h3 className="serif text-xl proj-title">
+              <h3 className="serif item-title proj-title">
                 {p.title}
                 <svg
                   className="proj-arrow inline-block ml-1.5 align-[-0.1em]"
@@ -393,14 +402,14 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
                 </svg>
               </h3>
               <p
-                className="text-[0.97rem] leading-relaxed mt-1.5 max-w-2xl"
+                className={`body-copy mt-1.5 ${PROSE}`}
                 style={{ color: "var(--text-secondary)" }}
               >
                 {p.description}
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {p.tech.split(", ").map((t) => (
-                  <span key={t} className="pill">
+                  <span key={t} className="mono pill">
                     {t}
                   </span>
                 ))}
@@ -416,18 +425,18 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           {pastExperience.map((e) => (
             <li
               key={e.id}
-              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              className={ROW}
               style={{ borderBottom: rule }}
             >
-              <span className="sm:flex-1">
-                <span className="serif text-lg">
+              <span className="sm:shrink-0">
+                <span className="serif item-title">
                   <ExternalOrText link={e.link} variant="ink">
                     {e.title}
                   </ExternalOrText>
                 </span>
                 {e.mentorText && (
                   <span
-                    className="block mono text-xs mt-0.5"
+                    className="block mono meta mt-0.5"
                     style={{ color: "var(--text-tertiary)" }}
                   >
                     <ExternalOrText link={e.mentorLink}>{e.mentorText}</ExternalOrText>
@@ -435,7 +444,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
                 )}
               </span>
               <span
-                className="mono text-[0.8rem] sm:text-right"
+                className="mono meta sm:text-right"
                 style={{ color: "var(--text-secondary)" }}
               >
                 {e.company}
@@ -453,9 +462,9 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       <Section num={ROMAN[3]} label="Competitions & Stage">
         <div>
           {achievementGroups.map((group) => (
-            <div key={group.id} className="py-3.5" style={{ borderBottom: rule }}>
-              <h3 className="serif text-lg mb-2">{group.title}</h3>
-              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono text-[0.8rem]">
+            <div key={group.id} className={ROW_Y} style={{ borderBottom: rule }}>
+              <h3 className="serif item-title mb-2">{group.title}</h3>
+              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono meta">
                 {group.items.map((it, idx) => (
                   <li key={idx} className="flex items-center gap-2">
                     <span style={{ color: "var(--text-secondary)" }}>
@@ -478,16 +487,16 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           {certifications.map((c) => (
             <li
               key={c.id}
-              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              className={ROW}
               style={{ borderBottom: rule }}
             >
-              <span className="serif text-base">
+              <span className="serif item-title sm:shrink-0">
                 <ExternalOrText link={c.link} variant="ink">
                   {c.title}
                 </ExternalOrText>
               </span>
               <span
-                className="mono text-[0.8rem] sm:text-right"
+                className="mono meta sm:text-right"
                 style={{ color: "var(--text-secondary)" }}
               >
                 {c.issuer} · {c.year}
@@ -497,16 +506,16 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           {awards.map((a) => (
             <li
               key={`award-${a.id}`}
-              className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-6 gap-y-1 py-3.5"
+              className={ROW}
               style={{ borderBottom: rule }}
             >
-              <span className="serif text-base">
+              <span className="serif item-title sm:shrink-0">
                 <ExternalOrText link={a.link} variant="ink">
                   {a.title}
                 </ExternalOrText>
               </span>
               <span
-                className="mono text-[0.8rem] sm:text-right"
+                className="mono meta sm:text-right"
                 style={{ color: "var(--text-secondary)" }}
               >
                 <ExternalOrText link={a.issuerLink}>{a.issuer}</ExternalOrText> · {a.year}
@@ -519,7 +528,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       {/* ------------------------------------------------------- Contact */}
       <Section num={ROMAN[5]} label="Contact">
         <p
-          className="text-[1.05rem] leading-[1.8] max-w-xl"
+          className={`body-copy ${PROSE}`}
           style={{ color: "var(--text-secondary)" }}
         >
           {personalInfo.contactBlurb}
@@ -549,10 +558,10 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
       {/* -------------------------------------------------------- Footer */}
       <footer
-        className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono text-xs"
+        className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono meta"
         style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
       >
-        <span className="flex items-center gap-2.5 text-sm">
+        <span className="flex items-center gap-2.5">
           © {year}
           <SignatureMark className="h-8 w-auto" />
         </span>
