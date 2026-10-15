@@ -25,7 +25,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
    the browser default of `auto` varies the design by font size, which is doing
    real work between the 8xl hero name and the small italic motto. Dropping the
    axis would flatten that with no error. Italic is required by the motto and the
-   mentor line. */
+   section numerals. */
 export const fraunces = Fraunces({
   subsets: ["latin"],
   axes: ["opsz"],
