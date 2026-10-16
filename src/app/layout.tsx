@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // The three font classes define --font-fraunces / --font-inter / --font-mono
+    // The three font classes define --font-fraunces / --font-inter / --font-jetbrains
     // for the whole document. They belong on <html> rather than <body> because
     // globals.css sets a family on body itself, which would not see a variable
     // declared on that same element in every case.

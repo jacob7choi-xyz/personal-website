@@ -297,14 +297,18 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
                  size. Without `sizes`, Next cannot know this fills a 210-240px slot,
                  so it emitted a single-candidate srcset at w=3840 and every visitor
                  downloaded a 3840px image for it. Keep the two in step: change the
-                 Tailwind widths and this has to change with them. */
-              sizes="(min-width: 768px) 240px, 210px"
+                 Tailwind widths and this has to change with them. 48rem is the
+                 Tailwind `md` breakpoint, in the same unit it is defined in. */
+              sizes="(min-width: 48rem) 240px, 210px"
               className="rounded-[14px] block h-auto w-[210px] md:w-[240px]"
             />
           </div>
 
+          {/* md:leading-none keeps the line-height the name has always had at md
+              and up. Under Tailwind 3 the md font size reset it to 1; under 4 a
+              leading utility carries across breakpoints, so it is stated. */}
           <h1
-            className="serif name-gradient font-medium text-6xl md:text-8xl leading-[0.95]"
+            className="serif name-gradient font-medium text-6xl md:text-8xl leading-[0.95] md:leading-none"
             style={{ letterSpacing: "-0.02em" }}
           >
             Jacob J. Choi
