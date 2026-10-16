@@ -40,8 +40,10 @@ export const inter = Inter({
   variable: "--font-inter",
 });
 
+/* Not `--font-mono`: Tailwind 4 defines a theme variable of that name, so the
+   two would compete and the result would depend on cascade order. */
 export const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-mono",
+  variable: "--font-jetbrains",
 });

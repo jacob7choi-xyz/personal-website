@@ -7,9 +7,13 @@
    the CSS custom properties consumed below; do not reintroduce a literal
    family name, it will not match the hashed name next/font generates. */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* source(none) turns off automatic detection, which would otherwise scan every
+   non-ignored file in the repository, docs and scripts included, and generate
+   utilities for class-like words found there. The two @source lines are the
+   only places that render markup. */
+@import "tailwindcss" source(none);
+@source "../app";
+@source "../components";
 
 :root {
   /* Two voices, two colors. Iridescent, Off-White "Menta" swoosh inspired */
@@ -63,7 +67,7 @@ body {
   }
 
   .mono {
-    font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
   }
 }
 

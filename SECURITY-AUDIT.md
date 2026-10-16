@@ -3,7 +3,7 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-10-15.** Two accepted risk exceptions, both expiring
+**Evidence date: 2026-10-16.** One accepted risk exception, expiring
 2026-11-07. Every entry must carry an expiry, because a risk acceptance without
 one becomes a permanent blind spot. On expiry the gate fails until that entry is
 re-reviewed. That is intentional.
@@ -38,38 +38,34 @@ for expiry:
 
 ## Current dispositions
 
-Two entries, both accepted 2026-10-07 and expiring **2026-11-07** (exclusive).
-Both packages are marked dev by npm, and `npm audit --omit=dev` reports zero
+One entry, accepted 2026-10-07 and expiring **2026-11-07** (exclusive). The
+package is marked dev by npm, and `npm audit --omit=dev` reports zero
 advisories. That is the npm view; the execution-phase view, which is the one that
-matters, is stated per entry.
+matters, is stated in the entry.
 
 An exception is used here only because the dependency graph genuinely cannot
-select a patched version. That was checked against each parent's declared range
-before writing either entry, which is the lesson recorded under 2026-09-11 below.
+select a patched version. That was checked against the parent's declared range
+before writing the entry, which is the lesson recorded under 2026-09-11 below.
 
 | Advisory | Package | Severity | Why no upgrade | Execution phase | Exploit precondition | Satisfied here? |
 |---|---|---|---|---|---|---|
-| GHSA-vfj7-8cjw-p6xm | braces 3.0.3 | high | **No patched version exists.** Affected `<= 3.0.3`, which is the latest release | Build and lint time (content-glob and file resolution) | Attacker-supplied deeply nested brace patterns crash the process with a `RangeError` | No. Patterns come only from developer-authored config (`tailwind.config.ts` content globs, the ESLint config) |
-| GHSA-rj75-hqrm-r3gf | postcss-selector-parser 6.1.4 | moderate | Fixed only in **7.1.6**. `tailwindcss` 3.4.19, the latest 3.x, declares `^6.1.2`, `postcss-nested` declares `^6.1.1`, and 6.1.4 is the last 6.x | Build time | Parsing untrusted selectors synchronously in a request path. The advisory states ordinary build-time use on trusted sources is not affected | No. Only first-party CSS and class names from this repository are processed |
+| GHSA-vfj7-8cjw-p6xm | braces 3.0.3 | high | **No patched version exists.** Affected `<= 3.0.3`, which is the latest release | Lint time (file resolution) | Attacker-supplied deeply nested brace patterns crash the process with a `RangeError` | No. Patterns come only from developer-authored config (the ESLint config) |
 
-Dependency paths, from `npm explain`, so a reviewer can re-derive them:
+Dependency path, from `npm ls`, so a reviewer can re-derive it:
 
-- `braces`: `tailwindcss` -> `chokidar` / `micromatch` / `fast-glob` -> `braces`,
-  and `eslint-config-next` -> `@next/eslint-plugin-next` -> `fast-glob` 3.3.1 ->
-  `micromatch` -> `braces`. Because of the second path, **a Tailwind 4 migration
-  alone would not clear this entry.**
-- `postcss-selector-parser`: `tailwindcss` directly, and `tailwindcss` ->
-  `postcss-nested`.
+- `braces`: `eslint-config-next` -> `@next/eslint-plugin-next` -> `fast-glob`
+  3.3.1 -> `micromatch` -> `braces`. This is now the only path. The Tailwind 3
+  paths (`chokidar`, `micromatch`, `fast-glob`) left with the Tailwind 4
+  migration on 2026-10-16, as this file predicted they would without clearing
+  the entry.
 
-These are not "irrelevant because dev". Lint and build execute in CI and on the
+This is not "irrelevant because dev". Lint and build execute in CI and on the
 maintainer's machine, so they are supply-chain surface. The honest classification
 is: no identified exploit path under the assumptions above, not request-time
 reachable, lower priority, not zero.
 
-**At expiry, re-check in this order:** a patched `braces` release; a
-`tailwindcss` 3.x or `eslint-config-next` release that changes either path; the
-Tailwind 4 migration (open as a Dependabot pull request) for the selector parser.
-If none has landed, re-review against the assumptions and either renew with a new
+**At expiry, re-check in this order:** a patched `braces` release; an
+`eslint-config-next` release that changes the path. If neither has landed, re-review against the assumptions and either renew with a new
 date or escalate. Do not renew by editing the date alone.
 
 ### Why not force the versions with `overrides`
@@ -82,6 +78,18 @@ override becomes justified and must then be verified by build and by rendering,
 not merely by a green audit.
 
 ### Resolved since this document was written
+
+**2026-10-16: GHSA-rj75-hqrm-r3gf (`postcss-selector-parser`) cleared by the
+Tailwind 4 migration.** Its only paths were `tailwindcss` 3 and that package's
+`postcss-nested`, and no 3.x release could select the fixed 7.1.6. Tailwind 4
+depends on neither, and `npm ls postcss-selector-parser` is empty afterwards, so
+the package is gone from the tree rather than patched in it. Its exception was
+deleted in the same change, because the gate fails on an unused entry. Advisory
+identities went from two to one with none new: no advisory for `tailwindcss` or
+`@tailwindcss/postcss` in GitHub's global database or on the
+`tailwindlabs/tailwindcss` repository on that date. The migration adds native
+build-time binaries (`@tailwindcss/oxide`, `lightningcss`) through per-platform
+optional dependencies, with no install scripts in any of the new packages.
 
 **2026-10-15: three Next.js advisories the gate could not yet see.** Next.js
 16.4.1 (released 2026-10-14) fixes GHSA-673q-mjm6-r5xr (critical, RCE in
@@ -310,5 +318,5 @@ than waiting for a scanner to speak first:
 - Any advisory here being reported at a higher severity, or through a new
   dependency path.
 - Any glob pattern or CSS selector starting to come from somewhere other than
-  developer-authored files in this repository. Both current exceptions rest on
+  developer-authored files in this repository. The current exception rests on
   that.
