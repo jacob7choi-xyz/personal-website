@@ -4,7 +4,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-12-pink?style=for-the-badge&logo=framer)](https://www.framer.com/motion/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-14-pink?style=for-the-badge&logo=framer)](https://www.framer.com/motion/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
 ## Live
@@ -64,7 +64,7 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 | Language | TypeScript 5 (strict mode) |
 | Linting | ESLint 9 with flat config (`eslint.config.mjs`) |
 | Styling | Tailwind CSS 3 with CSS custom properties |
-| Animations | Framer Motion 12 |
+| Animations | Framer Motion 14 |
 | Icons | react-icons |
 | Fonts | Fraunces, JetBrains Mono, Inter, self hosted via `next/font` |
 | SEO | Generated `robots.txt`, `sitemap.xml`, and link preview card |
