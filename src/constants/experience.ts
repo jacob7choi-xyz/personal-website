@@ -1,14 +1,16 @@
+import type { HttpsUrl } from "@/lib/annotated-text";
+
 /* Types are explicit on purpose. This is developer-authored content, so a
    malformed entry should fail `tsc` rather than degrade silently at render
    time. `satisfies` keeps the literal inference while enforcing the shape. */
 
-/* An https PREFIX constraint, not URL validation. It rejects `http://` and
-   accidental non-URLs, which is the failure mode that actually occurs in
+/* HttpsUrl (shared with src/lib/annotated-text.ts) is an https PREFIX
+   constraint, not URL validation. It rejects `http://` and accidental
+   non-URLs, which is the failure mode that actually occurs in
    developer-authored constants. It will happily accept a malformed URL that
    starts with https://. Sufficient here because these values are authored in
    this file, JSX escapes them, and reachability is checked separately. Do not
    describe it as validating URLs. */
-type HttpsUrl = `https://${string}`;
 
 type LinkedItem = {
   text: string;
