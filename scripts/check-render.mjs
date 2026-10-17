@@ -38,12 +38,13 @@ const CHROME_START_TIMEOUT_MS = 60_000;
 
 /* Cases chosen to cover the failure that shipped: no-motion paths at both
    breakpoints, plus normal motion so the check also proves the animated path
-   still ends visible after the reveals fire. 320px is the narrowest phone
-   width the type is sized for: the name and the longest section label
-   ("Honors & Credentials") are fluid below that size and must not wrap there.
-   "print" emulates print media on an unscrolled page, where every block below
-   the fold is still at its opacity-0 starting state: until 2026-10-17 that
-   printed as blank pages. */
+   still ends visible after the reveals fire. 320px is the narrowest width the
+   fluid type was measured at: the name and the longest section label
+   ("Honors & Credentials") shrink with the viewport there and should stay on
+   one line. "print" emulates print media on an unscrolled page, where blocks
+   below the fold are still at their opacity-0 starting state. Before the
+   2026-10-17 fix, Chrome's print to PDF of such a page left every section
+   after the hero blank. */
 const CASES = [
   { motion: "reduce", width: 320 },
   { motion: "reduce", width: 390 },

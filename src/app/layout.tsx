@@ -27,8 +27,9 @@ export const metadata: Metadata = {
 };
 
 // The animated end state, forced. One string for both uses below so the two
-// cannot drift. The selectors match the server-rendered starting styles, which
-// stay in the DOM unchanged until an element is revealed.
+// stay identical. The selectors match the server-rendered starting styles,
+// which were observed to stay in the DOM unchanged until an element is
+// revealed (live page, 2026-10-17).
 const END_STATE = `[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}`;
 
 export default function RootLayout({
@@ -51,8 +52,9 @@ export default function RootLayout({
           <style>{END_STATE}</style>
         </noscript>
         {/* Printing has the same problem with JavaScript on: blocks reveal on
-            scroll, so everything not yet scrolled into view printed as blank
-            pages (every section after the hero, and the signature). */}
+            scroll, so anything not yet scrolled into view stays hidden. In
+            Chrome's print to PDF of an unscrolled page (2026-10-17) every
+            section after the hero and the signature came out blank. */}
         <style media="print">{END_STATE}</style>
       </head>
       <body>
