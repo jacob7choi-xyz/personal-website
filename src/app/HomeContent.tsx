@@ -306,10 +306,17 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
           {/* md:leading-none keeps the line-height the name has always had at md
               and up. Under Tailwind 3 the md font size reset it to 1; under 4 a
-              leading utility carries across breakpoints, so it is stated. */}
+              leading utility carries across breakpoints, so it is stated.
+
+              Below md the size is fluid so the name stays on one line. Set in
+              Geist at this tracking it is 5.81 times as wide as its font size
+              (measured), so a fixed 60px needs a 397px viewport and wrapped on a
+              390px phone. The 3rem is the two px-6 gutters of <main>; dividing
+              by 6 instead of 5.81 leaves about 3% to spare. Capped at the
+              previous 3.75rem (text-6xl). */}
           <h1
-            className="serif name-gradient font-medium text-6xl md:text-8xl leading-[0.95] md:leading-none"
-            style={{ letterSpacing: "-0.02em" }}
+            className="display name-gradient font-medium text-[length:min(3.75rem,calc((100vw_-_3rem)/6))] md:text-8xl leading-[0.95] md:leading-none"
+            style={{ letterSpacing: "-0.04em" }}
           >
             Jacob J. Choi
           </h1>

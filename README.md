@@ -25,7 +25,7 @@ Six numbered sections after the hero. No slideshow, no dashboard, no filler.
 - **Iridescent accent sweep**, coral to green to teal to blue (`#FF9E8A`, `#54E09C`, `#2FD2CE`, `#36ADEE`), used for the name, the waveform, and the signature
 - **Two accent tokens** map to the two identities: green `#45DD9E` for the musician, teal `#36C5E6` for the engineer
 - **Warm off white text** (`#ECE8E1`) on a warm gray body (`#9A958C`)
-- **Three voices in the type**: Fraunces serif for the expressive lines, JetBrains Mono for labels and metadata, Inter for connective body text
+- **The type**: Geist for the name, Fraunces serif for the expressive lines, JetBrains Mono for labels and metadata, Inter for connective body text
 - **An audio waveform** as the connective motif, a deterministic sum of sines drawn once on load
 - **A self drawing cursive signature** as the footer copyright mark
 
@@ -66,7 +66,7 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 | Styling | Tailwind CSS 4 with CSS custom properties |
 | Animations | Framer Motion 14 |
 | Icons | react-icons |
-| Fonts | Fraunces, JetBrains Mono, Inter, self hosted via `next/font` |
+| Fonts | Geist, Fraunces, JetBrains Mono, Inter, self hosted via `next/font` |
 | SEO | Generated `robots.txt`, `sitemap.xml`, and link preview card |
 | Telemetry | Vercel Speed Insights |
 | Deployment | Vercel |
@@ -134,7 +134,9 @@ src/
 │   └── globals.css             # Design tokens, component classes, a11y and print
 ├── assets/
 │   ├── Fraunces-Display600.ttf # Static instance for the preview card, committed with its OFL licence
-│   └── Fraunces-OFL.txt
+│   ├── Fraunces-OFL.txt
+│   ├── Geist-Medium.ttf        # Upstream static file for the name on the preview card, unmodified
+│   └── Geist-OFL.txt
 ├── components/
 │   └── Global/
 │       └── SignatureMark.tsx   # Self drawing footer signature

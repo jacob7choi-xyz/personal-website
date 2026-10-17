@@ -1,7 +1,7 @@
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Geist, Inter, JetBrains_Mono } from "next/font/google";
 
 /**
- * The three voices of the design, self-hosted.
+ * The type of the design, self-hosted.
  *
  * These were previously an `@import` at the top of globals.css, which is the
  * slowest way to load a font: the browser has to fetch globals.css, parse it,
@@ -23,7 +23,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 
 /* Variable. `opsz` is carried deliberately: nothing sets font-optical-sizing, so
    the browser default of `auto` varies the design by font size, which is doing
-   real work between the 8xl hero name and the small italic motto. Dropping the
+   real work between the 3xl contact email and the small italic motto. Dropping the
    axis would flatten that with no error. Italic is required by the motto and the
    section numerals. */
 export const fraunces = Fraunces({
@@ -32,6 +32,17 @@ export const fraunces = Fraunces({
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-fraunces",
+});
+
+/* The hero name only, so only the one weight it uses. Not `--font-sans`, for
+   the same reason as `--font-jetbrains` below. The link-preview card renders
+   the name from a committed static file of the same weight, see
+   src/assets/Geist-Medium.ttf. */
+export const geist = Geist({
+  subsets: ["latin"],
+  weight: "500",
+  display: "swap",
+  variable: "--font-geist",
 });
 
 export const inter = Inter({

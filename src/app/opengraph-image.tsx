@@ -12,10 +12,11 @@ import { join } from "node:path";
  * the palette below is duplicated deliberately. Keep it in step with
  * `--bg`, `--text-secondary` and the `.name-gradient` sweep.
  *
- * The font is a STATIC instance of Fraunces. Satori cannot render the variable
- * font the site loads (it fails with "Cannot read properties of undefined"), so
- * the display weight is instanced once, offline, and committed. Derivation and
- * hashes are recorded in scripts/asset-provenance.json.
+ * Both fonts are STATIC files. Satori cannot render the variable fonts the site
+ * loads (it fails with "Cannot read properties of undefined"). The name is set
+ * in Geist Medium, the upstream static file committed unmodified, to match the
+ * hero. Everything else is Fraunces, a display instance made once, offline.
+ * Sources and hashes are recorded in scripts/asset-provenance.json.
  */
 export const alt = "Jacob J. Choi, AI Engineer x Musician";
 export const size = { width: 1200, height: 630 };
@@ -28,6 +29,7 @@ const TEXT_SECONDARY = "#9A958C";
 
 export default async function Image() {
   const fraunces = readFileSync(join(process.cwd(), "src/assets/Fraunces-Display600.ttf"));
+  const geist = readFileSync(join(process.cwd(), "src/assets/Geist-Medium.ttf"));
   const headshot = `data:image/jpeg;base64,${readFileSync(
     join(process.cwd(), "public/Jacob_Choi_Headshot.JPG")
   ).toString("base64")}`;
@@ -73,10 +75,10 @@ export default async function Image() {
         <div
           style={{
             display: "flex",
-            fontFamily: "Fraunces",
+            fontFamily: "Geist",
             fontSize: 112,
             lineHeight: 1.05,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.04em",
             backgroundImage: SWEEP,
             backgroundClip: "text",
             color: "transparent",
@@ -182,7 +184,10 @@ export default async function Image() {
     ),
     {
       ...size,
-      fonts: [{ name: "Fraunces", data: fraunces, style: "normal" }],
+      fonts: [
+        { name: "Fraunces", data: fraunces, style: "normal" },
+        { name: "Geist", data: geist, weight: 500, style: "normal" },
+      ],
     }
   );
 }
