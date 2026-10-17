@@ -1,4 +1,4 @@
-import { Fraunces, Geist, Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 
 /**
  * The type of the design, self-hosted.
@@ -23,7 +23,7 @@ import { Fraunces, Geist, Inter, JetBrains_Mono } from "next/font/google";
 
 /* Variable. `opsz` is carried deliberately: nothing sets font-optical-sizing, so
    the browser default of `auto` varies the design by font size, which is doing
-   real work between the 3xl contact email and the small italic motto. Dropping the
+   real work between the 2xl title line and the small italic motto. Dropping the
    axis would flatten that with no error. Italic is required by the motto and the
    section numerals. */
 export const fraunces = Fraunces({
@@ -34,27 +34,26 @@ export const fraunces = Fraunces({
   variable: "--font-fraunces",
 });
 
-/* The hero name only, so only the one weight it uses. Not `--font-sans`, for
-   the same reason as `--font-jetbrains` below. The link-preview card renders
-   the name from a committed static file of the same weight, see
-   src/assets/Geist-Medium.ttf. */
+/* The sans for everything that is not a serif accent or a label: body text at
+   400, the name and the contact email at 500. Only those two weights are
+   loaded. The link-preview card renders the name from a committed static file
+   of the 500 weight, see src/assets/Geist-Medium.ttf.
+
+   Variable names are not `--font-sans` / `--font-mono`: Tailwind 4 defines
+   theme variables with those names, so the two would compete and the result
+   would depend on cascade order. */
 export const geist = Geist({
   subsets: ["latin"],
-  weight: "500",
+  weight: ["400", "500"],
   display: "swap",
   variable: "--font-geist",
 });
 
-export const inter = Inter({
+/* Labels, dates, companies, tech tags, the footer. Designed alongside Geist,
+   so the two read as one family. Only weight 400 is used. */
+export const geistMono = Geist_Mono({
   subsets: ["latin"],
+  weight: "400",
   display: "swap",
-  variable: "--font-inter",
-});
-
-/* Not `--font-mono`: Tailwind 4 defines a theme variable of that name, so the
-   two would compete and the result would depend on cascade order. */
-export const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-jetbrains",
+  variable: "--font-geist-mono",
 });

@@ -315,7 +315,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
               by 6 instead of 5.81 leaves about 3% to spare. Capped at the
               previous 3.75rem (text-6xl). */}
           <h1
-            className="display name-gradient font-medium text-[length:min(3.75rem,calc((100vw_-_3rem)/6))] md:text-8xl leading-[0.95] md:leading-none"
+            className="name-gradient font-medium text-[length:min(3.75rem,calc((100vw_-_3rem)/6))] md:text-8xl leading-[0.95] md:leading-none"
             style={{ letterSpacing: "-0.04em" }}
           >
             Jacob J. Choi
@@ -548,7 +548,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </p>
         <a
           href={`mailto:${personalInfo.email}`}
-          className="serif name-gradient inline-block text-2xl md:text-3xl mt-4 focus-ring"
+          className="name-gradient inline-block font-medium tracking-[-0.02em] text-2xl md:text-3xl mt-4 focus-ring"
         >
           {personalInfo.email}
         </a>
