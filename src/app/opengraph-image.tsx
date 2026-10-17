@@ -3,14 +3,16 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * The link-preview card, generated at build time from the site's own tokens
- * rather than maintained as a separate exported image. A hand-made PNG drifts
- * from the design the first time a colour changes; this cannot.
+ * The link-preview card, generated at build time rather than maintained as a
+ * separate exported image, so its text, layout and fonts live in reviewable code.
  *
  * Rendered by Satori, which supports a subset of CSS. Notably it has no default
  * font, so one must be supplied explicitly, and it does not read globals.css, so
- * the palette below is duplicated deliberately. Keep it in step with
- * `--bg`, `--text-secondary` and the `.name-gradient` sweep.
+ * every colour below is a HAND COPY of a site value and can drift. Keep in step:
+ * `--bg`, `--text-secondary`, `--text-tertiary`, `--cyan` and `--violet`, the
+ * `.name-gradient` sweep (also the waveform stops below). The two vignettes are
+ * NOT copies of the body vignette in globals.css: they are stronger (alpha 0.10
+ * against 0.05) and the second uses #36ADEE where the body uses --cyan.
  *
  * Both fonts are STATIC files. Satori cannot render the variable fonts the site
  * loads (it fails with "Cannot read properties of undefined"). The name is set
@@ -49,7 +51,7 @@ export default async function Image() {
           position: "relative",
         }}
       >
-        {/* The faint iridescent vignette the site carries, flattened to one wash. */}
+        {/* The site's faint iridescent vignette, flattened to one wash per corner. */}
         <div
           style={{
             position: "absolute",
@@ -116,8 +118,10 @@ export default async function Image() {
         </div>
         </div>
 
-        {/* Portrait, subordinate to the type. Same rounded gradient frame the site
-            puts around it, so the card and the hero read as the same object. */}
+        {/* Portrait, subordinate to the type, in a rounded gradient frame that
+            echoes the hero's. Not a copy of it: this one uses the four-stop
+            SWEEP with padding 3 and radius 26, while the hero frame is a
+            three-stop 140deg gradient with p-[2px] and rounded-2xl. */}
         <div
           style={{
             display: "flex",

@@ -17,10 +17,11 @@
 # every platform rather than only on the ones that happen not to rewrite bytes.
 * text=auto eol=lf
 
-# Binaries must never be touched by end-of-line conversion. The fonts and the
-# headshot are hash-locked in scripts/asset-provenance.json, so a single rewritten
-# byte would break the provenance lock. Marked explicitly rather than relying on
-# Git's content heuristic, because the heuristic is not part of any contract.
+# Binaries must never be touched by end-of-line conversion. The fonts are
+# hash-locked in scripts/asset-provenance.json, so a single rewritten byte would
+# break the provenance lock; the images are not in that lock, but a rewritten byte
+# would still corrupt them. Marked explicitly rather than relying on Git's
+# content heuristic, because the heuristic is not part of any contract.
 *.ttf   -text
 *.woff2 -text
 *.JPG   -text

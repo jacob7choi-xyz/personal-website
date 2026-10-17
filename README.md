@@ -48,7 +48,7 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 ### Accessibility
 
 - `prefers-reduced-motion`: every animation jumps straight to its final state, with no movement. Content never depends on an animation finishing, with JavaScript disabled too. Enforced in CI by `npm run check:render`, which renders the built site in headless Chrome under reduced motion, without JavaScript and with normal motion, and fails if any section is not fully visible
-- `prefers-contrast: high` boosts the text tokens
+- `prefers-contrast: more` (the system "Increase contrast" setting) switches to brighter text tokens on a pure black background
 - Print styles strip backgrounds and force black text, including the gradient name
 - Semantic landmarks, a real `h1` to `h3` hierarchy, `aria-label` on every section
 - Visible focus rings on all interactive elements
