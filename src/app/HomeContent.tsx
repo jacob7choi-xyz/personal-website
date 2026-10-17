@@ -251,7 +251,8 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
      to keep hydration identical, then reconcile to the browser's year on mount.
      No-JS clients retain the build year until the next deployment, and a page
      left open does not update across the year boundary. Both are accepted.
-     (Mechanism and the React citation are in the project conventions doc.) */
+     suppressHydrationWarning is not a substitute: React does not patch
+     mismatched text (react.dev/reference/react-dom/client/hydrateRoot). */
   const [year, setYear] = useState(initialYear);
   /* Suppressed with a specific reason, not as a blanket exception.
      react-hooks/set-state-in-effect guards against CASCADING RENDERS. That cannot
@@ -427,7 +428,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </div>
       </Section>
 
-      {/* ---------------------------------------------------------- Path */}
+      {/* ----------------------------------------------------- Past Life */}
       <Section num={ROMAN[2]} label="Past Life">
         <ul>
           {pastExperience.map((e) => (
@@ -462,7 +463,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* --------------------------------------------------- Credentials */}
+      {/* ------------------------------------------ Honors & Credentials */}
       <Section num={ROMAN[3]} label="Honors & Credentials">
         <ul>
           {certifications.map((c) => (

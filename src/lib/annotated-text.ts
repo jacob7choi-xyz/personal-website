@@ -34,7 +34,7 @@
  * tuple and the type derived from it, so the compile-time vocabulary and the
  * runtime check cannot drift apart.
  */
-export const ACCENT_NAMES = ["cyan", "violetSoft"] as const;
+const ACCENT_NAMES = ["cyan", "violetSoft"] as const;
 export type Accent = (typeof ACCENT_NAMES)[number];
 
 /**

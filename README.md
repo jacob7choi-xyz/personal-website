@@ -128,7 +128,7 @@ src/
 │   ├── page.tsx                # Server component: computes the build year, renders HomeContent
 │   ├── HomeContent.tsx         # The page itself, all sections
 │   ├── fonts.ts                # next/font declarations, self hosted at build time
-│   ├── opengraph-image.tsx     # Link preview card, generated at build time from the design tokens
+│   ├── opengraph-image.tsx     # Link preview card, generated at build time (colours hand copied from globals.css)
 │   ├── robots.ts               # Generates /robots.txt
 │   ├── sitemap.ts              # Generates /sitemap.xml
 │   └── globals.css             # Design tokens, component classes, a11y and print
