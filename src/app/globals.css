@@ -210,7 +210,10 @@ body {
   }
 }
 
-@media (prefers-contrast: high) {
+/* `more` is the value browsers report when a visitor turns on increased
+   contrast. This block said `high` until 2026-10-16, which is not a value the
+   spec defines (no-preference, more, less, custom), so it never applied. */
+@media (prefers-contrast: more) {
   :root {
     --text-primary: #FFFFFF;
     --text-secondary: #C9C5BD;
