@@ -569,7 +569,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
       {/* -------------------------------------------------------- Footer */}
       <footer
-        className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono meta"
+        className="mt-12 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono meta"
         style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
       >
         <span className="flex items-center gap-2.5">
