@@ -38,10 +38,10 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 | Section | Content |
 |---------|---------|
 | Hero | Headshot, name, AI Engineer x Musician, motto, waveform, lead paragraphs |
-| I. Now | Current role and degree |
-| II. Selected Work | Projects with descriptions and tech tags |
-| III. Past | Prior professional and research experience |
-| IV. Competitions & Stage | Entrepreneurship competitions and performance history |
+| I. Currently | Current role and degree |
+| II. Projects | Projects with descriptions and tech tags |
+| III. Past Life | Prior professional and research experience |
+| IV. Beyond Work | Entrepreneurship competitions and performance history |
 | V. Honors & Credentials | Certifications and awards |
 | VI. Contact | Email and social links |
 
