@@ -106,11 +106,15 @@ body {
     line-height: 1.5;
   }
 
+  /* 14px, except on phones narrower than ~374px, where 3.75vw takes over so
+     the longest label, "Honors & Credentials", stays on one line next to its
+     numeral (14px wraps it at 320px; 12px fits). Measured, not estimated:
+     change the tracking or a label and re-check at 320px. */
   .eyebrow {
-    font-size: 0.6875rem;
-    letter-spacing: 0.28em;
+    font-size: min(0.875rem, 3.75vw);
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--text-tertiary);
+    color: var(--violet);
   }
 
   .ink-link {

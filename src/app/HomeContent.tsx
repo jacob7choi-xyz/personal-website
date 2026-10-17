@@ -215,7 +215,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section aria-label={label} className="mt-20 md:mt-24">
+    <section aria-label={label} className="mt-14 md:mt-16">
       <Reveal>
         <Marker num={num} label={label} />
       </Reveal>
@@ -462,36 +462,8 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* --------------------------------------------------- Beyond Work */}
-      {/* Named by domain, not by prestige, for two reasons. It has to describe
-          BOTH groups in achievementGroups (entrepreneurship competitions as well
-          as performance), and it has to stay distinguishable from section V,
-          "Honors & Credentials". Synonyms of "honors" such as "Achievements"
-          fail the second test. */}
-      <Section num={ROMAN[3]} label="Beyond Work">
-        <div>
-          {achievementGroups.map((group) => (
-            <div key={group.id} className={ROW_Y} style={{ borderBottom: rule }}>
-              <h3 className="serif item-title mb-2">{group.title}</h3>
-              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono meta">
-                {group.items.map((it, idx) => (
-                  <li key={idx} className="flex items-center gap-2">
-                    <span style={{ color: "var(--text-secondary)" }}>
-                      <ExternalOrText link={it.link}>{it.text}</ExternalOrText>
-                    </span>
-                    {idx < group.items.length - 1 && (
-                      <span style={{ color: "var(--text-tertiary)" }}>·</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </Section>
-
       {/* --------------------------------------------------- Credentials */}
-      <Section num={ROMAN[4]} label="Honors & Credentials">
+      <Section num={ROMAN[3]} label="Honors & Credentials">
         <ul>
           {certifications.map((c) => (
             <li
@@ -534,6 +506,34 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
+      {/* --------------------------------------------------- Beyond Work */}
+      {/* Named by domain, not by prestige, for two reasons. It has to describe
+          BOTH groups in achievementGroups (entrepreneurship competitions as well
+          as performance), and it has to stay distinguishable from section IV,
+          "Honors & Credentials". Synonyms of "honors" such as "Achievements"
+          fail the second test. */}
+      <Section num={ROMAN[4]} label="Beyond Work">
+        <div>
+          {achievementGroups.map((group) => (
+            <div key={group.id} className={ROW_Y} style={{ borderBottom: rule }}>
+              <h3 className="serif item-title mb-2">{group.title}</h3>
+              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mono meta">
+                {group.items.map((it, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      <ExternalOrText link={it.link}>{it.text}</ExternalOrText>
+                    </span>
+                    {idx < group.items.length - 1 && (
+                      <span style={{ color: "var(--text-tertiary)" }}>·</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Section>
+
       {/* ------------------------------------------------------- Contact */}
       <Section num={ROMAN[5]} label="Contact">
         {/* pt-5 matches the ROW_Y top padding every other section opens with,
@@ -569,7 +569,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
       {/* -------------------------------------------------------- Footer */}
       <footer
-        className="mt-24 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono meta"
+        className="mt-12 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mono meta"
         style={{ borderTop: "1px solid var(--rule)", color: "var(--text-tertiary)" }}
       >
         <span className="flex items-center gap-2.5">
