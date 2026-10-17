@@ -12,8 +12,9 @@
  *
  * What it does: serves the existing production build (`next start`, bound to
  * 127.0.0.1 only), drives headless Chrome over the DevTools protocol, and for
- * each case asserts that the hero and every section are fully visible, the
- * waveform is drawn, nothing overflows horizontally, and the console carries no
+ * each case asserts that the hero and every section (heading and body) are
+ * fully visible, the waveform is drawn, the name and every section label sit
+ * on one line, nothing overflows horizontally, and the console carries no
  * unexpected errors.
  *
  *   npm run build && npm run check:render
@@ -37,13 +38,21 @@ const CHROME_START_TIMEOUT_MS = 60_000;
 
 /* Cases chosen to cover the failure that shipped: no-motion paths at both
    breakpoints, plus normal motion so the check also proves the animated path
-   still ends visible after the reveals fire. */
+   still ends visible after the reveals fire. 320px is the narrowest width the
+   fluid type was measured at: the name and the longest section label
+   ("Honors & Credentials") shrink with the viewport there and should stay on
+   one line. "print" emulates print media on an unscrolled page, where blocks
+   below the fold are still at their opacity-0 starting state. Before the
+   2026-10-17 fix, Chrome's print to PDF of such a page left every section
+   after the hero blank. */
 const CASES = [
+  { motion: "reduce", width: 320 },
   { motion: "reduce", width: 390 },
   { motion: "reduce", width: 1440 },
   { motion: "nojs", width: 390 },
   { motion: "nojs", width: 1440 },
   { motion: "no-preference", width: 1440 },
+  { motion: "print", width: 1440 },
 ];
 
 /* Console lines that are expected locally and are not defects. Speed Insights
@@ -191,7 +200,13 @@ async function openPage(devtoolsPort) {
 const PROBE = `(() => {
   const opacity = (el) => (el ? Number(getComputedStyle(el).opacity) : -1);
   const hero = [...document.querySelectorAll('header > div')].map(opacity);
-  const sections = [...document.querySelectorAll('section')].map((s) => opacity(s.children[1]));
+  // Each section is [Reveal(heading), Reveal(body)]; both must end visible.
+  const sections = [...document.querySelectorAll('section')].map((s) => Math.min(opacity(s.children[0]), opacity(s.children[1])));
+  // Rendered lines of text: height over line height, rounded.
+  const lines = (el) => Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight));
+  const wrapped = [document.querySelector('h1'), ...document.querySelectorAll('section h2')]
+    .filter((el) => el && lines(el) > 1)
+    .map((el) => el.textContent);
   const wave = document.querySelector('svg[viewBox="0 0 1000 70"] path');
   const dash = wave ? getComputedStyle(wave).strokeDasharray : null;
   return {
@@ -199,6 +214,7 @@ const PROBE = `(() => {
     sections,
     waveOpacity: opacity(wave),
     waveDrawn: dash === 'none' || dash === '1px, 1px',
+    wrapped,
     overflowX: document.documentElement.scrollWidth > innerWidth,
   };
 })()`;
@@ -207,12 +223,14 @@ async function runCase(devtoolsPort, { motion, width }) {
   const label = `${motion} @ ${width}px`;
   const page = await openPage(devtoolsPort);
   const noJs = motion === "nojs";
+  const print = motion === "print";
   await page.send("Runtime.enable");
   await page.send("Page.enable");
   await page.send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: width < 500 });
   if (noJs) await page.send("Emulation.setScriptExecutionDisabled", { value: true });
   await page.send("Emulation.setEmulatedMedia", {
-    features: [{ name: "prefers-reduced-motion", value: noJs ? "no-preference" : motion }],
+    media: print ? "print" : "",
+    features: [{ name: "prefers-reduced-motion", value: noJs || print ? "no-preference" : motion }],
   });
   await page.send("Page.navigate", { url: `${BASE}?check=${motion}-${width}` });
   await sleep(3500);
@@ -238,6 +256,7 @@ async function runCase(devtoolsPort, { motion, width }) {
   if (r.sections.length === 0) problems.push("no sections found");
   if (r.sections.some((o) => o < 0.99)) problems.push(`section(s) not fully visible: ${JSON.stringify(r.sections)}`);
   if (r.waveOpacity < 0.99 || !r.waveDrawn) problems.push(`waveform not drawn (opacity ${r.waveOpacity})`);
+  if (r.wrapped.length) problems.push(`wraps onto a second line: ${JSON.stringify(r.wrapped)}`);
   if (r.overflowX) problems.push("horizontal overflow");
   const unexpected = page.consoleLines.filter((line) => !EXPECTED_CONSOLE.some((ok) => line.startsWith(ok)));
   if (unexpected.length) problems.push(`unexpected console output: ${JSON.stringify(unexpected.slice(0, 3))}`);

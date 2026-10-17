@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { signaturePath, signatureBox } from "@/constants/signature";
+import { SWEEP_STOPS } from "@/lib/sweep";
 
 // The signature path (letters + cursive connectors + flourish) is fully
 // generated upstream as one continuous path. We just draw it on with the
@@ -60,10 +61,9 @@ export default function SignatureMark({ className }: { className: string }) {
     >
       <defs>
         <linearGradient id="sigGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#FF9E8A" />
-          <stop offset="34%" stopColor="#54E09C" />
-          <stop offset="64%" stopColor="#2FD2CE" />
-          <stop offset="100%" stopColor="#36ADEE" />
+          {SWEEP_STOPS.map((s) => (
+            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+          ))}
         </linearGradient>
       </defs>
       <path

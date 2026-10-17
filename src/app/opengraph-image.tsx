@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { sweepGradient, SWEEP_STOPS } from "@/lib/sweep";
 
 /**
  * The link-preview card, generated at build time rather than maintained as a
@@ -9,8 +10,9 @@ import { join } from "node:path";
  * Rendered by Satori, which supports a subset of CSS. Notably it has no default
  * font, so one must be supplied explicitly, and it does not read globals.css, so
  * every colour below is a HAND COPY of a site value and can drift. Keep in step:
- * `--bg`, `--text-secondary`, `--text-tertiary`, `--cyan` and `--violet`, the
- * `.name-gradient` sweep (also the waveform stops below). The two vignettes are
+ * `--bg`, `--text-secondary`, `--text-tertiary`, `--cyan` and `--violet`. The
+ * sweep is the exception: it comes from src/lib/sweep.ts, shared with the
+ * page. The two vignettes are
  * NOT copies of the body vignette in globals.css: they are stronger (alpha 0.10
  * against 0.05) and the second uses #36ADEE where the body uses --cyan.
  *
@@ -24,8 +26,8 @@ export const alt = "Jacob J. Choi, AI Engineer x Musician";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/* Same four stops as .name-gradient in globals.css. */
-const SWEEP = "linear-gradient(100deg, #FF9E8A 0%, #54E09C 34%, #2FD2CE 64%, #36ADEE 100%)";
+/* Same angle and stops as .name-gradient in globals.css. */
+const SWEEP_BG = sweepGradient(100);
 const BG = "#0a0a0c";
 const TEXT_SECONDARY = "#9A958C";
 
@@ -81,7 +83,7 @@ export default async function Image() {
             fontSize: 112,
             lineHeight: 1.05,
             letterSpacing: "-0.04em",
-            backgroundImage: SWEEP,
+            backgroundImage: SWEEP_BG,
             backgroundClip: "text",
             color: "transparent",
           }}
@@ -127,7 +129,7 @@ export default async function Image() {
             display: "flex",
             padding: 3,
             borderRadius: 26,
-            backgroundImage: SWEEP,
+            backgroundImage: SWEEP_BG,
           }}
         >
           <img
@@ -152,10 +154,9 @@ export default async function Image() {
         >
           <defs>
             <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#FF9E8A" />
-              <stop offset="34%" stopColor="#54E09C" />
-              <stop offset="64%" stopColor="#2FD2CE" />
-              <stop offset="100%" stopColor="#36ADEE" />
+              {SWEEP_STOPS.map((s) => (
+                <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+              ))}
             </linearGradient>
           </defs>
           <path

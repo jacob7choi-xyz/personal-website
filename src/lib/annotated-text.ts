@@ -34,7 +34,7 @@
  * tuple and the type derived from it, so the compile-time vocabulary and the
  * runtime check cannot drift apart.
  */
-export const ACCENT_NAMES = ["cyan", "violetSoft"] as const;
+const ACCENT_NAMES = ["cyan", "violetSoft"] as const;
 export type Accent = (typeof ACCENT_NAMES)[number];
 
 /**
@@ -100,9 +100,10 @@ export function assertNever(value: never): never {
 /**
  * Parse, validate, then return the CANONICAL form. Validating one value and
  * rendering a different one is the pattern worth avoiding, even when they happen
- * to be identical today.
+ * to be identical today. Exported so scripts/validate-content.ts applies the
+ * same rule to every other link in the content, not a second copy of it.
  */
-function parseHttpsUrl(href: string, phrase: string): HttpsUrl {
+export function parseHttpsUrl(href: string, phrase: string): HttpsUrl {
   let url: URL;
   try {
     url = new URL(href);

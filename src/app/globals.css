@@ -29,6 +29,10 @@
   --text-tertiary: #7D7870;  /* 4.51:1 on --bg, the WCAG AA floor for small text */
   --rule: rgba(255, 255, 255, 0.09);
   --rule-soft: rgba(255, 255, 255, 0.05);
+
+  /* The GitHub and X marks, which have no brand colour of their own. A token
+     so print can turn them dark; they vanished on paper as #F0F0F0. */
+  --icon-mono: #F0F0F0;
 }
 
 * {
@@ -72,7 +76,9 @@ body {
 }
 
 @layer components {
-  /* The name: iridescent oil-slick sweep, coral -> green -> teal -> blue */
+  /* The name: iridescent oil-slick sweep, coral -> green -> teal -> blue. The
+     same stops live in src/lib/sweep.ts for everything rendered from TS; CSS
+     cannot import it, so keep the two in step. */
   .name-gradient {
     background: linear-gradient(100deg, #FF9E8A 0%, #54E09C 34%, #2FD2CE 64%, #36ADEE 100%);
     -webkit-background-clip: text;
@@ -222,6 +228,20 @@ body {
 }
 
 @media print {
+  /* Dark-theme text tokens are light, so on paper they printed faint (the
+     lead paragraph at 1.2:1). Text colours come from these tokens, mostly via
+     inline styles, so overriding the tokens reaches all of it. Accents keep
+     their hue, darkened: green 6.3:1, teal 7.2:1 on white. */
+  :root {
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-tertiary: #555555;
+    --violet: #0B6E4F;
+    --violet-soft: #0B6E4F;
+    --cyan: #0B5F7A;
+    --cyan-soft: #0B5F7A;
+    --icon-mono: #000000;
+  }
   body {
     background: white !important;
     color: black !important;

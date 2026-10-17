@@ -110,25 +110,26 @@ Stop the dev server before running a production build. Building while `next dev`
 .github/workflows/ci.yml        # The gate: lint, types, tests, provenance, build, rendered check, advisories
 docs/AUDIT-2026-07.md           # Canonical audit record
 docs/adr/                       # Architecture decision records
-public/                         # Headshot, favicon
+public/                         # Headshot
 scripts/
 ├── generate-signature.cjs      # Offline generator for the signature path
 ├── GreatVibes.ttf              # Font it reads
 ├── GreatVibes-OFL.txt          # Its licence, which must travel with the font
 ├── GreatVibes-PROVENANCE.md    # Where the font came from, pinned upstream and hashes
-├── asset-provenance.json       # Recorded hashes for committed binary assets
+├── asset-provenance.json       # Recorded hashes for the committed third-party fonts and licences
 ├── verify-provenance.mjs       # Asset lock: committed files must match the record
 ├── audit-check.mjs             # Fail-closed dependency advisory gate
 ├── audit-check.test.mjs        # Adversarial fixtures for that gate
-├── check-render.mjs            # Headless Chrome: every section visible under reduced motion and without JS
-└── validate-content.ts         # Validates the real annotated site copy
+├── check-render.mjs            # Headless Chrome: every section visible under reduced motion, without JS and in print; no wrapping at 320px
+└── validate-content.ts         # Validates the real site copy: annotations, every link, non-empty lists
 src/
 ├── app/
-│   ├── layout.tsx              # Root layout, metadata, canonical, favicon, Speed Insights
+│   ├── layout.tsx              # Root layout, metadata, canonical, no-JS and print fallbacks, Speed Insights
 │   ├── page.tsx                # Server component: computes the build year, renders HomeContent
 │   ├── HomeContent.tsx         # The page itself, all sections
 │   ├── fonts.ts                # next/font declarations, self hosted at build time
-│   ├── opengraph-image.tsx     # Link preview card, generated at build time from the design tokens
+│   ├── favicon.ico             # 16, 32 and 48px; Next serves it at /favicon.ico and links it
+│   ├── opengraph-image.tsx     # Link preview card, generated at build time (colours hand copied from globals.css, except the sweep)
 │   ├── robots.ts               # Generates /robots.txt
 │   ├── sitemap.ts              # Generates /sitemap.xml
 │   └── globals.css             # Design tokens, component classes, a11y and print
@@ -142,7 +143,8 @@ src/
 │       └── SignatureMark.tsx   # Self drawing footer signature
 ├── lib/
 │   ├── annotated-text.ts       # Compiles bio prose plus annotations into typed segments
-│   └── annotated-text.test.ts  # Direct tests for that compiler
+│   ├── annotated-text.test.ts  # Direct tests for that compiler
+│   └── sweep.ts                # The iridescent gradient stops, shared by every TS renderer
 └── constants/
     ├── index.ts                # Barrel exports
     ├── socials.ts              # personalInfo, socialLinks, bio prose and its annotations

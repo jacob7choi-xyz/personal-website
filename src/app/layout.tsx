@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
 };
 
+// The animated end state, forced. One string for both uses below so the two
+// stay identical. The selectors match the server-rendered starting styles,
+// which were observed to stay in the DOM unchanged until an element is
+// revealed (live page, 2026-10-17).
+const END_STATE = `[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,14 +44,18 @@ export default function RootLayout({
     // declared on that same element in every case.
     <html lang="en" className={`${geist.variable} ${geistMono.variable} ${fraunces.variable}`}>
       <head>
-        <link rel="icon" href="/Jacob-Choi-Website-Logo.ico" />
         {/* Without JavaScript nothing animates, so the opacity-0 starting state
             the server renders for every animated block would never clear. This
             shows the end state instead: animated wrappers, the waveform, and
             the footer signature. Inert whenever scripts run. */}
         <noscript>
-          <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}`}</style>
+          <style>{END_STATE}</style>
         </noscript>
+        {/* Printing has the same problem with JavaScript on: blocks reveal on
+            scroll, so anything not yet scrolled into view stays hidden. In
+            Chrome's print to PDF of an unscrolled page (2026-10-17) every
+            section after the hero and the signature came out blank. */}
+        <style media="print">{END_STATE}</style>
       </head>
       <body>
         {children}

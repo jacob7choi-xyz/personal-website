@@ -1,12 +1,13 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
 
 import SignatureMark from "@/components/Global/SignatureMark";
 import { assertNever, type Accent, type Segment } from "@/lib/annotated-text";
+import { SWEEP, SWEEP_STOPS } from "@/lib/sweep";
 import {
   currentExperience,
   pastExperience,
@@ -22,9 +23,9 @@ import {
 /* Exhaustive over SocialName, so an unsupported network cannot compile rather
    than rendering as an invisible link. */
 const SOCIALS: Record<SocialName, { icon: React.ReactNode; color: string }> = {
-  GitHub: { icon: <FaGithub />, color: "#F0F0F0" },
+  GitHub: { icon: <FaGithub />, color: "var(--icon-mono)" },
   LinkedIn: { icon: <FaLinkedinIn />, color: "#3B9CE0" },
-  X: { icon: <FaXTwitter />, color: "#F0F0F0" },
+  X: { icon: <FaXTwitter />, color: "var(--icon-mono)" },
   Instagram: { icon: <FaInstagram />, color: "#E4405F" },
   YouTube: { icon: <FaYoutube />, color: "#FF3D3D" },
 };
@@ -152,13 +153,12 @@ function Waveform() {
     >
       <defs>
         <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#FF9E8A" />
-          <stop offset="34%" stopColor="#54E09C" />
-          <stop offset="64%" stopColor="#2FD2CE" />
-          <stop offset="100%" stopColor="#36ADEE" />
+          {SWEEP_STOPS.map((s) => (
+            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+          ))}
         </linearGradient>
       </defs>
-      <motion.path
+      <m.path
         d={WAVE_PATH}
         fill="none"
         stroke="url(#voice)"
@@ -181,7 +181,7 @@ function Reveal({
 }) {
   const reduce = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={reduce ? { opacity: 1, y: 0 } : undefined}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -189,7 +189,7 @@ function Reveal({
       transition={reduce ? INSTANT : { duration: 0.5, ease: [0.22, 0.61, 0.36, 1], delay }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -246,12 +246,26 @@ function ExternalOrText({
   );
 }
 
+/* LazyMotion + `m` ships only the domAnimation feature set (animations,
+   variants, gestures including whileInView), not the full `motion` bundle
+   (drag, pan, layout animation), none of which this page uses. `strict` makes a
+   stray `motion.*` component throw instead of quietly pulling the full bundle
+   back in. */
 export default function HomeContent({ initialYear }: { initialYear: number }) {
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <Page initialYear={initialYear} />
+    </LazyMotion>
+  );
+}
+
+function Page({ initialYear }: { initialYear: number }) {
   /* The route is statically prerendered, so seed the client with the build year
      to keep hydration identical, then reconcile to the browser's year on mount.
      No-JS clients retain the build year until the next deployment, and a page
      left open does not update across the year boundary. Both are accepted.
-     (Mechanism and the React citation are in the project conventions doc.) */
+     suppressHydrationWarning is not a substitute: React does not patch
+     mismatched text (react.dev/reference/react-dom/client/hydrateRoot). */
   const [year, setYear] = useState(initialYear);
   /* Suppressed with a specific reason, not as a blanket exception.
      react-hooks/set-state-in-effect guards against CASCADING RENDERS. That cannot
@@ -271,7 +285,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
     <main className="mx-auto max-w-3xl px-6 md:px-8 py-16 md:py-24">
       {/* ---------------------------------------------------------- Hero */}
       <header>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? INSTANT : { duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
@@ -279,7 +293,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           <div
             className="mb-8 inline-block rounded-2xl p-[2px]"
             style={{
-              background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
+              background: `linear-gradient(140deg, ${SWEEP.coral}, ${SWEEP.green} 45%, ${SWEEP.blue})`,
               boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
             }}
           >
@@ -332,18 +346,18 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           >
             {personalInfo.status}
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           className="mt-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={reduce ? INSTANT : { duration: 0.8, delay: 0.3 }}
         >
           <Waveform />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           className={`mt-10 ${PROSE} space-y-5`}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -355,7 +369,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           <p className="body-copy" style={{ color: "var(--text-secondary)" }}>
             <AnnotatedText segments={personalInfo.bio.focus.segments} />
           </p>
-        </motion.div>
+        </m.div>
       </header>
 
       {/* ----------------------------------------------------- Currently */}
@@ -427,7 +441,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </div>
       </Section>
 
-      {/* ---------------------------------------------------------- Path */}
+      {/* ----------------------------------------------------- Past Life */}
       <Section num={ROMAN[2]} label="Past Life">
         <ul>
           {pastExperience.map((e) => (
@@ -462,7 +476,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* --------------------------------------------------- Credentials */}
+      {/* ------------------------------------------ Honors & Credentials */}
       <Section num={ROMAN[3]} label="Honors & Credentials">
         <ul>
           {certifications.map((c) => (

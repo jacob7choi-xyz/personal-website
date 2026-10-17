@@ -3,8 +3,8 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-10-16.** One accepted risk exception, expiring
-2026-11-07. Every entry must carry an expiry, because a risk acceptance without
+**Evidence date: 2026-10-17.** One accepted risk exception, expiring
+2026-12-07. Every entry must carry an expiry, because a risk acceptance without
 one becomes a permanent blind spot. On expiry the gate fails until that entry is
 re-reviewed. That is intentional.
 
@@ -38,7 +38,8 @@ for expiry:
 
 ## Current dispositions
 
-One entry, accepted 2026-10-07 and expiring **2026-11-07** (exclusive). The
+One entry, accepted 2026-10-07, re-reviewed and renewed 2026-10-17, expiring
+**2026-12-07** (exclusive). The
 package is marked dev by npm, and `npm audit --omit=dev` reports zero
 advisories. That is the npm view; the execution-phase view, which is the one that
 matters, is stated in the entry.
@@ -67,6 +68,25 @@ reachable, lower priority, not zero.
 **At expiry, re-check in this order:** a patched `braces` release; an
 `eslint-config-next` release that changes the path. If neither has landed, re-review against the assumptions and either renew with a new
 date or escalate. Do not renew by editing the date alone.
+
+**Re-review, 2026-10-17 (renewed to 2026-12-07).** Neither condition has landed:
+- The advisory (GitHub `/advisories/GHSA-vfj7-8cjw-p6xm`, updated 2026-10-02,
+  not withdrawn) still lists affected `<= 3.0.3` with no first patched
+  version, and `npm view braces version` is 3.0.3.
+- The newest `eslint-config-next`, 16.4.2, depends on `@next/eslint-plugin-next`
+  16.4.2, which still pins `fast-glob` 3.3.1. Upgrading would not change the
+  path. The installed path is unchanged: `npm ls braces` gives
+  eslint-config-next 16.4.1 -> @next/eslint-plugin-next 16.4.1 -> fast-glob
+  3.3.1 -> micromatch 4.0.8 -> braces 3.0.3.
+- The assumptions still hold. Brace patterns come only from the
+  developer-authored ESLint config. The production-graph audit is clean.
+  No new advisory identities appeared.
+
+Renewed for one month, the same cadence as the original acceptance. Not
+"forever until fixed".
+
+`npm audit fix --force` proposes `eslint-config-next` 14.2.35, a major
+DOWNGRADE of the linter. Do not take it.
 
 ### Why not force the versions with `overrides`
 
