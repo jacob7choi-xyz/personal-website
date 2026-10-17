@@ -53,6 +53,32 @@
       "licence": "SIL Open Font License 1.1",
       "reviewed": "2026-07-31",
       "why": "The OFL requires the licence to accompany the font, including derived instances. Fraunces declares no Reserved Font Name, so a derived instance may keep the family name."
+    },
+    {
+      "file": "src/assets/Geist-Medium.ttf",
+      "sha256": "3a3b36f0d0b981f4857f7f00eeef4a5ee123605575d362ab31ee7c19e3d11f2f",
+      "bytes": 127660,
+      "upstream": {
+        "repository": "vercel/geist-font",
+        "commit": "a73329da8fc62afc917f796555202e4997f79b7c",
+        "path": "fonts/Geist/ttf/Geist-Medium.ttf"
+      },
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-10-16",
+      "why": "Read by src/app/opengraph-image.tsx so the name on the link-preview card matches the hero. Upstream's own STATIC Medium, committed unmodified (Satori cannot render the variable font). Commit is tag v1.7.2; its git blob sha 492b319a5ecd257d01264061522224a144564b0c matched the GitHub contents API at review. Build-time only; never shipped to visitors."
+    },
+    {
+      "file": "src/assets/Geist-OFL.txt",
+      "sha256": "c683bfbcc7e087f5d37a54ef628f10387c451a83ddc459b151403a164ac46c90",
+      "bytes": 4383,
+      "upstream": {
+        "repository": "vercel/geist-font",
+        "commit": "a73329da8fc62afc917f796555202e4997f79b7c",
+        "path": "OFL.txt"
+      },
+      "licence": "SIL Open Font License 1.1",
+      "reviewed": "2026-10-16",
+      "why": "The OFL requires the licence to accompany the font. Taken from the same upstream commit as the binary. Declares no Reserved Font Name."
     }
   ]
 }
