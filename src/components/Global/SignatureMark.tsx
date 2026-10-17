@@ -9,7 +9,7 @@ import { signaturePath, signatureBox } from "@/constants/signature";
 // canonical pathLength="1" + stroke-dashoffset technique (no per-frame JS).
 const DRAW_MS = 2000;
 
-export default function SignatureMark({ className = "w-full h-auto" }: { className?: string }) {
+export default function SignatureMark({ className }: { className: string }) {
   const ref = useRef<SVGSVGElement>(null);
   const reduce = useReducedMotion();
   const [drawn, setDrawn] = useState(false);

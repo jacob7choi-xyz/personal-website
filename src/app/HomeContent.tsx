@@ -175,16 +175,13 @@ function Waveform() {
 function Reveal({
   children,
   delay = 0,
-  className,
 }: {
   children: React.ReactNode;
   delay?: number;
-  className?: string;
 }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
-      className={className}
       initial={{ opacity: 0, y: 16 }}
       animate={reduce ? { opacity: 1, y: 0 } : undefined}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
