@@ -7,6 +7,7 @@ import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "reac
 
 import SignatureMark from "@/components/Global/SignatureMark";
 import { assertNever, type Accent, type Segment } from "@/lib/annotated-text";
+import { SWEEP, SWEEP_STOPS } from "@/lib/sweep";
 import {
   currentExperience,
   pastExperience,
@@ -152,10 +153,9 @@ function Waveform() {
     >
       <defs>
         <linearGradient id="voice" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#FF9E8A" />
-          <stop offset="34%" stopColor="#54E09C" />
-          <stop offset="64%" stopColor="#2FD2CE" />
-          <stop offset="100%" stopColor="#36ADEE" />
+          {SWEEP_STOPS.map((s) => (
+            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+          ))}
         </linearGradient>
       </defs>
       <motion.path
@@ -280,7 +280,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           <div
             className="mb-8 inline-block rounded-2xl p-[2px]"
             style={{
-              background: "linear-gradient(140deg, #FF9E8A, #54E09C 45%, #36ADEE)",
+              background: `linear-gradient(140deg, ${SWEEP.coral}, ${SWEEP.green} 45%, ${SWEEP.blue})`,
               boxShadow: "0 10px 44px rgba(60, 180, 140, 0.28)",
             }}
           >

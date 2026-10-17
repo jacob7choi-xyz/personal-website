@@ -76,7 +76,9 @@ body {
 }
 
 @layer components {
-  /* The name: iridescent oil-slick sweep, coral -> green -> teal -> blue */
+  /* The name: iridescent oil-slick sweep, coral -> green -> teal -> blue. The
+     same stops live in src/lib/sweep.ts for everything rendered from TS; CSS
+     cannot import it, so keep the two in step. */
   .name-gradient {
     background: linear-gradient(100deg, #FF9E8A 0%, #54E09C 34%, #2FD2CE 64%, #36ADEE 100%);
     -webkit-background-clip: text;
