@@ -330,7 +330,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           </p>
 
           <p
-            className="serif italic text-lg mt-2"
+            className="serif italic text-lg mt-5"
             style={{ color: "var(--text-secondary)" }}
           >
             {personalInfo.status}
@@ -338,7 +338,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </motion.div>
 
         <motion.div
-          className="mt-10"
+          className="mt-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={reduce ? INSTANT : { duration: 0.8, delay: 0.3 }}
