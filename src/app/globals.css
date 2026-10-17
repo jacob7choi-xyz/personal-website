@@ -114,7 +114,7 @@ body {
     font-size: min(0.875rem, 3.75vw);
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--text-tertiary);
+    color: var(--violet);
   }
 
   .ink-link {
