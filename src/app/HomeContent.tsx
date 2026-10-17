@@ -224,24 +224,30 @@ function Section({
   );
 }
 
-function ExternalOrText({
-  link,
-  children,
-  variant = "meta",
-}: {
-  link?: string;
-  children: React.ReactNode;
-  variant?: "meta" | "ink";
-}) {
+function ExternalOrText({ link, children }: { link?: string; children: React.ReactNode }) {
   if (!link) return <>{children}</>;
   return (
-    <a
-      className={variant === "ink" ? "ink-link" : "meta-link"}
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a className="meta-link" href={link} target="_blank" rel="noopener noreferrer">
       {children}
+    </a>
+  );
+}
+
+/* A list title that may link out. Linked titles carry a small arrow instead of
+   an underline. The last word and the arrow share a nowrap span so a title
+   that wraps keeps the arrow beside its last word: without it the arrow sat
+   alone on its own line for three titles at 320 and 360px (measured
+   2026-10-17). */
+function TitleLink({ link, title }: { link?: string; title: string }) {
+  if (!link) return <>{title}</>;
+  const cut = title.lastIndexOf(" ") + 1;
+  return (
+    <a className="title-link" href={link} target="_blank" rel="noopener noreferrer">
+      {title.slice(0, cut)}
+      <span className="whitespace-nowrap">
+        {title.slice(cut)}
+        <span className="title-arrow" aria-hidden="true" />
+      </span>
     </a>
   );
 }
@@ -452,9 +458,7 @@ function Page({ initialYear }: { initialYear: number }) {
             >
               <span className="sm:shrink-0">
                 <span className="serif item-title">
-                  <ExternalOrText link={e.link} variant="ink">
-                    {e.title}
-                  </ExternalOrText>
+                  <TitleLink link={e.link} title={e.title} />
                 </span>
                 {e.mentorText && (
                   <span
@@ -486,9 +490,7 @@ function Page({ initialYear }: { initialYear: number }) {
               style={{ borderBottom: rule }}
             >
               <span className="serif item-title sm:shrink-0">
-                <ExternalOrText link={c.link} variant="ink">
-                  {c.title}
-                </ExternalOrText>
+                <TitleLink link={c.link} title={c.title} />
               </span>
               <span
                 className="mono meta sm:text-right"
@@ -505,9 +507,7 @@ function Page({ initialYear }: { initialYear: number }) {
               style={{ borderBottom: rule }}
             >
               <span className="serif item-title sm:shrink-0">
-                <ExternalOrText link={a.link} variant="ink">
-                  {a.title}
-                </ExternalOrText>
+                <TitleLink link={a.link} title={a.title} />
               </span>
               <span
                 className="mono meta sm:text-right"
