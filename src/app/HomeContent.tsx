@@ -22,9 +22,9 @@ import {
 /* Exhaustive over SocialName, so an unsupported network cannot compile rather
    than rendering as an invisible link. */
 const SOCIALS: Record<SocialName, { icon: React.ReactNode; color: string }> = {
-  GitHub: { icon: <FaGithub />, color: "#F0F0F0" },
+  GitHub: { icon: <FaGithub />, color: "var(--icon-mono)" },
   LinkedIn: { icon: <FaLinkedinIn />, color: "#3B9CE0" },
-  X: { icon: <FaXTwitter />, color: "#F0F0F0" },
+  X: { icon: <FaXTwitter />, color: "var(--icon-mono)" },
   Instagram: { icon: <FaInstagram />, color: "#E4405F" },
   YouTube: { icon: <FaYoutube />, color: "#FF3D3D" },
 };
