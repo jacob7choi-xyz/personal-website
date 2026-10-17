@@ -41,8 +41,8 @@ Typography is one class per role, also in `globals.css`: `.lead`, `.body-copy`, 
 | I. Currently | Current role and degree |
 | II. Projects | Projects with descriptions and tech tags |
 | III. Past Life | Prior professional and research experience |
-| IV. Beyond Work | Entrepreneurship competitions and performance history |
-| V. Honors & Credentials | Certifications and awards |
+| IV. Honors & Credentials | Certifications and awards |
+| V. Beyond Work | Entrepreneurship competitions and performance history |
 | VI. Contact | Email and social links |
 
 ### Accessibility
