@@ -215,7 +215,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section aria-label={label} className="mt-20 md:mt-24">
+    <section aria-label={label} className="mt-14 md:mt-16">
       <Reveal>
         <Marker num={num} label={label} />
       </Reveal>
