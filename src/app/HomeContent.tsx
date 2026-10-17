@@ -358,8 +358,8 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </motion.div>
       </header>
 
-      {/* ----------------------------------------------------------- Now */}
-      <Section num={ROMAN[0]} label="Now">
+      {/* ----------------------------------------------------- Currently */}
+      <Section num={ROMAN[0]} label="Currently">
         <ul>
           {currentExperience.map((e) => (
             <li
@@ -379,8 +379,8 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* ------------------------------------------------- Selected Work */}
-      <Section num={ROMAN[1]} label="Selected Work">
+      {/* ------------------------------------------------------ Projects */}
+      <Section num={ROMAN[1]} label="Projects">
         <div>
           {projects.map((p) => (
             <a
@@ -428,7 +428,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
       </Section>
 
       {/* ---------------------------------------------------------- Path */}
-      <Section num={ROMAN[2]} label="Past">
+      <Section num={ROMAN[2]} label="Past Life">
         <ul>
           {pastExperience.map((e) => (
             <li
@@ -462,12 +462,13 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
         </ul>
       </Section>
 
-      {/* --------------------------------------- Competitions & Stage */}
+      {/* --------------------------------------------------- Beyond Work */}
       {/* Named by domain, not by prestige, for two reasons. It has to describe
           BOTH groups in achievementGroups (entrepreneurship competitions as well
           as performance), and it has to stay distinguishable from section V,
-          "Honors & Credentials". Synonyms of "honors" fail the second test. */}
-      <Section num={ROMAN[3]} label="Competitions & Stage">
+          "Honors & Credentials". Synonyms of "honors" such as "Achievements"
+          fail the second test. */}
+      <Section num={ROMAN[3]} label="Beyond Work">
         <div>
           {achievementGroups.map((group) => (
             <div key={group.id} className={ROW_Y} style={{ borderBottom: rule }}>
