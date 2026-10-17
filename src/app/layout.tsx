@@ -43,7 +43,6 @@ export default function RootLayout({
     // declared on that same element in every case.
     <html lang="en" className={`${geist.variable} ${geistMono.variable} ${fraunces.variable}`}>
       <head>
-        <link rel="icon" href="/Jacob-Choi-Website-Logo.ico" />
         {/* Without JavaScript nothing animates, so the opacity-0 starting state
             the server renders for every animated block would never clear. This
             shows the end state instead: animated wrappers, the waveform, and
