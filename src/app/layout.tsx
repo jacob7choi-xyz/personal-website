@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { fraunces, geist, inter, jetbrainsMono } from "./fonts";
+import { fraunces, geist, geistMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,11 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // The font classes define --font-fraunces / --font-geist / --font-inter / --font-jetbrains
+    // The font classes define --font-geist / --font-geist-mono / --font-fraunces
     // for the whole document. They belong on <html> rather than <body> because
     // globals.css sets a family on body itself, which would not see a variable
     // declared on that same element in every case.
-    <html lang="en" className={`${fraunces.variable} ${geist.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${fraunces.variable}`}>
       <head>
         <link rel="icon" href="/Jacob-Choi-Website-Logo.ico" />
         {/* Without JavaScript nothing animates, so the opacity-0 starting state

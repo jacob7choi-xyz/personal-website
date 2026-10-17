@@ -1,7 +1,6 @@
-/* Geist = the name, and only the name.
-   Fraunces = the musician's voice (engraved, expressive serif).
-   JetBrains Mono = the engineer's voice (precise, technical).
-   Inter = neutral connective body text.
+/* Two voices. Geist and Geist Mono, one family, carry the page: the name,
+   body text, labels and metadata. Fraunces is the musician's accent: the title
+   line, the motto, item titles and section numerals.
 
    Loaded by next/font in src/app/fonts.ts and self-hosted, so there is no
    @import here and no request to Google at page load. The families arrive as
@@ -47,7 +46,7 @@ html {
 body {
   color: var(--text-primary);
   background: var(--bg);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-geist), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -68,11 +67,7 @@ body {
   }
 
   .mono {
-    font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-  }
-
-  .display {
-    font-family: var(--font-geist), var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   }
 }
 
