@@ -33,6 +33,11 @@
   /* The GitHub and X marks, which have no brand colour of their own. A token
      so print can turn them dark; they vanished on paper as #F0F0F0. */
   --icon-mono: #F0F0F0;
+
+  /* Underline of inline links in the bio: off-white at low strength, so the
+     link is marked without a coloured line pulling the eye. Turns green on
+     hover. */
+  --link-line: rgba(236, 232, 225, 0.28);
 }
 
 * {
@@ -123,18 +128,50 @@ body {
     color: var(--violet);
   }
 
+  /* Inline links in running text keep an underline: link and surrounding bio
+     text differ by 2.44:1 in contrast. WCAG technique G183, one way to mark
+     links by colour alone, uses 3:1, so colour alone would likely fall short
+     of it here. */
   .ink-link {
     color: var(--text-primary);
     text-decoration: underline;
-    text-decoration-color: var(--violet);
+    text-decoration-color: var(--link-line);
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
-    transition: color 0.2s, text-decoration-color 0.2s;
+    transition: text-decoration-color 0.2s;
   }
 
   .ink-link:hover {
-    color: var(--violet-soft);
-    text-decoration-color: var(--cyan);
+    text-decoration-color: var(--violet);
+  }
+
+  /* Linked titles in lists: no underline, a small arrow after the title (the
+     same glyph as the project rows) marks them as links instead. Without a
+     marker, a linked title such as "Turing Test Simulation" would look the
+     same as the unlinked "Studied Abroad" above it. The arrow is a span drawn
+     with a mask, so it takes its colour from background-color; see TitleLink
+     in HomeContent.tsx for why it is an element and not ::after. */
+  .title-link {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .title-arrow {
+    content: "";
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    margin-left: 0.35em;
+    vertical-align: 0.1em;
+    background-color: var(--text-secondary);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7'/%3E%3Cpath d='M8 7h9v9'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7'/%3E%3Cpath d='M8 7h9v9'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: background-color 0.2s;
+  }
+
+  .title-link:hover .title-arrow,
+  .title-link:focus-visible .title-arrow {
+    background-color: var(--violet);
   }
 
   .meta-link {
@@ -224,6 +261,7 @@ body {
     --text-secondary: #C9C5BD;
     --text-tertiary: #B5B0A6; /* 9.73:1 on black; stays dimmer than secondary */
     --bg: #000000;
+    --link-line: rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -241,6 +279,7 @@ body {
     --cyan: #0B5F7A;
     --cyan-soft: #0B5F7A;
     --icon-mono: #000000;
+    --link-line: #555555;
   }
   body {
     background: white !important;
