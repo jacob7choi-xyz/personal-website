@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import { FaGithub, FaLinkedinIn, FaXTwitter, FaInstagram, FaYoutube } from "react-icons/fa6";
@@ -158,7 +158,7 @@ function Waveform() {
           ))}
         </linearGradient>
       </defs>
-      <motion.path
+      <m.path
         d={WAVE_PATH}
         fill="none"
         stroke="url(#voice)"
@@ -181,7 +181,7 @@ function Reveal({
 }) {
   const reduce = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={reduce ? { opacity: 1, y: 0 } : undefined}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -189,7 +189,7 @@ function Reveal({
       transition={reduce ? INSTANT : { duration: 0.5, ease: [0.22, 0.61, 0.36, 1], delay }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -246,7 +246,20 @@ function ExternalOrText({
   );
 }
 
+/* LazyMotion + `m` ships only the domAnimation feature set (animations,
+   variants, gestures including whileInView), not the full `motion` bundle
+   (drag, pan, layout animation), none of which this page uses. `strict` makes a
+   stray `motion.*` component throw instead of quietly pulling the full bundle
+   back in. */
 export default function HomeContent({ initialYear }: { initialYear: number }) {
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <Page initialYear={initialYear} />
+    </LazyMotion>
+  );
+}
+
+function Page({ initialYear }: { initialYear: number }) {
   /* The route is statically prerendered, so seed the client with the build year
      to keep hydration identical, then reconcile to the browser's year on mount.
      No-JS clients retain the build year until the next deployment, and a page
@@ -272,7 +285,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
     <main className="mx-auto max-w-3xl px-6 md:px-8 py-16 md:py-24">
       {/* ---------------------------------------------------------- Hero */}
       <header>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? INSTANT : { duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
@@ -333,18 +346,18 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           >
             {personalInfo.status}
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           className="mt-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={reduce ? INSTANT : { duration: 0.8, delay: 0.3 }}
         >
           <Waveform />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           className={`mt-10 ${PROSE} space-y-5`}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -356,7 +369,7 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
           <p className="body-copy" style={{ color: "var(--text-secondary)" }}>
             <AnnotatedText segments={personalInfo.bio.focus.segments} />
           </p>
-        </motion.div>
+        </m.div>
       </header>
 
       {/* ----------------------------------------------------- Currently */}
