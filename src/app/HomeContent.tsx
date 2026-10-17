@@ -198,7 +198,7 @@ function Reveal({
 
 function Marker({ num, label }: { num: string; label: string }) {
   return (
-    <div className="flex items-center gap-4 mb-8">
+    <div className="flex items-center gap-4 mb-2">
       <span className="serif italic text-2xl" style={{ color: "var(--violet)" }}>
         {num}
       </span>
@@ -538,8 +538,10 @@ export default function HomeContent({ initialYear }: { initialYear: number }) {
 
       {/* ------------------------------------------------------- Contact */}
       <Section num={ROMAN[5]} label="Contact">
+        {/* pt-5 matches the ROW_Y top padding every other section opens with,
+            so the gap under each section heading is the same 28px everywhere. */}
         <p
-          className={`body-copy ${PROSE}`}
+          className={`body-copy ${PROSE} pt-5`}
           style={{ color: "var(--text-secondary)" }}
         >
           {personalInfo.contactBlurb}
