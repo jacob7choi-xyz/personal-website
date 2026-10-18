@@ -13,9 +13,9 @@
  * What it does: serves the existing production build (`next start`, bound to
  * 127.0.0.1 only), drives headless Chrome over the DevTools protocol, and for
  * each case asserts that the hero and every section (heading and body) are
- * fully visible, the waveform is drawn, the name and every section label sit
- * on one line, nothing overflows horizontally, and the console carries no
- * unexpected errors.
+ * fully visible, the waveform and footer signature are drawn, the name and
+ * every section label sit on one line, nothing overflows horizontally, and the
+ * console carries no unexpected errors.
  *
  *   npm run build && npm run check:render
  *
@@ -209,7 +209,13 @@ const PROBE = `(() => {
     .map((el) => el.textContent);
   const wave = document.querySelector('svg[viewBox="0 0 1000 70"] path');
   const dash = wave ? getComputedStyle(wave).strokeDasharray : null;
+  const sigPieces = [...document.querySelectorAll('path[stroke="url(#sigGrad)"]')];
+  const sigFill = document.querySelector('rect[fill="url(#sigFeather)"]');
   return {
+    sigPieces: sigPieces.length,
+    sigDrawn: sigPieces.length > 0 && sigPieces.every((p) => parseFloat(getComputedStyle(p).strokeDashoffset) === 0),
+    sigFilled: !!sigFill && getComputedStyle(sigFill).transform === 'none',
+    sigInstant: [...sigPieces, sigFill].every((el) => el && getComputedStyle(el).transitionProperty === 'none'),
     hero,
     sections,
     waveOpacity: opacity(wave),
@@ -256,6 +262,16 @@ async function runCase(devtoolsPort, { motion, width }) {
   if (r.sections.length === 0) problems.push("no sections found");
   if (r.sections.some((o) => o < 0.99)) problems.push(`section(s) not fully visible: ${JSON.stringify(r.sections)}`);
   if (r.waveOpacity < 0.99 || !r.waveDrawn) problems.push(`waveform not drawn (opacity ${r.waveOpacity})`);
+  /* The footer signature (outline pieces and fill) must be at its end state
+     wherever the end state is immediate. Not checked under normal motion: the
+     probe runs about 1s after the footer scrolls into view, mid-animation. */
+  if (motion !== "no-preference" && (!r.sigDrawn || !r.sigFilled))
+    problems.push(`signature not at its end state (${r.sigPieces} pieces, drawn ${r.sigDrawn}, filled ${r.sigFilled})`);
+  /* By the time the probe runs, a staggered reveal would also have finished,
+     so the end state alone cannot show that reduced motion skipped it. The
+     global reduced-motion rule shortens transition durations but not delays;
+     the component must turn the transitions off. */
+  if (motion === "reduce" && !r.sigInstant) problems.push("signature still transitions under reduced motion");
   if (r.wrapped.length) problems.push(`wraps onto a second line: ${JSON.stringify(r.wrapped)}`);
   if (r.overflowX) problems.push("horizontal overflow");
   const unexpected = page.consoleLines.filter((line) => !EXPECTED_CONSOLE.some((ok) => line.startsWith(ok)));
