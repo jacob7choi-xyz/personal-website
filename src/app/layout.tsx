@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 // stay identical. The selectors match the server-rendered starting styles,
 // which were observed to stay in the DOM unchanged until an element is
 // revealed (live page, 2026-10-17).
-const END_STATE = `[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}`;
+const END_STATE = `[style*="opacity:0"]{opacity:1!important;transform:none!important}path[stroke="url(#voice)"]{opacity:1!important;stroke-dasharray:none!important}path[stroke="url(#sigGrad)"]{stroke-dashoffset:0!important}rect[fill="url(#sigFeather)"]{transform:none!important}`;
 
 export default function RootLayout({
   children,
@@ -47,7 +47,7 @@ export default function RootLayout({
         {/* Without JavaScript nothing animates, so the opacity-0 starting state
             the server renders for every animated block would never clear. This
             shows the end state instead: animated wrappers, the waveform, and
-            the footer signature. Inert whenever scripts run. */}
+            the footer signature's outline and fill. Inert whenever scripts run. */}
         <noscript>
           <style>{END_STATE}</style>
         </noscript>

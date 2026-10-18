@@ -112,7 +112,7 @@ docs/AUDIT-2026-07.md           # Canonical audit record
 docs/adr/                       # Architecture decision records
 public/                         # Headshot
 scripts/
-├── generate-signature.cjs      # Offline generator for the signature path
+├── generate-signature.cjs      # Offline generator for the signature paths
 ├── GreatVibes.ttf              # Font it reads
 ├── GreatVibes-OFL.txt          # Its licence, which must travel with the font
 ├── GreatVibes-PROVENANCE.md    # Where the font came from, pinned upstream and hashes
@@ -149,7 +149,7 @@ src/
     ├── index.ts                # Barrel exports
     ├── socials.ts              # personalInfo, socialLinks, bio prose and its annotations
     ├── experience.ts           # currentExperience, pastExperience, achievementGroups, projects, certifications, awards
-    └── signature.ts            # Generated signature path, do not hand edit
+    └── signature.ts            # Generated signature paths, do not hand edit
 ```
 
 ## Content
@@ -167,9 +167,9 @@ build fails naming the phrase, instead of silently dropping the highlight.
 
 ## Signature
 
-The footer copyright mark is a cursive signature that draws itself on scroll. `src/constants/signature.ts` is a generated artifact, a single SVG path traced from the Great Vibes font with connectors bridging the word gaps. The browser ships the path string only, no font and no library at runtime. Drawing uses `pathLength="1"` with an animated `stroke-dashoffset`, triggered by an `IntersectionObserver`.
+The footer copyright mark is a cursive signature that writes itself on scroll, the same two steps as the header on the GitHub profile: the outline is written left to right at a constant pen speed, then the colour fill sweeps in. `src/constants/signature.ts` is a generated artifact, the signature's 21 pieces (letter contours, connectors bridging the word gaps, the flourish) as SVG paths traced from the Great Vibes font, in writing order. The generator simplifies each piece with Ramer-Douglas-Peucker at a tolerance of 0.4 units and rounds to whole units; against the previous unsimplified path the largest measured difference was 1.31 units, about 0.14 CSS px at the footer's 32px height. The browser ships the path strings only, no font and no library at runtime. Each piece is its own path with `pathLength="1"` and an animated `stroke-dashoffset`; the fill is revealed by a mask. Both are CSS transitions, triggered by an `IntersectionObserver`.
 
-Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`. Everything it needs is in the repository: `opentype.js` is a declared dev dependency and the Great Vibes font is committed alongside its OFL licence, so a fresh clone reproduces the committed path byte for byte.
+Regenerate with `NODE_PATH=./node_modules node scripts/generate-signature.cjs`. Everything it needs is in the repository: `opentype.js` is a declared dev dependency and the Great Vibes font is committed alongside its OFL licence, so a fresh clone reproduces the committed paths byte for byte.
 
 ---
 
