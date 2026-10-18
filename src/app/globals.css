@@ -219,24 +219,15 @@ body {
   }
 }
 
-/* Project row hover: title shifts toward cyan, arrow appears */
-.project-row .proj-title {
-  transition: color 0.2s;
-}
-.project-row:hover .proj-title {
-  color: var(--cyan-soft);
+/* Project rows: the arrow after the title behaves as on linked list titles
+   (.title-link), turning green on hover or keyboard focus. The whole row is
+   the link, so the row's state drives it. */
+.project-row:hover .title-arrow,
+.project-row:focus-visible .title-arrow {
+  background-color: var(--violet);
 }
 .project-row:hover .pill {
   border-color: var(--rule-soft);
-}
-.project-row .proj-arrow {
-  opacity: 0;
-  transform: translate(-4px, 4px);
-  transition: opacity 0.25s, transform 0.25s;
-}
-.project-row:hover .proj-arrow {
-  opacity: 1;
-  transform: translate(0, 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
