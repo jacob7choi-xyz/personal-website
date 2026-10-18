@@ -36,8 +36,6 @@ export const socialLinks = [
   ] satisfies readonly SocialLink[];
   
   export const personalInfo = {
-    name: "Jacob J. Choi",
-    title: "AI Engineer • Research to Production • Entrepreneur",
     email: "jacob77choi@gmail.com",
     status: "\"Melos contra mundum\"",
     contactBlurb: "Open to conversations about AI engineering, research-to-production, and good music.",
