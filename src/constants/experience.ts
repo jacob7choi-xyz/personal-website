@@ -205,7 +205,9 @@ export const awards = [
     id: 1,
     title: "Korean Ancestry Grant",
     issuer: "William Orr Dingwall Foundation",
-    issuerLink: "https://dingwallfoundation.org/",
+    /* issuerLink removed 2026-10-17: dingwallfoundation.org (apex, www and http)
+       returned HTTP 500 with a server-side PHP/Composer version error. Re-add
+       "https://dingwallfoundation.org/" once it loads again. */
     link: "https://drive.google.com/file/d/1vVUZGjFkhmm8czIiwXRD8SXOdXfD_vGZ/view?usp=sharing",
     year: "2023, 2024",
   },
