@@ -233,21 +233,30 @@ function ExternalOrText({ link, children }: { link?: string; children: React.Rea
   );
 }
 
-/* A list title that may link out. Linked titles carry a small arrow instead of
-   an underline. The last word and the arrow share a nowrap span so a title
-   that wraps keeps the arrow beside its last word: without it the arrow sat
-   alone on its own line for three titles at 320 and 360px (measured
-   2026-10-17). */
-function TitleLink({ link, title }: { link?: string; title: string }) {
-  if (!link) return <>{title}</>;
+/* A title followed by the link arrow. The last word and the arrow share a
+   nowrap span so a title that wraps keeps the arrow beside its last word:
+   without it the arrow sat alone on its own line for three titles at 320 and
+   360px (measured 2026-10-17). Used by linked list titles and project rows. */
+function TitleWithArrow({ title }: { title: string }) {
   const cut = title.lastIndexOf(" ") + 1;
   return (
-    <a className="title-link" href={link} target="_blank" rel="noopener noreferrer">
+    <>
       {title.slice(0, cut)}
       <span className="whitespace-nowrap">
         {title.slice(cut)}
         <span className="title-arrow" aria-hidden="true" />
       </span>
+    </>
+  );
+}
+
+/* A list title that may link out. Linked titles carry the arrow instead of an
+   underline. */
+function TitleLink({ link, title }: { link?: string; title: string }) {
+  if (!link) return <>{title}</>;
+  return (
+    <a className="title-link" href={link} target="_blank" rel="noopener noreferrer">
+      <TitleWithArrow title={title} />
     </a>
   );
 }
@@ -411,23 +420,8 @@ function Page({ initialYear }: { initialYear: number }) {
               className={`project-row block ${ROW_Y} focus-ring`}
               style={{ borderBottom: rule }}
             >
-              <h3 className="serif item-title proj-title">
-                {p.title}
-                <svg
-                  className="proj-arrow inline-block ml-1.5 align-[-0.1em]"
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--cyan)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M7 17 17 7" />
-                  <path d="M8 7h9v9" />
-                </svg>
+              <h3 className="serif item-title">
+                <TitleWithArrow title={p.title} />
               </h3>
               <p
                 className={`body-copy mt-1.5 ${PROSE}`}
