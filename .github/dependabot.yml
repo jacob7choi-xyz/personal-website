@@ -34,6 +34,17 @@ updates:
     commit-message:
       prefix: chore
     open-pull-requests-limit: 5
+    # Minor and patch updates arrive as ONE weekly PR. On 2026-10-22 five
+    # separate PRs (15 notification emails) were reviewed and landed as one
+    # commit anyway, and pairs that must move together were split across PRs
+    # (react and react-dom; next and eslint-config-next, which had no PR of its
+    # own). Majors are left out on purpose: each still gets its own PR, so a
+    # breaking upgrade is reviewed on its own and cannot hold the routine ones
+    # back.
+    groups:
+      npm-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
     # @types/node tracks the Node RELEASE line, so its major is not a normal
     # upgrade: it is a statement about which runtime the code is compiled
     # against. This project deploys on Node 24 (engines.node, and .nvmrc for
