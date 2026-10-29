@@ -6,13 +6,5 @@
     "expires": "EXCLUSIVE, YYYY-MM-DD, evaluated at 00:00 UTC. The exception applies while now < expires, so the date itself is the first day it no longer suppresses.",
     "unused": "FATAL. Every entry must correspond to a currently reported advisory. An unused but unexpired entry is dormant suppression authority: if a dependency change reintroduced the advisory it would be suppressed again with no human re-review. Delete entries when the advisory disappears."
   },
-  "exceptions": [
-    {
-      "advisory": "GHSA-vfj7-8cjw-p6xm",
-      "package": "braces",
-      "approvedSeverity": "high",
-      "expires": "2026-12-07",
-      "reason": "No patched version exists (affected <= 3.0.3, the latest release). Dev-only: reached only through eslint-config-next (@next/eslint-plugin-next, fast-glob, micromatch) since the Tailwind 4 migration removed the tailwindcss paths on 2026-10-16; the production-graph audit is clean. Exploit requires attacker-supplied brace patterns; every pattern here is developer-authored config. Accepted 2026-10-07, re-reviewed and renewed 2026-10-17, see SECURITY-AUDIT.md."
-    }
-  ]
+  "exceptions": []
 }

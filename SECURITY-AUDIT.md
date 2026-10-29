@@ -3,10 +3,10 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-10-17.** One accepted risk exception, expiring
-2026-12-07. Every entry must carry an expiry, because a risk acceptance without
-one becomes a permanent blind spot. On expiry the gate fails until that entry is
-re-reviewed. That is intentional.
+**Evidence date: 2026-10-29.** No accepted risk exceptions; the gate reports
+zero advisories. When an exception is needed, every entry must carry an expiry,
+because a risk acceptance without one becomes a permanent blind spot. On expiry
+the gate fails until that entry is re-reviewed. That is intentional.
 
 ## How to read this
 
@@ -38,55 +38,15 @@ for expiry:
 
 ## Current dispositions
 
-One entry, accepted 2026-10-07, re-reviewed and renewed 2026-10-17, expiring
-**2026-12-07** (exclusive). The
-package is marked dev by npm, and `npm audit --omit=dev` reports zero
-advisories. That is the npm view; the execution-phase view, which is the one that
-matters, is stated in the entry.
+None, as of 2026-10-29. `.github/audit-allowlist.json` has an empty
+`exceptions` array and `node scripts/audit-check.mjs` reports zero advisories.
 
-An exception is used here only because the dependency graph genuinely cannot
-select a patched version. That was checked against the parent's declared range
-before writing the entry, which is the lesson recorded under 2026-09-11 below.
+An exception is used only when the dependency graph genuinely cannot select a
+patched version. Check the parent's declared range before writing one, which is
+the lesson recorded under 2026-09-11 below.
 
-| Advisory | Package | Severity | Why no upgrade | Execution phase | Exploit precondition | Satisfied here? |
-|---|---|---|---|---|---|---|
-| GHSA-vfj7-8cjw-p6xm | braces 3.0.3 | high | **No patched version exists.** Affected `<= 3.0.3`, which is the latest release | Lint time (file resolution) | Attacker-supplied deeply nested brace patterns crash the process with a `RangeError` | No. Patterns come only from developer-authored config (the ESLint config) |
-
-Dependency path, from `npm ls`, so a reviewer can re-derive it:
-
-- `braces`: `eslint-config-next` -> `@next/eslint-plugin-next` -> `fast-glob`
-  3.3.1 -> `micromatch` -> `braces`. This is now the only path. The Tailwind 3
-  paths (`chokidar`, `micromatch`, `fast-glob`) left with the Tailwind 4
-  migration on 2026-10-16, as this file predicted they would without clearing
-  the entry.
-
-This is not "irrelevant because dev". Lint and build execute in CI and on the
-maintainer's machine, so they are supply-chain surface. The honest classification
-is: no identified exploit path under the assumptions above, not request-time
-reachable, lower priority, not zero.
-
-**At expiry, re-check in this order:** a patched `braces` release; an
-`eslint-config-next` release that changes the path. If neither has landed, re-review against the assumptions and either renew with a new
-date or escalate. Do not renew by editing the date alone.
-
-**Re-review, 2026-10-17 (renewed to 2026-12-07).** Neither condition has landed:
-- The advisory (GitHub `/advisories/GHSA-vfj7-8cjw-p6xm`, updated 2026-10-02,
-  not withdrawn) still lists affected `<= 3.0.3` with no first patched
-  version, and `npm view braces version` is 3.0.3.
-- The newest `eslint-config-next`, 16.4.2, depends on `@next/eslint-plugin-next`
-  16.4.2, which still pins `fast-glob` 3.3.1. Upgrading would not change the
-  path. The installed path is unchanged: `npm ls braces` gives
-  eslint-config-next 16.4.1 -> @next/eslint-plugin-next 16.4.1 -> fast-glob
-  3.3.1 -> micromatch 4.0.8 -> braces 3.0.3.
-- The assumptions still hold. Brace patterns come only from the
-  developer-authored ESLint config. The production-graph audit is clean.
-  No new advisory identities appeared.
-
-Renewed for one month, the same cadence as the original acceptance. Not
-"forever until fixed".
-
-`npm audit fix --force` proposes `eslint-config-next` 14.2.35, a major
-DOWNGRADE of the linter. Do not take it.
+`npm audit fix --force` has in the past proposed `eslint-config-next` 14.2.35,
+a major DOWNGRADE of the linter. Do not take it.
 
 ### Why not force the versions with `overrides`
 
@@ -98,6 +58,31 @@ override becomes justified and must then be verified by build and by rendering,
 not merely by a green audit.
 
 ### Resolved since this document was written
+
+**2026-10-29: GHSA-mrhx-c7xc-m3w5 (`zod`) cleared by an in-range update, and
+the `braces` exception removed after GitHub withdrew its advisory.** Both
+showed up as a failing gate on every branch (main's weekly scheduled run on
+2026-10-26, then the Dependabot PRs on 2026-10-29), from changes to GitHub's
+advisory database on 2026-10-23 rather than from any change here.
+
+- `zod` (high, memory exhaustion while validating oversized array input,
+  affected below 4.6.6). Its only path is lint tooling: `eslint-config-next` ->
+  `eslint-plugin-react-hooks` 7.1.1, which declares `zod` `^3.25.0 || ^4.0.0`,
+  so the patched 4.6.7 was selectable without an override. `npm update zod`
+  changed exactly one lockfile entry, 4.4.3 -> 4.6.7. Exploit precondition:
+  attacker-supplied input reaching a zod array schema; here zod only validates
+  developer-authored lint configuration, so no identified exploit path.
+  Upgraded rather than excepted, because a selectable patch existed.
+- `braces` GHSA-vfj7-8cjw-p6xm was withdrawn on 2026-10-23 ("not a practically
+  exploitable vulnerability", GitHub `/advisories/GHSA-vfj7-8cjw-p6xm`). braces
+  3.0.3 is still installed through `@next/eslint-plugin-next` -> `fast-glob`
+  3.3.1 -> `micromatch`; only the advisory changed. Its exception (accepted
+  2026-10-07, renewed 2026-10-17 to expire 2026-12-07) was deleted because the
+  gate fails on an unused entry, which would otherwise be dormant suppression
+  authority.
+
+Advisory identities went from two reported (one approved, one new) to zero,
+with none new.
 
 **2026-10-16: GHSA-rj75-hqrm-r3gf (`postcss-selector-parser`) cleared by the
 Tailwind 4 migration.** Its only paths were `tailwindcss` 3 and that package's
