@@ -154,8 +154,8 @@ export const projects = [
     id: 1,
     title: "HarmonyRestorer",
     description:
-      "AI-powered audio restoration platform with a custom-trained OpGAN benchmarked on 146K noisy/clean pairs (SDR 23.7 dB, PESQ 4.04)",
-    tech: "React, FastAPI, PyTorch",
+      "Audio restoration built on a from-scratch 1D Operational GAN (Ince et al. 2022), trained on 146K noisy/clean pairs and deployed from CI after review. 1,277 tests.",
+    tech: "PyTorch, FastAPI, React, TypeScript, AWS Lambda",
     link: "https://github.com/jacob7choi-xyz/harmonyrestorer-v1",
   },
   {
