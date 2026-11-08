@@ -6,5 +6,13 @@
     "expires": "EXCLUSIVE, YYYY-MM-DD, evaluated at 00:00 UTC. The exception applies while now < expires, so the date itself is the first day it no longer suppresses.",
     "unused": "FATAL. Every entry must correspond to a currently reported advisory. An unused but unexpired entry is dormant suppression authority: if a dependency change reintroduced the advisory it would be suppressed again with no human re-review. Delete entries when the advisory disappears."
   },
-  "exceptions": []
+  "exceptions": [
+    {
+      "advisory": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "approvedSeverity": "moderate",
+      "expires": "2026-12-08",
+      "reason": "Patched only in minimatch 11.0.1; no patched 10.x exists, and every parent (eslint 10.13.0 and 10.14.0 ^10.2.5/^10.2.6, @eslint/config-array ^10.2.4, @typescript-eslint/typescript-estree ^10.2.2) accepts only 10.x, so the graph cannot select a fix without an override. Lint-time only. Exploit needs an attacker-supplied glob pattern AND optimizationLevel >= 2; minimatch defaults to 1 and none of those callers sets it, and every pattern here is developer-authored lint config. Accepted 2026-11-08, see SECURITY-AUDIT.md."
+    }
+  ]
 }
