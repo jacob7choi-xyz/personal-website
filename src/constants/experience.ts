@@ -154,8 +154,8 @@ export const projects = [
     id: 1,
     title: "HarmonyRestorer",
     description:
-      "AI-powered audio restoration platform with a custom-trained OpGAN benchmarked on 146K noisy/clean pairs (SDR 23.7 dB, PESQ 4.04)",
-    tech: "React, FastAPI, PyTorch",
+      "Audio restoration built on a from-scratch 1D Operational GAN (Ince et al. 2022), trained on 146K noisy/clean pairs and deployed from CI after review. 1,277 tests.",
+    tech: "PyTorch, FastAPI, React + TypeScript, AWS Lambda, Docker",
     link: "https://github.com/jacob7choi-xyz/harmonyrestorer-v1",
   },
   {
@@ -163,7 +163,7 @@ export const projects = [
     title: "TuneTales",
     description:
       "AI-powered music storytelling platform that turns artist histories into immersive, narrative-driven experiences",
-    tech: "Next.js, Python, TypeScript",
+    tech: "Next.js, React, Tailwind CSS, FastAPI, Claude, Perplexity",
     link: "https://github.com/jacob7choi-xyz/tunetales-v1",
   },
   {
@@ -171,7 +171,7 @@ export const projects = [
     title: "Polymarket Research",
     description:
       "Arbitrage detection and calibration research across 9,900+ prediction markets with production-grade resilience and observability",
-    tech: "Python, httpx, Pydantic, Prometheus, Docker, SQLite",
+    tech: "Python, Prometheus, Grafana, Docker, Pydantic",
     link: "https://github.com/jacob7choi-xyz/polymarket-research",
   },
 ] satisfies readonly Project[];

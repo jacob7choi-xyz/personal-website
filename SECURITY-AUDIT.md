@@ -3,10 +3,10 @@
 Machine-enforced by `scripts/audit-check.mjs` against `.github/audit-allowlist.json`.
 This file carries the reasoning; the allowlist carries the decisions the gate reads.
 
-**Evidence date: 2026-10-29.** No accepted risk exceptions; the gate reports
-zero advisories. When an exception is needed, every entry must carry an expiry,
-because a risk acceptance without one becomes a permanent blind spot. On expiry
-the gate fails until that entry is re-reviewed. That is intentional.
+**Evidence date: 2026-11-08.** One accepted risk exception, expiring
+2026-12-08. Every entry must carry an expiry, because a risk acceptance without
+one becomes a permanent blind spot. On expiry the gate fails until that entry is
+re-reviewed. That is intentional.
 
 ## How to read this
 
@@ -38,12 +38,32 @@ for expiry:
 
 ## Current dispositions
 
-None, as of 2026-10-29. `.github/audit-allowlist.json` has an empty
-`exceptions` array and `node scripts/audit-check.mjs` reports zero advisories.
+One entry, accepted 2026-11-08, expiring **2026-12-08** (exclusive).
 
-An exception is used only when the dependency graph genuinely cannot select a
-patched version. Check the parent's declared range before writing one, which is
-the lesson recorded under 2026-09-11 below.
+An exception is used here only because the dependency graph cannot select a
+patched version. That was checked against every parent's declared range before
+writing the entry, which is the lesson recorded under 2026-09-11 below.
+
+| Advisory | Package | Severity | Why no upgrade | Execution phase | Exploit precondition | Satisfied here? |
+|---|---|---|---|---|---|---|
+| GHSA-g3hv-75wg-m249 | minimatch 10.2.6 | moderate | Patched only in **11.0.1**, a new major; no patched 10.x exists (10.2.6 is the last). Every parent accepts only 10.x: eslint 10.13.0 `^10.2.5` (10.14.0, the newest, `^10.2.6`), `@eslint/config-array` 0.23.5 `^10.2.4`, `@typescript-eslint/typescript-estree` 8.65.0 and 8.72.1 `^10.2.2` | Lint time (file matching) | An attacker-supplied glob pattern, AND `optimizationLevel >= 2`, which turns on the amplifying preprocessing | No. minimatch defaults `optimizationLevel` to 1 (`dist/commonjs/index.js:341`) and none of the three callers sets it (grep of their installed code, 2026-11-08). Patterns come only from developer-authored lint configuration |
+
+Dependency paths, from `npm ls minimatch`: eslint -> minimatch 10.2.6; eslint ->
+`@eslint/config-array` -> minimatch; `eslint-config-next` -> `typescript-eslint`
+-> `@typescript-eslint/typescript-estree` -> minimatch. The minimatch 3.1.5 that
+`eslint-plugin-import`, `-jsx-a11y` and `-react` use is outside the affected
+range (`>= 7.0.0, < 11.0.1`).
+
+This is not "irrelevant because dev". Lint executes in CI and on the
+maintainer's machine, so it is supply-chain surface. The honest classification
+is: no identified exploit path under the assumptions above, not request-time
+reachable, lower priority, not zero.
+
+**At expiry, re-check in this order:** an eslint, `@eslint/config-array` or
+typescript-eslint release whose range admits minimatch 11; a patched 10.x
+backport. If neither has landed, re-review against the assumptions and either
+renew with a new date or escalate. Do not renew by editing the date alone.
+Forcing 11 with `overrides` is rejected for now, see below.
 
 `npm audit fix --force` has in the past proposed `eslint-config-next` 14.2.35,
 a major DOWNGRADE of the linter. Do not take it.
